@@ -36,7 +36,7 @@ def detect(source):
         begin_offset = mystr.start()
         beginstr = source[:begin_offset]
     if begin_offset != -1:
-        """ Find endstr"""
+        """Find endstr"""
         source_end = source[begin_offset:]
         if source_end.split("')))", 1)[0] == source_end:
             try:
@@ -157,5 +157,5 @@ class Unbaser(object):
         """Decodes a  value to an integer."""
         ret = 0
         for index, cipher in enumerate(string[::-1]):
-            ret += (self.base ** index) * self.dictionary[cipher]
+            ret += (self.base**index) * self.dictionary[cipher]
         return ret

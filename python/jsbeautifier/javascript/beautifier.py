@@ -48,12 +48,14 @@ class BeautifierFlags:
         self.inline_frame = False
         self.if_block = False
         self.else_block = False
+        self.class_start_block = False
         self.do_block = False
         self.do_while = False
         self.import_block = False
         self.in_case = False
         self.in_case_statement = False
         self.case_body = False
+        self.case_block = False
         self.indentation_level = 0
         self.alignment = 0
         self.line_indent_level = 0
@@ -608,6 +610,8 @@ class Beautifier:
                             )
                         ):
                             self._output.space_before_token = True
+                    elif self._flags.parent and self._flags.parent.class_start_block:
+                        self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -728,10 +732,13 @@ class Beautifier:
         ):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
-            if self._last_last_text not in ["class", "interface"]:
-                self.set_mode(MODE.ObjectLiteral)
-            else:
+            if self._last_last_text in [
+                "class",
+                "interface",
+            ] and second_token.text not in [":", ","]:
                 self.set_mode(MODE.BlockStatement)
+            else:
+                self.set_mode(MODE.ObjectLiteral)
         elif (
             self._flags.last_token.type == TOKEN.OPERATOR
             and self._flags.last_token.text == "=>"
@@ -754,6 +761,10 @@ class Beautifier:
             self.set_mode(MODE.ObjectLiteral)
         else:
             self.set_mode(MODE.BlockStatement)
+
+        if self._flags.last_token:
+            if reserved_array(self._flags.last_token.previous, ["class", "extends"]):
+                self._flags.class_start_block = True
 
         empty_braces = (
             (next_token is not None)
@@ -820,7 +831,7 @@ class Beautifier:
 
             elif self._flags.last_token.type not in [TOKEN.OPERATOR, TOKEN.START_EXPR]:
                 if (
-                    self._flags.last_token.type == TOKEN.START_BLOCK
+                    self._flags.last_token.type in [TOKEN.START_BLOCK, TOKEN.SEMICOLON]
                     and not self._flags.inline_frame
                 ):
                     self.print_newline()
@@ -874,7 +885,10 @@ class Beautifier:
                 and self._flags.mode != MODE.ObjectLiteral
             ):
                 current_token.type = TOKEN.WORD
-            elif current_token.text == "import" and self._tokens.peek().text == "(":
+            elif current_token.text == "import" and self._tokens.peek().text in [
+                "(",
+                ".",
+            ]:
                 current_token.type = TOKEN.WORD
             elif current_token.text in ["as", "from"] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD
@@ -945,7 +959,7 @@ class Beautifier:
             current_token, ["case", "default"]
         ):
             self.print_newline()
-            if self._flags.last_token.type != TOKEN.END_BLOCK and (
+            if (not self._flags.case_block) and (
                 self._flags.case_body or self._options.jslint_happy
             ):
                 self.deindent()
@@ -1194,7 +1208,7 @@ class Beautifier:
                 or current_token.previous.text == ")"
             )
         ):
-            # This conditionial checks backtick strings and makes no changes
+            # This conditional checks backtick strings and makes no changes
             pass
         elif self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1300,12 +1314,6 @@ class Beautifier:
             preserve_statement_flags = not isGeneratorAsterisk
             self.handle_whitespace_and_comments(current_token, preserve_statement_flags)
 
-        if reserved_array(self._flags.last_token, _special_word_set):
-            # return had a special handling in TK_WORD
-            self._output.space_before_token = True
-            self.print_token(current_token)
-            return
-
         # hack for actionscript's import .*;
         if current_token.text == "*" and self._flags.last_token.type == TOKEN.DOT:
             self.print_token(current_token)
@@ -1331,8 +1339,10 @@ class Beautifier:
             if self._tokens.peek().type != TOKEN.START_BLOCK:
                 self.indent()
                 self.print_newline()
+                self._flags.case_block = False
             else:
                 self._output.space_before_token = True
+                self._flags.case_block = True
 
             return
 
@@ -1436,9 +1446,19 @@ class Beautifier:
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
             if current_token.newlines and (
-                current_token.text == "--" or current_token.text == "++"
+                current_token.text == "--"
+                or current_token.text == "++"
+                or current_token.text == "~"
             ):
-                self.print_newline(preserve_statement_flags=True)
+                new_line_needed = (
+                    reserved_array(self._flags.last_token, _special_word_set)
+                    and current_token.newlines
+                )
+                if new_line_needed and (
+                    self._previous_flags.if_block or self._previous_flags.else_block
+                ):
+                    self.restore_mode()
+                self.print_newline(new_line_needed, True)
 
             if self._flags.last_token.text == ";" and self.is_expression(
                 self._flags.mode
@@ -1457,16 +1477,12 @@ class Beautifier:
             elif self._flags.last_token.type == TOKEN.OPERATOR:
                 # a++ + ++b
                 # a - -b
-                space_before = (
-                    current_token.text
-                    in [
-                        "--",
-                        "-",
-                        "++",
-                        "+",
-                    ]
-                    and self._flags.last_token.text in ["--", "-", "++", "+"]
-                )
+                space_before = current_token.text in [
+                    "--",
+                    "-",
+                    "++",
+                    "+",
+                ] and self._flags.last_token.text in ["--", "-", "++", "+"]
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
@@ -1585,6 +1601,9 @@ class Beautifier:
             pass
         else:
             self.handle_whitespace_and_comments(current_token, True)
+
+        if re.search("^([0-9])+$", self._flags.last_token.text):
+            self._output.space_before_token = True
 
         if reserved_array(self._flags.last_token, _special_word_set):
             self._output.space_before_token = False

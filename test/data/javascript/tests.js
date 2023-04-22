@@ -755,6 +755,25 @@ exports.test_data = {
           output: 'a = f[{{s}}b{{s}}];'
         },
         {
+          comment: 'Issue #1151 - inside class methods',
+          input: [
+            'export default class Test extends Component {',
+            '    render() {',
+            '        someOther();',
+            '        return null;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'export default class Test extends Component {',
+            '    render({{e}}) {',
+            '        someOther({{e}});',
+            '        return null;',
+            '    }',
+            '}'
+          ]
+        },
+        {
           input: [
             '{',
             '    files: a[][ {',
@@ -1805,6 +1824,9 @@ exports.test_data = {
           '    x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -1878,6 +1900,9 @@ exports.test_data = {
           '    == x',
           '    >= y <= z > aa',
           '    < ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac',
           '    + -ad'
         ]
@@ -1953,6 +1978,9 @@ exports.test_data = {
           '    == x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -3164,6 +3192,71 @@ exports.test_data = {
           output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y: {\n{{c}}    break;\n{{c}}\}\n}'
         },
         {
+          comment: "Issue #1622 - basic class with function definitions",
+          input: [
+            'class blah {',
+            '    constructor() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah {',
+            '    constructor{{nf}}() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff{{nf}}() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class with extends and function definitions",
+          input: [
+            'class blah extends something {',
+            '    constructor() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction() {',
+            'this.y = 1;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah extends something {',
+            '    constructor{{nf}}() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction{{nf}}() {',
+            '        this.y = 1;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class/extends as a property",
+          input: [
+            'var a.class = {',
+            ' ...abc(),',
+            '}',
+            'b.extends({',
+            ' bb.s(),',
+            '})'
+          ],
+          output: [
+            'var a.class = {',
+            '    ...abc(),',
+            '}',
+            'b.extends({',
+            '    bb.s(),',
+            '})'
+          ]
+        },
+        {
           comment: 'typical greasemonkey start',
           fragment: true,
           unchanged: '// comment 2\n(function{{f}}()'
@@ -3275,12 +3368,194 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #1852 - semicolon followed by block statement",
+          unchanged: [
+            '(function() {',
+            '    some_code_here();',
+            '    {',
+            '        /* IE11 let bug bypass */',
+            '        let index;',
+            '        for (index in a) {',
+            '            a[index];',
+            '        }',
+            '    }',
+            '})();'
+          ]
+        }, {
+          comment: "Issue #1852 - semicolon followed by block statement 2",
+          input: [
+            'let x = { A: 1 }; { console.log("hello"); }'
+          ],
+          output: [
+            'let x = {',
+            '    A: 1',
+            '};',
+            '{',
+            '    console.log("hello");',
+            '}'
+          ]
+        }, {
+          comment: "Issue #772",
+          input: [
+            'this.initAttributes([',
+            '"name",',
+            '["parent", null, "parentName"],',
+            '"length",',
+            '["id", this.name],',
+            ']);'
+          ],
+          output: [
+            'this.initAttributes([',
+            '    "name",',
+            '    ["parent", null, "parentName"],',
+            '    "length",',
+            '    ["id", this.name],',
+            ']);'
+          ]
+        }, {
           comment: "Issue #1663",
           unchanged: [
             '{',
             '    /* howdy',
             '    ',
             '    */',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return without semicolon followed by prefix on a new line",
+          input: [
+            'function x(){',
+            'return',
+            '++a',
+            '}',
+            '',
+            'while(true) {',
+            'return',
+            '--b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return',
+            '    --b',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095",
+          input: [
+            'function test(){',
+            'if(x) return',
+            '++x',
+            'var y= 1;',
+            '}',
+            'function t1(){',
+            'if(cc) return;',
+            'else return',
+            '--cc',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    if (x) return',
+            '    ++x',
+            '    var y = 1;',
+            '}',
+            '',
+            'function t1() {',
+            '    if (cc) return;',
+            '    else return',
+            '    --cc',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return with semicolon followed by a prefix on a new line",
+          input: [
+            'function x(){',
+            'return; ++a',
+            '}',
+            '',
+            'while(true){return; --b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return;',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return;',
+            '    --b',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class and interface word as an object property",
+          unchanged: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '    interface: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but with space after colon",
+          input: [
+            '{',
+            '    class : { a: 1,',
+            'b: 2,c : 3',
+            '    }',
+            '}'
+          ],
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but without spaces",
+          input: '{class:{a:1,b:2,c:3,}}',
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as a nested object property",
+          input: '{x:{a:1,class:2,c:3,}}',
+          output: [
+            '{',
+            '    x: {',
+            '        a: 1,',
+            '        class: 2,',
+            '        c: 3,',
+            '    }',
             '}'
           ]
         },
@@ -3440,6 +3715,22 @@ exports.test_data = {
             '}',
             'if (y) {',
             '    c();',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1683 - switch-case wrong indentation",
+          input: 'switch (x) { case 0: if (y == z) { a(); } else { b(); } case 1: c(); }',
+          output: [
+            'switch (x) {',
+            '    case 0:',
+            '        if (y == z) {',
+            '            a();',
+            '        } else {',
+            '            b();',
+            '        }',
+            '    case 1:',
+            '        c();',
             '}'
           ]
         },
@@ -3968,7 +4259,18 @@ exports.test_data = {
         { input: 'a=0x.g-12345.3e-10', output: 'a = 0x.g - 12345.3e-10' },
         { input: 'a=0x0.g-12345.3e-10', output: 'a = 0x0.g - 12345.3e-10' },
         { input: 'a=0x0.0g-12345.3e-10', output: 'a = 0x0 .0 g - 12345.3e-10' },
-
+        {
+          comment: 'exponent literals with underscore',
+          unchanged: 'a = 1_1e10'
+        },
+        { unchanged: 'a = 1_.3e10' },
+        { unchanged: 'a = 1_1.3e10' },
+        { unchanged: 'a = 1__1.3e10' },
+        { unchanged: 'a = 1._3e10' },
+        { unchanged: 'a = 1.3_e10' },
+        { unchanged: 'a = 1.3e_10' },
+        { unchanged: 'a = 1.3e1_0' },
+        { unchanged: 'a = 1.3e10_' },
         {
           comment: 'Decimal literals',
           unchanged: 'a = 0123456789;'
@@ -3986,6 +4288,14 @@ exports.test_data = {
         { input: 'a=00B0x0b0', output: 'a = 00 B0x0b0' },
         { input: 'a=0090x0', output: 'a = 0090 x0' },
         { input: 'a=0g0b0o0', output: 'a = 0 g0b0o0' },
+        {
+          comment: 'Decimal literals with underscore',
+          unchanged: 'a = 0_123456789'
+        },
+        { unchanged: 'a = 0__123456789' },
+        { unchanged: 'a = 0__' },
+        { unchanged: 'a = 0_1_2_3' },
+        { unchanged: 'a = 0_1_2_3_' },
 
         {
           comment: 'Hexadecimal literals',
@@ -4005,6 +4315,15 @@ exports.test_data = {
         { input: 'a=0x0B0x0b0', output: 'a = 0x0B0 x0b0' },
         { input: 'a=0X090x0', output: 'a = 0X090 x0' },
         { input: 'a=0Xg0b0o0', output: 'a = 0X g0b0o0' },
+        {
+          comment: 'Hexadecimal literals with underscore',
+          unchanged: 'a = 0x0_123456789abcdef'
+        },
+        { unchanged: 'a = 0x0__0123456789abcdef' },
+        { unchanged: 'a = 0x_0123456789abcdef' },
+        { unchanged: 'a = 0x__' },
+        { unchanged: 'a = 0x0_1_a_3' },
+        { unchanged: 'a = 0x_1_2_F_' },
 
         {
           comment: 'Octal literals',
@@ -4023,6 +4342,15 @@ exports.test_data = {
         { input: 'a=0o0B0x0b0', output: 'a = 0o0 B0x0b0' },
         { input: 'a=0O090x0', output: 'a = 0O0 90 x0' },
         { input: 'a=0Og0b0o0', output: 'a = 0O g0b0o0' },
+        {
+          comment: 'Octal literals with underscore',
+          unchanged: 'a = 0o0_1234567'
+        },
+        { unchanged: 'a = 0o0__1234567' },
+        { unchanged: 'a = 0o_01234567' },
+        { unchanged: 'a = 0o__' },
+        { unchanged: 'a = 0o0_1_2_3' },
+        { unchanged: 'a = 0o_1_2_3_' },
 
         {
           comment: 'Binary literals',
@@ -4041,6 +4369,17 @@ exports.test_data = {
         { input: 'a=0b0B0x0b0', output: 'a = 0b0 B0x0b0' },
         { input: 'a=0B090x0', output: 'a = 0B0 90 x0' },
         { input: 'a=0Bg0b0o0', output: 'a = 0B g0b0o0' },
+        {
+          comment: 'Binary literals with underscore',
+          unchanged: 'a = 0b0_10011'
+        },
+        { unchanged: 'a = 0b0__10011' },
+        { unchanged: 'a = 0b_010011' },
+        { unchanged: 'a = 0b__' },
+        { unchanged: 'a = 0b0_1_1_1' },
+        { unchanged: 'a = 0b_1_0_1_' },
+        { unchanged: 'a = 0B010_0_11;' },
+        { unchanged: 'a = 0b01_0011_0000_1111;' },
 
         {
           comment: 'BigInt literals',
@@ -4053,7 +4392,95 @@ exports.test_data = {
         { input: 'a=.0n', output: 'a = .0 n' },
         { input: 'a=1.0n', output: 'a = 1.0 n' },
         { input: 'a=1e0n', output: 'a = 1e0 n' },
-        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' }
+        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' },
+        {
+          comment: 'BigInt literals with underscore',
+          unchanged: 'a = 0_123456789n'
+        },
+        { unchanged: 'a = 0__123456789n' },
+        { unchanged: 'a = 0__n' },
+        { unchanged: 'a = 0_1_2_3n' },
+        { unchanged: 'a = 0_1_2_3_n' },
+
+        {
+          comment: 'BigInt hexadecimal literals',
+          unchanged: 'a = 0x0123456789abcdefn;'
+        },
+        { unchanged: 'a = 0X0123456789ABCDEFn;' },
+        { unchanged: 'a = 0xFeDcBa9876543210n;' },
+        { input: 'a=0x30en-5', output: 'a = 0x30en - 5' },
+        { input: 'a=0xF0n+4', output: 'a = 0xF0n + 4' },
+        { input: 'a=0Xffn+4', output: 'a = 0Xffn + 4' },
+        { input: 'a=0Xffng+4', output: 'a = 0Xffn g + 4' },
+        { input: 'a=0x01n.10', output: 'a = 0x01n .10' },
+        { unchanged: 'a = 0xb0cen;' },
+        { unchanged: 'a = 0x0b0n;' },
+        { input: 'a=0x0B0nx0', output: 'a = 0x0B0n x0' },
+        { input: 'a=0x0B0nxb0', output: 'a = 0x0B0n xb0' },
+        { input: 'a=0x0B0nx0b0', output: 'a = 0x0B0n x0b0' },
+        { input: 'a=0X090nx0', output: 'a = 0X090n x0' },
+        {
+          comment: 'BigInt hexadecimal literals with underscore',
+          unchanged: 'a = 0x0_123456789abcdefn'
+        },
+        { unchanged: 'a = 0x0__0123456789abcdefn' },
+        { unchanged: 'a = 0x_0123456789abcdefn' },
+        { unchanged: 'a = 0x__n' },
+        { unchanged: 'a = 0x0_1_a_3n' },
+        { unchanged: 'a = 0x_1_2_F_n' },
+
+        {
+          comment: 'BigInt octal literals',
+          unchanged: 'a = 0o01234567n;'
+        },
+        { unchanged: 'a = 0O01234567n;' },
+        { unchanged: 'a = 0o34120675n;' },
+        { input: 'a=0o30ne-5', output: 'a = 0o30n e - 5' },
+        { input: 'a=0o70n+4', output: 'a = 0o70n + 4' },
+        { input: 'a=0O77n+4', output: 'a = 0O77n + 4' },
+        { input: 'a=0O77n8+4', output: 'a = 0O77n 8 + 4' },
+        { input: 'a=0O77na+4', output: 'a = 0O77n a + 4' },
+        { input: 'a=0o01n.10', output: 'a = 0o01n .10' },
+        { input: 'a=0o0nB0x0', output: 'a = 0o0n B0x0' },
+        { input: 'a=0o0nB0xb0', output: 'a = 0o0n B0xb0' },
+        { input: 'a=0o0nB0x0b0', output: 'a = 0o0n B0x0b0' },
+        { input: 'a=0O0n90x0', output: 'a = 0O0n 90 x0' },
+        {
+          comment: 'BigInt octal literals with underscore',
+          unchanged: 'a = 0o0_1234567n'
+        },
+        { unchanged: 'a = 0o0__1234567n' },
+        { unchanged: 'a = 0o_01234567n' },
+        { unchanged: 'a = 0o__n' },
+        { unchanged: 'a = 0o0_1_2_3n' },
+        { unchanged: 'a = 0o_1_2_3_n' },
+        {
+          comment: 'BigInt binary literals',
+          unchanged: 'a = 0b010011n;'
+        },
+        { unchanged: 'a = 0B010011n;' },
+        { unchanged: 'a = 0b01001100001111n;' },
+        { input: 'a=0b10ne-5', output: 'a = 0b10n e - 5' },
+        { input: 'a=0b10n+4', output: 'a = 0b10n + 4' },
+        { input: 'a=0B11n+4', output: 'a = 0B11n + 4' },
+        { input: 'a=0B11n2+4', output: 'a = 0B11n 2 + 4' },
+        { input: 'a=0B11na+4', output: 'a = 0B11n a + 4' },
+        { input: 'a=0b01n.10', output: 'a = 0b01n .10' },
+        { input: 'a=0b0nB0x0', output: 'a = 0b0n B0x0' },
+        { input: 'a=0b0nB0xb0', output: 'a = 0b0n B0xb0' },
+        { input: 'a=0b0nB0x0b0', output: 'a = 0b0n B0x0b0' },
+        { input: 'a=0B0n90x0', output: 'a = 0B0n 90 x0' },
+        {
+          comment: 'BigInt binary literals with underscore',
+          unchanged: 'a = 0b0_10011n'
+        },
+        { unchanged: 'a = 0b0__10011n' },
+        { unchanged: 'a = 0b_010011' },
+        { unchanged: 'a = 0b__n' },
+        { unchanged: 'a = 0b0_1_1_1n' },
+        { unchanged: 'a = 0b_1_0_1_n' },
+        { unchanged: 'a = 0B010_0_11n;' },
+        { unchanged: 'a = 0b01_0011_0000_1111n;' }
       ]
     }, {
       //Relies on the tab being four spaces as default for the tests
@@ -4251,6 +4678,11 @@ exports.test_data = {
           output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
         },
         {
+          comment: "Issue #1978 - import.meta syntax support",
+          input: 'let       x =      import.meta',
+          output: 'let x = import.meta'
+        },
+        {
           comment: "Issue 858 - from is a keyword only after import",
           unchanged: [
             'if (from < to) {',
@@ -4380,6 +4812,99 @@ exports.test_data = {
             '    }',
             ')'
           ]
+        },
+        {
+          comment: "Issue ##1846 - in keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  in() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    in() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - Do not indent 'in' keyword if not a class method",
+          input: [
+            'function test() {',
+            'for x in nums {}',
+            '"make" in car',
+            '3 in number;',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    for x in nums {}',
+            '    "make" in car',
+            '    3 in number;',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - of keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  of() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    of() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: number before a dot',
+          input: '1000000000000001000 .toFixed(0)!==1000000000000001024',
+          output: '1000000000000001000 .toFixed(0) !== 1000000000000001024'
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: variable ends with a number before a dot',
+          input: 'a.b21 . performAction()',
+          output: 'a.b21.performAction()'
         }
       ]
     }, {
@@ -4853,6 +5378,52 @@ exports.test_data = {
         }
       ]
     }, {
+      name: "Record data type",
+      description: "",
+      tests: [{
+          comment: 'regular record with primitive',
+          input: 'a = #{ b:"c", d:1, e:true };',
+          output: [
+            'a = #{',
+            '    b: "c",',
+            '    d: 1,',
+            '    e: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'nested record',
+          input: 'a = #{b:#{ c:1,d:2,}, e:"f"};',
+          output: [
+            'a = #{',
+            '    b: #{',
+            '        c: 1,',
+            '        d: 2,',
+            '    },',
+            '    e: "f"',
+            '};'
+          ]
+        },
+        {
+          comment: '# not directly followed by { is not handled as record',
+          unchanged: [
+            'a = # {',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'example of already valid and beautified record',
+          unchanged: [
+            'a = #{',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        }
+      ]
+    }, {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting
@@ -5284,7 +5855,13 @@ exports.test_data = {
         { unchanged: 'if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();' },
 
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
-        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
+        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
+
+        {
+          comment: 'Issue #1896: Handle newlines with bitwise ~ operator',
+          input: 'if (foo) {\nvar bar = 1;\n~bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1;\n    ~bar ? 0 : 1\n}'
+        }
       ]
     }
   ],

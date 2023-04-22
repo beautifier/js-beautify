@@ -7,7 +7,7 @@ If you find a bug, please report it, including environment and examples of curre
 ## How to Make Changes (Implement Fixes and New Features)
 Fixes and enhancements are totally welcome.  We prefer you to file an issue before filing a PR, as this gives us chance to discuss design details, but feel free to dive right in.
 
-### 0. Prereqisites for development
+### 0. Prerequisites for development
 
 * bash
 * make
@@ -24,7 +24,7 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
   * Run `make js` to build and run unit tests
-  * Run `make static` to manually test changes locally at `http://localhost:8080`
+  * Run `make serve` to manually test changes locally at `http://localhost:8080`
   * To load a debug (human readable) version of the beautifier source, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
   * Run `make py` to build and run unit tests 
@@ -85,7 +85,7 @@ This project has been around for a while.  While some parts have improved signif
 into disrepair and were mothballed. All branches named `attic-*` are significantly out of date and kept for reference purposes only.
 
 ### PHP
-`attic-php` contains a PHP implmenetation of the beautifier.
+`attic-php` contains a PHP implementation of the beautifier.
 If you're interested in using it feel free.
 If you plan to enhance it, please consider joining this project, and updating this version to match current functionality.
 

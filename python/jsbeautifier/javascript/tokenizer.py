@@ -62,20 +62,22 @@ TOKEN = TokenTypes()
 dot_pattern = re.compile(r"[^\d\.]")
 
 number_pattern = re.compile(
-    r"0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?"
+    r"0[xX][0123456789abcdefABCDEF_]*n?|0[oO][01234567_]*n?|0[bB][01_]*n?|\d[\d_]*n|(?:\.\d[\d_]*|\d[\d_]*\.?[\d_]*)(?:[eE][+-]?[\d_]+)?"
 )
 digit = re.compile(r"[0-9]")
 
 
 positionable_operators = frozenset(
     (
-        ">>> === !== " + "<< && >= ** != == <= >> || ?? |> " + "< / - + > : & % ? ^ | *"
+        ">>> === !== &&= ??= ||= "
+        + "<< && >= ** != == <= >> || ?? |> "
+        + "< / - + > : & % ? ^ | *"
     ).split(" ")
 )
 
 punct = (
     ">>>= "
-    + "... >>= <<= === >>> !== **= "
+    + "... >>= <<= === >>> !== **= &&= ??= ||= "
     + "=> ^= :: /= << <= == && -= >= >> != -- += ** || ?? ++ %= &= *= |= |> "
     + "= ! ? > < : / ^ - + * & % ~ |"
 )
@@ -111,6 +113,8 @@ reserved_words = line_starters | frozenset(
         "await",
         "from",
         "as",
+        "class",
+        "extends",
     ]
 )
 
@@ -119,7 +123,7 @@ reserved_word_pattern = re.compile(r"^(?:" + "|".join(reserved_words) + r")$")
 directives_core = Directives(r"/\*", r"\*/")
 
 xmlRegExp = re.compile(
-    r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\]|)(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>'
+    r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[^}]+?}|!\[CDATA\[[^\]]*?\]\]|)(\s*{[^}]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{([^{}]|{[^}]+?})+?}))*\s*(\/?)\s*>'
 )
 
 
@@ -216,6 +220,9 @@ class Tokenizer(BaseTokenizer):
 
         token = token or self._read_non_javascript(c)
         token = token or self._read_string(c)
+        token = token or self._read_pair(
+            c, self._input.peek(1)
+        )  # Issue #2062 hack for record type '#{'
         token = token or self._read_word(previous_token)
         token = token or self._read_singles(c)
         token = token or self._read_comment(c)
@@ -253,6 +260,18 @@ class Tokenizer(BaseTokenizer):
 
         return token
 
+    def _read_pair(self, c, d):
+        token = None
+
+        if c == "#" and d == "{":
+            token = self._create_token(TOKEN.START_BLOCK, c + d)
+
+        if token is not None:
+            self._input.next()
+            self._input.next()
+
+        return token
+
     def _read_word(self, previous_token):
         resulting_string = self._patterns.identifier.read()
 
@@ -265,7 +284,10 @@ class Tokenizer(BaseTokenizer):
                     and (previous_token.text == "set" or previous_token.text == "get")
                 )
             ) and reserved_word_pattern.match(resulting_string):
-                if resulting_string == "in" or resulting_string == "of":
+                if (resulting_string == "in" or resulting_string == "of") and (
+                    previous_token.type == TOKEN.WORD
+                    or previous_token.type == TOKEN.STRING
+                ):
                     # in and of are operators, need to hack
                     return self._create_token(TOKEN.OPERATOR, resulting_string)
 

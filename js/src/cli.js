@@ -40,7 +40,6 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? funct
 var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
-    mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     glob = require('glob');
 
@@ -62,6 +61,19 @@ nopt.typeDefs.brace_style = {
             }
         }
         return true;
+    }
+};
+nopt.typeDefs.glob = {
+    type: "glob",
+    validate: function(data, key, val) {
+        if (typeof val === 'string' && glob.hasMagic(val)) {
+            // Preserve value if it contains glob magic
+            data[key] = val;
+            return true;
+        } else {
+            // Otherwise validate it as regular path
+            return nopt.typeDefs.path.validate(data, key, val);
+        }
     }
 };
 var path = require('path'),
@@ -114,7 +126,7 @@ var path = require('path'),
         // CLI
         "version": Boolean,
         "help": Boolean,
-        "files": [path, Array],
+        "files": ["glob", Array],
         "outfile": path,
         "replace": Boolean,
         "quiet": Boolean,
@@ -488,7 +500,7 @@ function writePretty(err, pretty, outfile, config) {
     }
 
     if (outfile) {
-        mkdirp.sync(path.dirname(outfile));
+        fs.mkdirSync(path.dirname(outfile), { recursive: true });
 
         if (isFileDifferent(outfile, pretty)) {
             try {

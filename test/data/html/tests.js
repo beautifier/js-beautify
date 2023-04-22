@@ -1794,6 +1794,30 @@ exports.test_data = {
           '    <p>Unfortunately this condition is false.</p>',
           '{{/myPartial}}'
         ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of partial blocks with whitespace following partial name",
+        unchanged: [
+          '{{#> myPartial }}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of partial blocks with parameters",
+        unchanged: [
+          '{{#> myPartial param="test"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of inline partials with parameters",
+        unchanged: [
+          '{{#*inline "myPartial" param="test"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/inline}}'
+        ]
       }
     ]
   }, {
@@ -1835,6 +1859,14 @@ exports.test_data = {
       ]
     }, {
       unchanged: [
+        '<menu>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</menu>'
+      ]
+    }, {
+      unchanged: [
         '<ol>',
         '    <li>',
         '        test content',
@@ -1847,6 +1879,30 @@ exports.test_data = {
         '    <li>',
         '        test content',
         '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<menu>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        <ol>',
+        '            <li> level 1 check',
+        '            <li>',
+        '                <menu>',
+        '                    <li> level 2 check',
+        '                    <li>',
+        '                        <ul>',
+        '                            <li> level 3 check',
+        '                        </ul>',
+        '                    <li>',
+        '                        test content',
+        '                </menu>',
+        '        </ol>',
+        '    <li> test content',
+        '    <li>',
+        '        test content',
+        '</menu>'
       ]
     }, {
       unchanged: [
@@ -3601,6 +3657,160 @@ exports.test_data = {
         '<script>',
         '    var foo = {$bar|json_encode};',
         '</script>'
+      ]
+    }]
+  }, {
+    name: "Recognize handlebars with whitespace control",
+    description: "Maintains handlebar properties even when whitespace control ~ is at the start of handlebar statements",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "true" }
+    ],
+    tests: [{
+      input: [
+        '{{#if true}}<div><div>',
+        '{{~#if true ~}}<p>true</p>{{/if}}',
+        '</div></div>{{/if}}'
+      ],
+      output: [
+        '{{#if true}}',
+        '    <div>',
+        '        <div>',
+        '            {{~#if true ~}}',
+        '                <p>true</p>',
+        '            {{/if}}',
+        '        </div>',
+        '    </div>',
+        '{{/if}}'
+      ]
+    }, {
+      input: [
+        '{{~#*inline "MyInlinePartial"}}',
+        '{{MyIdentifier}}',
+        '{{/inline}}'
+      ],
+      output: [
+        '{{~#*inline "MyInlinePartial"}}',
+        '    {{MyIdentifier}}',
+        '{{/inline}}'
+      ]
+    }, {
+      input: [
+        '{{~#> myPartial }}',
+        '<span>format correctly</span>',
+        '{{/myPartial}}'
+      ],
+      output: [
+        '{{~#> myPartial }}',
+        '    <span>format correctly</span>',
+        '{{/myPartial}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#if callOn}}',
+        '    {{translate "onText"}}',
+        '{{~else if (eq callOn false)}}',
+        '    {{translate "offText"}}',
+        '{{/if}}'
+      ]
+    }, {
+      unchanged: [
+        '{{~#if callOn}}',
+        '    {{translate "onText"}}',
+        '{{~else if (eq callOn false)}}',
+        '    {{translate "offText"}}',
+        '{{/if}}'
+      ]
+    }]
+  }, {
+    name: "Corrects Partial Behavior Involving Whitespace",
+    description: "Handles partials that do not have a space before the tag",
+    template: "^^^ $$$",
+    tests: [{
+      input: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '        {{/column}}',
+        '        {{/row}}'
+      ],
+      output: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      input: [
+        '{{~#>row}}',
+        '{{#>column}}',
+        '<p>content</p>',
+        '{{/column}}',
+        '{{/row}}'
+      ],
+      output: [
+        '{{~#>row}}',
+        '    {{#>column}}',
+        '        <p>content</p>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#> row}}',
+        '    {{#> column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }]
+  }, {
+    name: "Does not add whitespace around custom elements ",
+    description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><div>.</div',
+        '        ><section>27</section>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <div>.</div>',
+        '        <section>27</section>',
+        '    </span>',
+        '</span>'
+      ]
+    }, {
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
       ]
     }]
   }, {

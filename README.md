@@ -1,16 +1,12 @@
-# JS Beautifier
-![CI](https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg)
+<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-[![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
-[![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
-[![NPM @latest](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
-[![NPM @next](https://img.shields.io/npm/v/js-beautify/next.svg)](https://www.npmjs.com/package/js-beautify?activeTab=versions)
+<p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
 
-[![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Twitter Follow](https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow)](https://twitter.com/intent/user?screen_name=js_beautifier)
+<p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
-[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
+<p align="center"><a href="https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautify-web/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
 
+<p align="center"><a href="https://www.npmjs.org/package/js-beautify" target="_blank"><img alt="NPM stats" src=https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true"/></a></p>
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
@@ -18,6 +14,7 @@ as well as partly deobfuscate scripts processed by the npm package
 [javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
 Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
+
 
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
@@ -29,7 +26,7 @@ If you are interested, please take a look at the [CONTRIBUTING.md](https://githu
 
 # Installation
 
-You can install the beautifier for node.js or python.
+You can install the beautifier for Node.js or Python.
 
 ## Node.js JavaScript
 
@@ -61,19 +58,29 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.13/beautify-html.min.js"></script>
-
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.13/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.13/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.13/js/lib/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
 ```
 
+Example usage of a JS tag in html:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+
+. . .
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
+```
 Older versions are available by changing the version number.
 
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
@@ -92,13 +99,34 @@ $ pip install cssbeautifier
 ```
 
 # Usage
-You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
+You can beautify JavaScript using JS Beautifier in your web browser, or on the command-line using Node.js or Python.
 
 ## Web Browser
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Library
-The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
+After you embed the `<script>` tags in your `html` file, they expose three functions: `js_beautify`, `css_beautify`, and `html_beautify` 
+
+Example usage of beautifying a json string:
+
+```js
+const options = { indent_size: 2, space_in_empty_paren: true }
+
+const dataObj = {completed: false,id: 1,title: "delectus aut autem",userId: 1,}
+
+const dataJson = JSON.stringify(dataObj)
+
+js_beautify(dataJson, options)
+
+/* OUTPUT
+{
+  "completed": false,
+  "id": 1,
+  "title": "delectus aut autem",
+  "userId": 1,
+}
+*/
+```
 
 ## Node.js JavaScript
 
@@ -108,12 +136,12 @@ When installed globally, the beautifier provides an executable `js-beautify` scr
 $ js-beautify foo.js
 ```
 
-To use `js-beautify` as a `node` library (after install locally), import and call the appropriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.
+To use `js-beautify` as a `node` library (after install locally), import and call the appropriate beautifier method for JavaScript (JS), CSS, or HTML.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.
 
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
 
 ```js
-var beautify = require('js-beautify').js,
+var beautify = require('js-beautify/js').js,
     fs = require('fs');
 
 fs.readFile('foo.js', 'utf8', function (err, data) {
@@ -137,7 +165,7 @@ To use `jsbeautifier` as a library is simple:
 
 ```python
 import jsbeautifier
-res = jsbeautifier.beautify('your javascript string')
+res = jsbeautifier.beautify('your JavaScript string')
 res = jsbeautifier.beautify_file('some_file.js')
 ```
 
@@ -147,7 +175,7 @@ res = jsbeautifier.beautify_file('some_file.js')
 opts = jsbeautifier.default_options()
 opts.indent_size = 2
 opts.space_in_empty_paren = True
-res = jsbeautifier.beautify('some javascript', opts)
+res = jsbeautifier.beautify('some JavaScript', opts)
 ```
 
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  The example above would be set on the command-line as `--indent-size 2 --space-in-empty-paren`.
@@ -195,7 +223,7 @@ Beautifier Options:
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
   --indent-empty-lines              Keep indentation on empty lines
-  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
+  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in HTML
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -258,7 +286,7 @@ Configuration sources provided earlier in this stack will override later ones.
 
 The settings are a shallow tree whose values are inherited for all languages, but
 can be overridden.  This works for settings passed directly to the API in either implementation.
-In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.
+In the JavaScript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.
 
 Below is an example configuration tree showing all the supported locations
 for language override nodes.  We'll use `indent_size` to discuss how this configuration would behave, but any number of settings can be inherited or overridden:
@@ -405,4 +433,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.13.13)
+(README.md: js-beautify@1.14.7)

@@ -1,5 +1,5 @@
 /*jshint strict:false, node:false */
-/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll*/
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changeToFileContent, setPreferredColorScheme*/
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
@@ -340,5 +340,52 @@ function selectAll() {
     the.editor.execCommand('selectAll');
   } else {
     $('#source').select();
+  }
+}
+
+function clearAll() {
+  if (the.editor) {
+    the.editor.setValue('');
+  } else {
+    $('#source').val('');
+  }
+}
+
+function changeToFileContent(input) {
+  var file = input.files[0];
+  if (file) {
+    var reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+    reader.onload = function(event) {
+      if (the.editor) {
+        the.editor.setValue(event.target.result);
+      } else {
+        $('#source').val(event.target.result);
+      }
+    };
+  }
+}
+
+function setPreferredColorScheme() {
+  var themeToggleBtn = document.querySelector('#theme-toggle-btn');
+  themeToggleBtn.addEventListener('change', switchTheme, false);
+  var isPreferredColorSchemeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (isPreferredColorSchemeDark) {
+    themeToggleBtn.checked = true;
+    $('.CodeMirror').addClass('cm-s-darcula');
+    $('body').addClass('dark-mode');
+    $('.logo').children('img').attr("src", "web/banner-dark.svg");
+  }
+}
+
+function switchTheme(themeToggleEvent) {
+  if (themeToggleEvent.target.checked) {
+    $('.CodeMirror').addClass('cm-s-darcula');
+    $('body').addClass('dark-mode');
+    $('.logo').children('img').attr("src", "web/banner-dark.svg");
+  } else {
+    $('.CodeMirror').removeClass('cm-s-darcula');
+    $('body').removeClass('dark-mode');
+    $('.logo').children('img').attr("src", "web/banner-light.svg");
   }
 }
