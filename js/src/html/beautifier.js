@@ -364,6 +364,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
     type: raw_token.type
   };
 
+  
   printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
@@ -384,7 +385,10 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
     } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
       printer.set_space_before_token(false);
     }
-
+      // To fix issue #1940, We can do a check around here if the attribute exceeds the wrap line length and
+      // if it does, it should be able to split the attributes into individual attributes 
+      // and wrapping each attribute on its own line. I think there is a way to use force_expand_multiline
+      // and not ignoring wrap line length
     if (raw_token.type === TOKEN.ATTRIBUTE && last_tag_token.tag_start_char === '<') {
       if (this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) {
         printer.traverse_whitespace(raw_token);
@@ -632,6 +636,9 @@ var TagOpenParserToken = function(parent, raw_token) {
       (raw_token.closed && raw_token.closed.text === '/>');
 
     // if whitespace handler ~ included (i.e. {{~#if true}}), handlebars tags start at pos 3 not pos 2
+    // To fix issue #2045, it should check for the start char to be a { but then further should check
+    // if there is another char and if the handlebar_starts = 4 and then indents it further
+    // so then {{#tr}} does not get confused with the tag <tr>
     var handlebar_starts = 2;
     if (this.tag_start_char === '{' && this.text.length >= 3) {
       if (this.text.charAt(2) === '~') {
