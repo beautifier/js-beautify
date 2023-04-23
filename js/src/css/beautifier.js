@@ -287,7 +287,7 @@ Beautifier.prototype.beautify = function() {
         } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
           insidePropertyValue = true;
           this.indent();
-        }
+
           // might be a non-nested at-rule
         } else if( ! ( variableOrRule in this.NESTED_AT_RULE ) ) {
           insideNonNestedAtRule = true;
