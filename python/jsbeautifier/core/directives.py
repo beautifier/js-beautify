@@ -27,7 +27,6 @@ import re
 
 class Directives:
     def __init__(self, start_block_pattern, end_block_pattern):
-
         self.__directives_block_pattern = re.compile(
             start_block_pattern + r" beautify( \w+[:]\w+)+ " + end_block_pattern
         )
