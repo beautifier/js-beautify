@@ -253,22 +253,22 @@ Beautifier.prototype.beautify = function() {
 
       this.print_string(this._ch);
 
-        // strip trailing space, if present, for hash property checks
-        var variable = this._input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
+      // strip trailing space, if present, for hash property checks
+      var variable = this._input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
 
-        if (variable.match(/[ :]$/)) {
-          // we have a variable or pseudo-class, add it and insert one space before continuing
-          variable = this.eatString(": ").replace(/\s$/, '');
-          this.print_string(variable);
-          this._output.space_before_token = true;
-        }
+      if (variable.match(/[ :]$/)) {
+        // we have a variable or pseudo-class, add it and insert one space before continuing
+        variable = this.eatString(": ").replace(/\s$/, '');
+        this.print_string(variable);
+        this._output.space_before_token = true;
+      }
 
-        variable = variable.replace(/\s$/, '');
+      variable = variable.replace(/\s$/, '');
 
       // might be sass variable
-      if(parenLevel === 0 && variable.indexOf(':') !== -1) {
-      insidePropertyValue = true;
-      this.indent();
+      if (parenLevel === 0 && variable.indexOf(':') !== -1) {
+        insidePropertyValue = true;
+        this.indent();
       }
     } else if (this._ch === '@') {
       this.preserveSingleSpace(isAfterSpace);
@@ -292,7 +292,7 @@ Beautifier.prototype.beautify = function() {
         variableOrRule = variableOrRule.replace(/\s$/, '');
 
         // might be less variable
-        if(parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
+        if (parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
           insidePropertyValue = true;
           this.indent();
 
@@ -304,7 +304,7 @@ Beautifier.prototype.beautify = function() {
           }
 
           // might be a non-nested at-rule
-        } else if( parenLevel === 0 && !insidePropertyValue ) {
+        } else if (parenLevel === 0 && !insidePropertyValue) {
           insideNonNestedAtRule = true;
         }
       }
