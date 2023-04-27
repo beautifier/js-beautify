@@ -36,7 +36,7 @@ $(function() {
       }
     });
   }
-  
+
   setPreferredColorScheme();
 
   $(window).bind('keydown', function(e) {
