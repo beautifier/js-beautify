@@ -38,7 +38,7 @@ def beautify(string, opts=None):
 
 def beautify_file(file_name, opts=None):
     _main = __import__("cssbeautifier", globals(), locals(), ["_main"])._main
-    return _main.beautify_file(file, opts)
+    return _main.beautify_file(file_name, opts)
 
 
 def usage(stream=sys.stdout):
