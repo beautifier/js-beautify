@@ -204,7 +204,6 @@ class IndentStringCache:
 
 class Output:
     def __init__(self, options, baseIndentString=""):
-
         self.__indent_cache = IndentStringCache(options, baseIndentString)
         self.raw = False
         self._end_with_newline = options.end_with_newline

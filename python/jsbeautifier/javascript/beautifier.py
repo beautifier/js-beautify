@@ -1213,7 +1213,7 @@ class Beautifier:
                 or current_token.previous.text == ")"
             )
         ):
-            # This conditionial checks backtick strings and makes no changes
+            # This conditional checks backtick strings and makes no changes
             pass
         elif self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1379,7 +1379,6 @@ class Beautifier:
             and self._options.preserve_newlines
             and current_token.text in Tokenizer.positionable_operators
         ):
-
             isColon = current_token.text == ":"
             isTernaryColon = isColon and in_ternary
             isOtherColon = isColon and not in_ternary
