@@ -342,7 +342,6 @@ class Tokenizer(BaseTokenizer):
         return None
 
     def _read_regexp(self, c, previous_token):
-
         if c == "/" and self.allowRegExOrXML(previous_token):
             # handle regexp
             resulting_string = self._input.next()
@@ -425,7 +424,6 @@ class Tokenizer(BaseTokenizer):
         resulting_string = ""
 
         if c == "#":
-
             # she-bang
             if self._is_first_token():
                 resulting_string = self._patterns.shebang.read()
@@ -471,7 +469,6 @@ class Tokenizer(BaseTokenizer):
             self._input.back()
 
         elif c == "<" and self._is_first_token():
-
             if self._patterns.html_comment_start.read():
                 c = "<!--"
                 while self._input.hasNext() and not self._input.testChar(
