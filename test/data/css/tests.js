@@ -2004,6 +2004,12 @@ exports.test_data = {
         unchanged: '@import url("chrome://communicator/skin/");'
       }, {
         unchanged: '@apply w-4 lg:w-10 space-y-3 lg:space-x-12;'
+      }, {
+        unchanged: [
+          'h3 {',
+          '    @apply flex flex-col lg:flex-row space-y-3 lg:space-x-12 items-start;',
+          '}'
+        ]
       }]
     }, {
 
