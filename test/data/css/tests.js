@@ -1995,7 +1995,7 @@ exports.test_data = {
         unchanged: 'p {\n    color: blue;\n}'
       }]
     }, {
-      name: "Issue #2012, #2142",
+      name: "Issue #2012, #2147",
       description: "Avoid whitespace between first colon and next character in non nested at-rules",
       options: [],
       tests: [{
