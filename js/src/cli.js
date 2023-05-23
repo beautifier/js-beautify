@@ -99,6 +99,7 @@ var path = require('path'),
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple", "preserve", "preserve-aligned"],
+        "wrap_attributes_min_attrs": Number,
         "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
         "end_with_newline": Boolean,
@@ -163,6 +164,7 @@ var path = require('path'),
         "N": ["--newline_between_rules"],
         // HTML-only
         "A": ["--wrap_attributes"],
+        "M": ["--wrap_attributes_min_attrs"],
         "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "d": ["--inline"],
@@ -395,6 +397,7 @@ function usage(err) {
             msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length            Wrap lines that exceed N characters [0]');
             msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]');
+            msg.push('  -M, --wrap-attributes-min-attrs   Minimum number of html tag attributes for force wrap attribute options [2]');
             msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
