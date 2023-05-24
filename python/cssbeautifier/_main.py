@@ -75,8 +75,7 @@ Output options:
                                    (default first newline in file, otherwise "\\n")
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
       --preserve-newlines          Preserve existing line breaks.
-      --disable-selector-separator-newline
-                                   Do not print each selector on a separate line.
+      --selector-separator         Whitespace between selectors [none|newline|space] [space]
  -b,  --brace-style=collapse       Brace style (collapse, expand)
  -n,  --end-with-newline           End output with newline
       --disable-newline-between-rules
@@ -126,6 +125,7 @@ def main():
                 "disable-newline-between-rules",
                 "space-around-combinator",
                 "indent-empty-lines",
+                "selector-separator",
             ],
         )
     except getopt.GetoptError as ex:
@@ -176,6 +176,8 @@ def main():
             css_options.indent_empty_lines = True
         elif opt in ("--editorconfig",):
             css_options.editorconfig = True
+        elif opt in ("--selector-separator"):
+            css_options.selector_separator = arg
 
     try:
         filepaths, replace = get_filepaths_from_params(filepath_params, replace)

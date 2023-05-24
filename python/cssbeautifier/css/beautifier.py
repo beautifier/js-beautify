@@ -472,7 +472,7 @@ class Beautifier:
                     if (
                         insidePropertyValue
                         and previous_ch == "$"
-                        and self._options.selector_separator_newline
+                        and self._options.selector_separator == "newline"
                     ):
                         self._output.add_new_line()
                         insideScssMap = True
@@ -488,7 +488,7 @@ class Beautifier:
                 if (
                     insideScssMap
                     and self._input.peek() == ";"
-                    and self._options.selector_separator_newline
+                    and self._options.selector_separator == "newline"
                 ):
                     insideScssMap = False
                     self.outdent()
@@ -497,14 +497,17 @@ class Beautifier:
             elif self._ch == ",":
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
+
                 if (
-                    self._options.selector_separator_newline
+                    self._options.selector_separator == "newline"
                     and (not insidePropertyValue or insideScssMap)
                     and parenLevel == 0
                     and not insideAtImport
                     and not insideAtExtend
                 ):
                     self._output.add_new_line()
+                elif self._options.selector_separator == "none":
+                    self._output.space_before_token = False
                 else:
                     self._output.space_before_token = True
             elif (

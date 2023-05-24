@@ -285,7 +285,6 @@ exports.test_data = {
       matrix: [{
         options: [
           { name: 'selector_separator_newline', value: 'false' },
-          { name: 'selector_separator', value: '" "' },
           { name: "newline_between_rules", value: "true" }
         ],
         separator: ' ',
@@ -297,7 +296,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'false' },
-          { name: 'selector_separator', value: '" "' },
           { name: "newline_between_rules", value: "false" }
         ],
         separator: ' ',
@@ -309,7 +307,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'false' },
-          { name: 'selector_separator', value: '"  "' },
           { name: "newline_between_rules", value: "false" }
         ],
         // BUG: #713
@@ -322,7 +319,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '" "' },
           { name: "newline_between_rules", value: "true" }
         ],
         separator: '\\n',
@@ -334,7 +330,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '" "' },
           { name: "newline_between_rules", value: "false" }
         ],
         separator: '\\n',
@@ -346,7 +341,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '"  "' },
           { name: "newline_between_rules", value: "false" }
         ],
         separator: '\\n',
@@ -358,7 +352,6 @@ exports.test_data = {
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '"  "' },
           { name: 'brace_style', value: '"expand"' },
           { name: 'newline_between_rules', value: 'false' }
         ],
@@ -1995,7 +1988,35 @@ exports.test_data = {
         unchanged: 'p {\n    color: blue;\n}'
       }]
     }, {
-
+      name: "Issue #1862 -- selector-separator option adds space between CSS selectors if value is space",
+      options: [
+        { name: "selector_separator", value: "'space'" }
+      ],
+      description: "",
+      tests: [{
+        input: '#main,#section,a {\n    color: blue;\n}',
+        output: '#main, #section, a {\n    color: blue;\n}'
+      }]
+    }, {
+      name: "Issue #1862 -- selector-separator option adds newline between CSS selectors if value is newline",
+      options: [
+        { name: "selector_separator", value: "'newline'" }
+      ],
+      description: "",
+      tests: [{
+        input: '#main,#section,a {\n    color: blue;\n}',
+        output: '#main,\n#section,\na {\n    color: blue;\n}'
+      }]
+    },
+    {
+      name: "Issue #1862 -- selector-separator option adds no whitespace between CSS selectors if value is none",
+      options: [
+        { name: "selector_separator", value: "'none'" }
+      ],
+      description: "",
+      tests: [{
+        unchanged: '#main,#section,a {\n    color: blue;\n}'
+      }]
     }
   ]
 };
