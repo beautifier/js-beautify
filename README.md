@@ -368,6 +368,7 @@ HTML Beautifier Options:
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]
+  -M, --wrap-attributes-min-attrs    Minimum number of html tag attributes for force wrap attribute options [2]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
