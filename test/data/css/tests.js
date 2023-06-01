@@ -1995,6 +1995,23 @@ exports.test_data = {
         unchanged: 'p {\n    color: blue;\n}'
       }]
     }, {
+      name: "Issue #2012, #2147",
+      description: "Avoid whitespace between first colon and next character in non nested at-rules",
+      options: [],
+      tests: [{
+        unchanged: '@extend .btn-blue:hover;'
+      }, {
+        unchanged: '@import url("chrome://communicator/skin/");'
+      }, {
+        unchanged: '@apply w-4 lg:w-10 space-y-3 lg:space-x-12;'
+      }, {
+        unchanged: [
+          'h3 {',
+          '    @apply flex flex-col lg:flex-row space-y-3 lg:space-x-12 items-start;',
+          '}'
+        ]
+      }]
+    }, {
 
     }
   ]
