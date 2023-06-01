@@ -11251,6 +11251,19 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Issue #2012, #2147
+        reset_options();
+        set_name('Issue #2012, #2147');
+        t('@extend .btn-blue:hover;');
+        t('@import url("chrome://communicator/skin/");');
+        t('@apply w-4 lg:w-10 space-y-3 lg:space-x-12;');
+        t(
+            'h3 {\n' +
+            '    @apply flex flex-col lg:flex-row space-y-3 lg:space-x-12 items-start;\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
         set_name('');

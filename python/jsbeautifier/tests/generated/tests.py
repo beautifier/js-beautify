@@ -6636,6 +6636,30 @@ class TestJSBeautifier(unittest.TestCase):
             '    });\n' +
             'var test = 1;')
         
+        # Issue #1852 - semicolon followed by block statement
+        bt(
+            '(function() {\n' +
+            '    some_code_here();\n' +
+            '    {\n' +
+            '        /* IE11 let bug bypass */\n' +
+            '        let index;\n' +
+            '        for (index in a) {\n' +
+            '            a[index];\n' +
+            '        }\n' +
+            '    }\n' +
+            '})();')
+        
+        # Issue #1852 - semicolon followed by block statement 2
+        bt(
+            'let x = { A: 1 }; { console.log("hello"); }',
+            #  -- output --
+            'let x = {\n' +
+            '    A: 1\n' +
+            '};\n' +
+            '{\n' +
+            '    console.log("hello");\n' +
+            '}')
+        
         # Issue #772
         bt(
             'this.initAttributes([\n' +
@@ -8509,6 +8533,47 @@ class TestJSBeautifier(unittest.TestCase):
             '    var b = 1;\n' +
             '\n' +
             '}')
+
+
+        #============================================================
+        # Record data type
+        self.reset_options()
+        
+        # regular record with primitive
+        bt(
+            'a = #{ b:"c", d:1, e:true };',
+            #  -- output --
+            'a = #{\n' +
+            '    b: "c",\n' +
+            '    d: 1,\n' +
+            '    e: true\n' +
+            '};')
+        
+        # nested record
+        bt(
+            'a = #{b:#{ c:1,d:2,}, e:"f"};',
+            #  -- output --
+            'a = #{\n' +
+            '    b: #{\n' +
+            '        c: 1,\n' +
+            '        d: 2,\n' +
+            '    },\n' +
+            '    e: "f"\n' +
+            '};')
+        
+        # # not directly followed by { is not handled as record
+        bt(
+            'a = # {\n' +
+            '    b: 1,\n' +
+            '    d: true\n' +
+            '};')
+        
+        # example of already valid and beautified record
+        bt(
+            'a = #{\n' +
+            '    b: 1,\n' +
+            '    d: true\n' +
+            '};')
 
 
         #============================================================
