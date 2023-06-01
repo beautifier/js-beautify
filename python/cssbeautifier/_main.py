@@ -52,7 +52,6 @@ def beautify_file(file_name, opts=None):
 
 
 def usage(stream=sys.stdout):
-
     print(
         "cssbeautifier.py@"
         + __version__
@@ -102,7 +101,6 @@ Rarely needed options:
 
 
 def main():
-
     argv = sys.argv[1:]
 
     try:

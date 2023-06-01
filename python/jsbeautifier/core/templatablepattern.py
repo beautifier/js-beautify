@@ -171,7 +171,6 @@ class TemplatablePattern(Pattern):
                         resulting_string or self.__patterns.django_value.read()
                     )
                 if not self._excluded.django:
-
                     resulting_string = (
                         resulting_string or self.__patterns.django_comment.read()
                     )
