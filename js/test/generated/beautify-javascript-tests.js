@@ -197,7 +197,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                     'if (foo)' + eo + '{}' + ec + 'else /regex/.test();');
                 test_fragment('if (foo)' + to + '{', 'if (foo)' + eo + '{');
                 test_fragment('foo' + to + '{', 'foo' + eo + '{');
-                test_fragment('return;' + to + '{', 'return;' + eo + '{');
+                test_fragment('return;' + to + '{', 'return;\n{');
                 bt( 'function x()' + to + '{\n    foo();\n}zzz', 'function x()' + eo +'{\n    foo();\n}\nzzz');
                 bt( 'var a = new function a()' + to + '{};', 'var a = new function a()' + eo + '{};');
                 bt( 'var a = new function a()' + to + '    {},\n    b = new function b()' + to + '    {};',
@@ -6925,6 +6925,30 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    });\n' +
             'var test = 1;');
         
+        // Issue #1852 - semicolon followed by block statement
+        bt(
+            '(function() {\n' +
+            '    some_code_here();\n' +
+            '    {\n' +
+            '        /* IE11 let bug bypass */\n' +
+            '        let index;\n' +
+            '        for (index in a) {\n' +
+            '            a[index];\n' +
+            '        }\n' +
+            '    }\n' +
+            '})();');
+        
+        // Issue #1852 - semicolon followed by block statement 2
+        bt(
+            'let x = { A: 1 }; { console.log("hello"); }',
+            //  -- output --
+            'let x = {\n' +
+            '    A: 1\n' +
+            '};\n' +
+            '{\n' +
+            '    console.log("hello");\n' +
+            '}');
+        
         // Issue #772
         bt(
             'this.initAttributes([\n' +
@@ -8810,6 +8834,48 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    var b = 1;\n' +
             '\n' +
             '}');
+
+
+        //============================================================
+        // Record data type
+        reset_options();
+        set_name('Record data type');
+        
+        // regular record with primitive
+        bt(
+            'a = #{ b:"c", d:1, e:true };',
+            //  -- output --
+            'a = #{\n' +
+            '    b: "c",\n' +
+            '    d: 1,\n' +
+            '    e: true\n' +
+            '};');
+        
+        // nested record
+        bt(
+            'a = #{b:#{ c:1,d:2,}, e:"f"};',
+            //  -- output --
+            'a = #{\n' +
+            '    b: #{\n' +
+            '        c: 1,\n' +
+            '        d: 2,\n' +
+            '    },\n' +
+            '    e: "f"\n' +
+            '};');
+        
+        // # not directly followed by { is not handled as record
+        bt(
+            'a = # {\n' +
+            '    b: 1,\n' +
+            '    d: true\n' +
+            '};');
+        
+        // example of already valid and beautified record
+        bt(
+            'a = #{\n' +
+            '    b: 1,\n' +
+            '    d: true\n' +
+            '};');
 
 
         //============================================================

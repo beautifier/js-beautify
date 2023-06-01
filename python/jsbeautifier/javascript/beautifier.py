@@ -831,7 +831,7 @@ class Beautifier:
 
             elif self._flags.last_token.type not in [TOKEN.OPERATOR, TOKEN.START_EXPR]:
                 if (
-                    self._flags.last_token.type == TOKEN.START_BLOCK
+                    self._flags.last_token.type in [TOKEN.START_BLOCK, TOKEN.SEMICOLON]
                     and not self._flags.inline_frame
                 ):
                     self.print_newline()
@@ -1208,7 +1208,7 @@ class Beautifier:
                 or current_token.previous.text == ")"
             )
         ):
-            # This conditionial checks backtick strings and makes no changes
+            # This conditional checks backtick strings and makes no changes
             pass
         elif self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1369,7 +1369,6 @@ class Beautifier:
             and self._options.preserve_newlines
             and current_token.text in Tokenizer.positionable_operators
         ):
-
             isColon = current_token.text == ":"
             isTernaryColon = isColon and in_ternary
             isOtherColon = isColon and not in_ternary

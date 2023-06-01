@@ -220,6 +220,9 @@ class Tokenizer(BaseTokenizer):
 
         token = token or self._read_non_javascript(c)
         token = token or self._read_string(c)
+        token = token or self._read_pair(
+            c, self._input.peek(1)
+        )  # Issue #2062 hack for record type '#{'
         token = token or self._read_word(previous_token)
         token = token or self._read_singles(c)
         token = token or self._read_comment(c)
@@ -253,6 +256,18 @@ class Tokenizer(BaseTokenizer):
             token = self._create_token(TOKEN.COMMA, c)
 
         if token is not None:
+            self._input.next()
+
+        return token
+
+    def _read_pair(self, c, d):
+        token = None
+
+        if c == "#" and d == "{":
+            token = self._create_token(TOKEN.START_BLOCK, c + d)
+
+        if token is not None:
+            self._input.next()
             self._input.next()
 
         return token
@@ -327,7 +342,6 @@ class Tokenizer(BaseTokenizer):
         return None
 
     def _read_regexp(self, c, previous_token):
-
         if c == "/" and self.allowRegExOrXML(previous_token):
             # handle regexp
             resulting_string = self._input.next()
@@ -410,7 +424,6 @@ class Tokenizer(BaseTokenizer):
         resulting_string = ""
 
         if c == "#":
-
             # she-bang
             if self._is_first_token():
                 resulting_string = self._patterns.shebang.read()
@@ -456,7 +469,6 @@ class Tokenizer(BaseTokenizer):
             self._input.back()
 
         elif c == "<" and self._is_first_token():
-
             if self._patterns.html_comment_start.read():
                 c = "<!--"
                 while self._input.hasNext() and not self._input.testChar(

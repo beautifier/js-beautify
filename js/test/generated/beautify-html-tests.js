@@ -2507,6 +2507,133 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force"", wrap_attributes_min_attrs = "4")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force"", wrap_attributes_min_attrs = "4")');
+        opts.wrap_attributes = 'force';
+        opts.wrap_attributes_min_attrs = 4;
+        bth(
+            '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input type="four attributes should wrap"\n' +
+            '    class="form-control"\n' +
+            '    autocomplete="off"\n' +
+            '    [(ngModel)]="myValue" />');
+        bth(
+            '<input type="three attributes should not wrap"    autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />');
+        bth(
+            '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  @someevent="dosomething"  someprop\n' +
+            'class="xx-button">\n' +
+            '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>',
+            //  -- output --
+            '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"\n' +
+            '    @someevent="dosomething"\n' +
+            '    someprop\n' +
+            '    class="xx-button">\n' +
+            '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>');
+
+        // Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force-aligned"", wrap_attributes_min_attrs = "4")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force-aligned"", wrap_attributes_min_attrs = "4")');
+        opts.wrap_attributes = 'force-aligned';
+        opts.wrap_attributes_min_attrs = 4;
+        bth(
+            '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input type="four attributes should wrap"\n' +
+            '       class="form-control"\n' +
+            '       autocomplete="off"\n' +
+            '       [(ngModel)]="myValue" />');
+        bth(
+            '<input type="three attributes should not wrap"    autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />');
+        bth(
+            '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  @someevent="dosomething"  someprop\n' +
+            'class="xx-button">\n' +
+            '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>',
+            //  -- output --
+            '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"\n' +
+            '       @someevent="dosomething"\n' +
+            '       someprop\n' +
+            '       class="xx-button">\n' +
+            '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>');
+
+        // Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_min_attrs = "4")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs with force/force-xx options - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_min_attrs = "4")');
+        opts.wrap_attributes = 'force-expand-multiline';
+        opts.wrap_attributes_min_attrs = 4;
+        bth(
+            '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input\n' +
+            '    type="four attributes should wrap"\n' +
+            '    class="form-control"\n' +
+            '    autocomplete="off"\n' +
+            '    [(ngModel)]="myValue"\n' +
+            '/>');
+        bth(
+            '<input type="three attributes should not wrap"    autocomplete="off"\n' +
+            '[(ngModel)]="myValue" />',
+            //  -- output --
+            '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />');
+        bth(
+            '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  @someevent="dosomething"  someprop\n' +
+            'class="xx-button">\n' +
+            '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>',
+            //  -- output --
+            '<cmpnt\n' +
+            '    v-bind:xx="four attributes with valueless attribute should wrap"\n' +
+            '    @someevent="dosomething"\n' +
+            '    someprop\n' +
+            '    class="xx-button"\n' +
+            '>\n' +
+            '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>\n' +
+            '</cmpnt>');
+
+
+        //============================================================
+        // Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force"", wrap_attributes_min_attrs = "1")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force"", wrap_attributes_min_attrs = "1")');
+        opts.wrap_attributes = 'force';
+        opts.wrap_attributes_min_attrs = 1;
+        bth('<input type="one attribute"/>', '<input type="one attribute" />');
+
+        // Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force-aligned"", wrap_attributes_min_attrs = "1")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force-aligned"", wrap_attributes_min_attrs = "1")');
+        opts.wrap_attributes = 'force-aligned';
+        opts.wrap_attributes_min_attrs = 1;
+        bth('<input type="one attribute"/>', '<input type="one attribute" />');
+
+        // Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_min_attrs = "1")
+        reset_options();
+        set_name('Test wrap_attributes_min_attrs = 1 with force/force-xx options - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_min_attrs = "1")');
+        opts.wrap_attributes = 'force-expand-multiline';
+        opts.wrap_attributes_min_attrs = 1;
+        bth(
+            '<input type="one attribute"/>',
+            //  -- output --
+            '<input\n' +
+            '    type="one attribute"\n' +
+            '/>');
+
+
+        //============================================================
         // Handlebars Indenting Off
         reset_options();
         set_name('Handlebars Indenting Off');
@@ -6684,6 +6811,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <li>test content\n' +
             '</ol>');
         bth(
+            '<menu>\n' +
+            '    <li>test content\n' +
+            '    <li>test content\n' +
+            '    <li>test content\n' +
+            '</menu>');
+        bth(
             '<ol>\n' +
             '    <li>\n' +
             '        test content\n' +
@@ -6696,6 +6829,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <li>\n' +
             '        test content\n' +
             '</ol>');
+        bth(
+            '<menu>\n' +
+            '    <li>\n' +
+            '        test content\n' +
+            '    <li>\n' +
+            '        <ol>\n' +
+            '            <li> level 1 check\n' +
+            '            <li>\n' +
+            '                <menu>\n' +
+            '                    <li> level 2 check\n' +
+            '                    <li>\n' +
+            '                        <ul>\n' +
+            '                            <li> level 3 check\n' +
+            '                        </ul>\n' +
+            '                    <li>\n' +
+            '                        test content\n' +
+            '                </menu>\n' +
+            '        </ol>\n' +
+            '    <li> test content\n' +
+            '    <li>\n' +
+            '        test content\n' +
+            '</menu>');
         bth(
             '<dl>\n' +
             '    <dt>\n' +
