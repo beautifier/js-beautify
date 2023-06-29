@@ -67,7 +67,6 @@ def beautify_file(file_name, opts=default_options()):
 
 
 def usage(stream=sys.stdout):
-
     print(
         "cssbeautifier.py@"
         + __version__
@@ -384,7 +383,6 @@ class Beautifier:
                     if self._options.brace_style == "expand":
                         self._output.add_new_line(True)
             elif self._ch == ":":
-
                 for i in range(0, len(self.NON_SEMICOLON_NEWLINE_PROPERTY)):
                     if self._input.lookBack(self.NON_SEMICOLON_NEWLINE_PROPERTY[i]):
                         insideNonSemiColonValues = True

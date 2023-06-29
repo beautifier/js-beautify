@@ -43,6 +43,7 @@ function Options(options) {
   this.indent_handlebars = this._get_boolean('indent_handlebars', true);
   this.wrap_attributes = this._get_selection('wrap_attributes',
     ['auto', 'force', 'force-aligned', 'force-expand-multiline', 'aligned-multiple', 'preserve', 'preserve-aligned']);
+  this.wrap_attributes_min_attrs = this._get_number('wrap_attributes_min_attrs', 2);
   this.wrap_attributes_indent_size = this._get_number('wrap_attributes_indent_size', this.indent_size);
   this.extra_liners = this._get_array('extra_liners', ['head', 'body', '/html']);
 

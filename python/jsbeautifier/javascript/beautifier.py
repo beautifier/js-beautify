@@ -1369,7 +1369,6 @@ class Beautifier:
             and self._options.preserve_newlines
             and current_token.text in Tokenizer.positionable_operators
         ):
-
             isColon = current_token.text == ":"
             isTernaryColon = isColon and in_ternary
             isOtherColon = isColon and not in_ternary
