@@ -116,6 +116,7 @@ var path = require('path'),
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "inline": [String, Array],
+        "inline_custom_elements": [Boolean],
         "unformatted": [String, Array],
         "content_unformatted": [String, Array],
         "indent_inner_html": [Boolean],
@@ -168,6 +169,7 @@ var path = require('path'),
         "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "d": ["--inline"],
+        // no shorthand for "inline_custom_elements"
         "U": ["--unformatted"],
         "T": ["--content_unformatted"],
         "I": ["--indent_inner_html"],
