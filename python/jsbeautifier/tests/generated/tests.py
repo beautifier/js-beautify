@@ -10075,7 +10075,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('foo {', 'foo {')
         test_fragment('return {', 'return {') # return needs the brace.
         test_fragment('return /* inline */ {', 'return /* inline */ {')
-        test_fragment('return;\n{', 'return; {')
+        test_fragment('return;\n{', 'return;\n{')
         bt("throw {}")
         bt("throw {\n    foo;\n}")
         bt('var foo = {}')
@@ -10166,7 +10166,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('foo {', 'foo {')
         test_fragment('return {', 'return {') # return needs the brace.
         test_fragment('return /* inline */ {', 'return /* inline */ {')
-        test_fragment('return;\n{', 'return; {')
+        test_fragment('return;\n{', 'return;\n{')
         bt("throw {}")
         bt("throw {\n    foo;\n}")
         bt('var foo = {}')

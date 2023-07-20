@@ -2404,7 +2404,7 @@ Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to g
 
   parser_token.is_unformatted = !parser_token.tag_complete && in_array(parser_token.tag_check, this._options.unformatted);
   parser_token.is_content_unformatted = !parser_token.is_empty_element && in_array(parser_token.tag_check, this._options.content_unformatted);
-  parser_token.is_inline_element = in_array(parser_token.tag_name, this._options.inline) || parser_token.tag_name.includes("-") || parser_token.tag_start_char === '{';
+  parser_token.is_inline_element = in_array(parser_token.tag_name, this._options.inline) || (this._options.inline_custom_elements && parser_token.tag_name.includes("-")) || parser_token.tag_start_char === '{';
 
   return parser_token;
 };
@@ -2691,6 +2691,7 @@ function Options(options) {
     // obsolete inline tags
     'acronym', 'big', 'strike', 'tt'
   ]);
+  this.inline_custom_elements = this._get_boolean('inline_custom_elements', true);
   this.void_elements = this._get_array('void_elements', [
     // HTLM void elements - aka self-closing tags - aka singletons
     // https://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
