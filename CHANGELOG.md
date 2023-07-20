@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.14.9
+* Bump semver and editorconfig ([#2161](https://github.com/beautify-web/js-beautify/pull/2161))
+* Update editorconfig package ([#2160](https://github.com/beautify-web/js-beautify/issues/2160))
+* Allow to configure the "custom elements as inline elements" behavior ([#2113](https://github.com/beautify-web/js-beautify/issues/2113))
+
 ## v1.14.8
 * Require nodejs v12 or greater ([#2151](https://github.com/beautify-web/js-beautify/pull/2151))
 * CSS insideNonNestedAtRule generic variable  ([#2147](https://github.com/beautify-web/js-beautify/pull/2147))
