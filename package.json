@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.14.8",
+  "version": "1.14.9",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -50,7 +50,7 @@
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
-    "editorconfig": "^0.15.3",
+    "editorconfig": "^1.0.3",
     "glob": "^8.1.0",
     "nopt": "^6.0.0"
   },

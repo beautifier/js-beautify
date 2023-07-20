@@ -9270,6 +9270,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Disables custom elements inlining with inline_custom_elements=false
+        reset_options();
+        set_name('Disables custom elements inlining with inline_custom_elements=false');
+        opts.inline_custom_elements = false;
+        bth(
+            '<span>\n' +
+            '    <span>\n' +
+            '        <span>The time for this result is 1:02</span\n' +
+            '        ><time-dot>.</time-dot\n' +
+            '        ><time-decimals>27</time-decimals>\n' +
+            '    </span>\n' +
+            '</span>',
+            //  -- output --
+            '<span>\n' +
+            '    <span>\n' +
+            '        <span>The time for this result is 1:02</span>\n' +
+            '        <time-dot>.</time-dot>\n' +
+            '        <time-decimals>27</time-decimals>\n' +
+            '    </span>\n' +
+            '</span>');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
         set_name('New Test Suite');

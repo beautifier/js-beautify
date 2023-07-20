@@ -3814,6 +3814,32 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Disables custom elements inlining with inline_custom_elements=false",
+    description: "https://github.com/beautify-web/js-beautify/issues/2113",
+    options: [
+      { name: "inline_custom_elements", value: "false" }
+    ],
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <time-dot>.</time-dot>',
+        '        <time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };
