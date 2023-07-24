@@ -45,7 +45,7 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=16"
+    "node": ">=14"
   },
   "browserslist": "ie 11",
   "dependencies": {
