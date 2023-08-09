@@ -57,7 +57,7 @@
   "devDependencies": {
     "ansi-regex": "^6.0.1",
     "benchmark": "^2.1.4",
-    "codemirror": "^5.65.13",
+    "codemirror": "^6.0.1",
     "jquery": "^3.6.4",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
