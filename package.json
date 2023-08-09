@@ -50,7 +50,7 @@
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
-    "editorconfig": "^1.0.3",
+    "editorconfig": "^2.0.0",
     "glob": "^8.1.0",
     "nopt": "^6.0.0"
   },
