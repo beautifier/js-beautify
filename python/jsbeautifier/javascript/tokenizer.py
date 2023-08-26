@@ -51,6 +51,7 @@ class TokenTypes(BaseTokenTypes):
     BLOCK_COMMENT = "TK_BLOCK_COMMENT"
     COMMENT = "TK_COMMENT"
     DOT = "TK_DOT"
+    UNICODE = ("TK_UNICODE",)
     UNKNOWN = "TK_UNKNOWN"
 
     def __init__(self):
@@ -164,6 +165,8 @@ class TokenizerPatterns(BaseTokenizerPatterns):
         self.template_text = templatable.until(r"[`\\$]")
         self.template_expression = templatable.until(r"[`}\\]")
 
+        self.unicode = pattern.matching(r"\\u{[0-9a-fA-F]{4,5}}")
+
 
 class Tokenizer(BaseTokenizer):
     positionable_operators = positionable_operators
@@ -229,6 +232,7 @@ class Tokenizer(BaseTokenizer):
         token = token or self._read_regexp(c, previous_token)
         token = token or self._read_xml(c, previous_token)
         token = token or self._read_punctuation()
+        token = token or self._read_unicode_with_braces(c)
         token = token or self._create_token(TOKEN.UNKNOWN, self._input.next())
 
         return token
@@ -498,6 +502,15 @@ class Tokenizer(BaseTokenizer):
             else:
                 token = self._create_token(TOKEN.OPERATOR, resulting_string)
 
+        return token
+
+    def _read_unicode_with_braces(self, c):
+        token = None
+        if c == "\\":
+            unicode = ""
+            if self._input.peek(1) == "u":
+                unicode = self._patterns.unicode.read()
+                token = self._create_token(TOKEN.UNICODE, unicode)
         return token
 
     __regexTokens = {

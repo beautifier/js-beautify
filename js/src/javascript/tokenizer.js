@@ -57,6 +57,7 @@ var TOKEN = {
   BLOCK_COMMENT: 'TK_BLOCK_COMMENT',
   COMMENT: 'TK_COMMENT',
   DOT: 'TK_DOT',
+  UNICODE: 'TK_UNICODE',
   UNKNOWN: 'TK_UNKNOWN',
   START: BASETOKEN.START,
   RAW: BASETOKEN.RAW,
@@ -129,6 +130,7 @@ var Tokenizer = function(input_string, options) {
     xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[^}]+?}|!\[CDATA\[[^\]]*?\]\]|)(\s*{[^}]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{([^{}]|{[^}]+?})+?}))*\s*(\/?)\s*>/),
     single_quote: templatable.until(/['\\\n\r\u2028\u2029]/),
     double_quote: templatable.until(/["\\\n\r\u2028\u2029]/),
+    unicode: pattern_reader.matching(/\\u{[0-9a-fA-F]{4,5}}/),
     template_text: templatable.until(/[`\\$]/),
     template_expression: templatable.until(/[`}\\]/)
   };
@@ -174,6 +176,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_regexp(c, previous_token);
   token = token || this._read_xml(c, previous_token);
   token = token || this._read_punctuation();
+  token = token || this._read_unicode_with_braces(c);
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
@@ -455,6 +458,18 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
   }
 
   return null;
+};
+
+Tokenizer.prototype._read_unicode_with_braces = function(c) {
+  var token = null;
+  if(c === '\\'){
+    var unicode = '';
+    if (this._input.peek(1) === 'u') {
+      unicode = this.__patterns.unicode.read();
+      token = this._create_token(TOKEN.UNICODE, unicode);
+    }
+  }
+  return token;
 };
 
 function unescape_string(s) {

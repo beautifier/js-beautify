@@ -1750,6 +1750,15 @@ exports.test_data = {
         {
           input: 'fn[0]`tagged`',
           output: 'fn[0] `tagged`'
+        },
+        {
+          comment: 'Issue #2159: Invalid prettification of object with unicode escape character as object key - test scenario: object with unicode as key',
+          input: '{\\\\u{1d4b6}:"ascr"}',
+          output: [
+            '{',
+            '    \\\\u{1d4b6}: "ascr"',
+            '}'
+          ]
         }
       ]
     }, {
