@@ -69,7 +69,7 @@ function run_tests() {
 function read_settings_from_cookie() {
   $('#tabsize').val(any(Cookies.get('tabsize'), '4'));
   $('#brace-style').val(any(Cookies.get('brace-style'), 'collapse'));
-  $('#detect-packers').prop('checked', Cookies.get('detect-packers') !== 'off');
+  $('#detect-packers').prop('checked', Cookies.get('detect-packers') === 'on');
   $('#max-preserve-newlines').val(any(Cookies.get('max-preserve-newlines'), '5'));
   $('#keep-array-indentation').prop('checked', Cookies.get('keep-array-indentation') === 'on');
   $('#break-chained-methods').prop('checked', Cookies.get('break-chained-methods') === 'on');
