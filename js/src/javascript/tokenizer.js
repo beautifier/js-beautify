@@ -462,7 +462,7 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
 
 Tokenizer.prototype._read_unicode_with_braces = function(c) {
   var token = null;
-  if(c === '\\'){
+  if (c === '\\') {
     var unicode = '';
     if (this._input.peek(1) === 'u') {
       unicode = this.__patterns.unicode.read();
