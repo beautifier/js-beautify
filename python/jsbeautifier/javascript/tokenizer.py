@@ -220,6 +220,9 @@ class Tokenizer(BaseTokenizer):
 
         token = token or self._read_non_javascript(c)
         token = token or self._read_string(c)
+        token = token or self._read_pair(
+            c, self._input.peek(1)
+        )  # Issue #2062 hack for record type '#{'
         token = token or self._read_word(previous_token)
         token = token or self._read_singles(c)
         token = token or self._read_comment(c)
@@ -253,6 +256,18 @@ class Tokenizer(BaseTokenizer):
             token = self._create_token(TOKEN.COMMA, c)
 
         if token is not None:
+            self._input.next()
+
+        return token
+
+    def _read_pair(self, c, d):
+        token = None
+
+        if c == "#" and d == "{":
+            token = self._create_token(TOKEN.START_BLOCK, c + d)
+
+        if token is not None:
+            self._input.next()
             self._input.next()
 
         return token
@@ -327,7 +342,6 @@ class Tokenizer(BaseTokenizer):
         return None
 
     def _read_regexp(self, c, previous_token):
-
         if c == "/" and self.allowRegExOrXML(previous_token):
             # handle regexp
             resulting_string = self._input.next()
@@ -410,7 +424,6 @@ class Tokenizer(BaseTokenizer):
         resulting_string = ""
 
         if c == "#":
-
             # she-bang
             if self._is_first_token():
                 resulting_string = self._patterns.shebang.read()
@@ -456,7 +469,6 @@ class Tokenizer(BaseTokenizer):
             self._input.back()
 
         elif c == "<" and self._is_first_token():
-
             if self._patterns.html_comment_start.read():
                 c = "<!--"
                 while self._input.hasNext() and not self._input.testChar(
@@ -588,6 +600,8 @@ class Tokenizer(BaseTokenizer):
                 matched = input_scan.match(re.compile(r"x([0-9A-Fa-f]{2})"))
             elif input_scan.peek() == "u":
                 matched = input_scan.match(re.compile(r"u([0-9A-Fa-f]{4})"))
+                if not matched:
+                    matched = input_scan.match(re.compile(r"u\{([0-9A-Fa-f]+)\}"))
             else:
                 out += "\\"
                 if input_scan.hasNext():
@@ -608,7 +622,9 @@ class Tokenizer(BaseTokenizer):
             elif escaped >= 0x00 and escaped < 0x20:
                 # leave 0x00...0x1f escaped
                 out += "\\" + matched.group(0)
-                continue
+            elif escaped > 0x10FFFF:
+                # If the escape sequence is out of bounds, keep the original sequence and continue conversion
+                out += "\\" + matched.group(0)
             elif escaped == 0x22 or escaped == 0x27 or escaped == 0x5C:
                 # single-quote, apostrophe, backslash - escape these
                 out += "\\" + chr(escaped)

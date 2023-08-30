@@ -137,6 +137,20 @@ exports.test_data = {
       }, {
         input_: "var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";",
         output: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+      }, {
+        comment: 'Issue #2159: Invalid prettification of object with unicode escape character as object key - test scenario: object with unicode as key',
+        input: '{\\\\u{1d4b6}:"ascr"}',
+        output: [
+          '{',
+          '    \\\\u{1d4b6}: "ascr"',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          "var \\\\u{E4}\\\\u{ca0}\\\\u{0cA0}\\\\u{000000Ca0} = {",
+          "    \\\\u{ca0}rgerlich: true",
+          "};"
+        ]
       }]
     }, {
       name: "Test template and continuation strings",
@@ -1213,6 +1227,21 @@ exports.test_data = {
             '        !but_this_can,',
             '    proper: "first_token_should_never_wrap" +',
             '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1932 - Javascript object property with -/+ symbol wraps issue",
+          input: [
+            '{',
+            '            "1234567891234567891234567891234": -433,',
+            '            "abcdefghijklmnopqrstuvwxyz12345": +11',
+            '}'
+          ],
+          output: [
+            '{',
+            '    "1234567891234567891234567891234": -433,',
+            '    "abcdefghijklmnopqrstuvwxyz12345": +11',
             '}'
           ]
         },
@@ -3368,6 +3397,33 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #1852 - semicolon followed by block statement",
+          unchanged: [
+            '(function() {',
+            '    some_code_here();',
+            '    {',
+            '        /* IE11 let bug bypass */',
+            '        let index;',
+            '        for (index in a) {',
+            '            a[index];',
+            '        }',
+            '    }',
+            '})();'
+          ]
+        }, {
+          comment: "Issue #1852 - semicolon followed by block statement 2",
+          input: [
+            'let x = { A: 1 }; { console.log("hello"); }'
+          ],
+          output: [
+            'let x = {',
+            '    A: 1',
+            '};',
+            '{',
+            '    console.log("hello");',
+            '}'
+          ]
+        }, {
           comment: "Issue #772",
           input: [
             'this.initAttributes([',
@@ -5347,6 +5403,52 @@ exports.test_data = {
             '    var b = 1;',
             '',
             '}'
+          ]
+        }
+      ]
+    }, {
+      name: "Record data type",
+      description: "",
+      tests: [{
+          comment: 'regular record with primitive',
+          input: 'a = #{ b:"c", d:1, e:true };',
+          output: [
+            'a = #{',
+            '    b: "c",',
+            '    d: 1,',
+            '    e: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'nested record',
+          input: 'a = #{b:#{ c:1,d:2,}, e:"f"};',
+          output: [
+            'a = #{',
+            '    b: #{',
+            '        c: 1,',
+            '        d: 2,',
+            '    },',
+            '    e: "f"',
+            '};'
+          ]
+        },
+        {
+          comment: '# not directly followed by { is not handled as record',
+          unchanged: [
+            'a = # {',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'example of already valid and beautified record',
+          unchanged: [
+            'a = #{',
+            '    b: 1,',
+            '    d: true',
+            '};'
           ]
         }
       ]

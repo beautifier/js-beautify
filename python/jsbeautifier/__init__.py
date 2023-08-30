@@ -87,7 +87,6 @@ def beautify_file(file_name, opts=default_options()):
 
 
 def usage(stream=sys.stdout):
-
     print(
         "jsbeautifier.py@"
         + __version__
@@ -156,7 +155,6 @@ Rarely needed options:
 
 
 def main():
-
     argv = sys.argv[1:]
 
     try:

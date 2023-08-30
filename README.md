@@ -58,15 +58,29 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
 ```
 
+Example usage of a JS tag in html:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+
+. . .
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
+```
 Older versions are available by changing the version number.
 
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
@@ -91,7 +105,28 @@ You can beautify JavaScript using JS Beautifier in your web browser, or on the c
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Library
-The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
+After you embed the `<script>` tags in your `html` file, they expose three functions: `js_beautify`, `css_beautify`, and `html_beautify` 
+
+Example usage of beautifying a json string:
+
+```js
+const options = { indent_size: 2, space_in_empty_paren: true }
+
+const dataObj = {completed: false,id: 1,title: "delectus aut autem",userId: 1,}
+
+const dataJson = JSON.stringify(dataObj)
+
+js_beautify(dataJson, options)
+
+/* OUTPUT
+{
+  "completed": false,
+  "id": 1,
+  "title": "delectus aut autem",
+  "userId": 1,
+}
+*/
+```
 
 ## Node.js JavaScript
 
@@ -106,7 +141,7 @@ To use `js-beautify` as a `node` library (after install locally), import and cal
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
 
 ```js
-var beautify = require('js-beautify').js,
+var beautify = require('js-beautify/js').js,
     fs = require('fs');
 
 fs.readFile('foo.js', 'utf8', function (err, data) {
@@ -333,8 +368,10 @@ HTML Beautifier Options:
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]
+  -M, --wrap-attributes-min-attrs    Minimum number of html tag attributes for force wrap attribute options [2]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
+  --inline_custom_elements           Inline custom elements [true]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
@@ -397,4 +434,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.14.6)
+(README.md: js-beautify@1.14.9)
