@@ -32,6 +32,9 @@
 
 */
 /*jshint strict:false */
+/*jshint esversion: 6 */
+
+const { globSync } = require('glob');
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
     console.error.apply(console, arguments);
@@ -41,7 +44,7 @@ var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
     nopt = require('nopt'),
-    glob = require('glob');
+    glob = require("glob");
 
 nopt.invalidHandler = function(key, val) {
     throw new Error(key + " was invalid with value \"" + val + "\"");
@@ -99,6 +102,7 @@ var path = require('path'),
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple", "preserve", "preserve-aligned"],
+        "wrap_attributes_min_attrs": Number,
         "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
         "end_with_newline": Boolean,
@@ -115,6 +119,7 @@ var path = require('path'),
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "inline": [String, Array],
+        "inline_custom_elements": [Boolean],
         "unformatted": [String, Array],
         "content_unformatted": [String, Array],
         "indent_inner_html": [Boolean],
@@ -163,9 +168,11 @@ var path = require('path'),
         "N": ["--newline_between_rules"],
         // HTML-only
         "A": ["--wrap_attributes"],
+        "M": ["--wrap_attributes_min_attrs"],
         "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "d": ["--inline"],
+        // no shorthand for "inline_custom_elements"
         "U": ["--unformatted"],
         "T": ["--content_unformatted"],
         "I": ["--indent_inner_html"],
@@ -395,6 +402,7 @@ function usage(err) {
             msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length            Wrap lines that exceed N characters [0]');
             msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]');
+            msg.push('  -M, --wrap-attributes-min-attrs   Minimum number of html tag attributes for force wrap attribute options [2]');
             msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
@@ -629,8 +637,7 @@ function checkFiles(parsed) {
         // Input was a glob
         if (isGlob) {
             hadGlob = true;
-            foundFiles = glob(f, {
-                sync: true,
+            foundFiles = globSync(f, {
                 absolute: true,
                 ignore: ['**/node_modules/**', '**/.git/**']
             });

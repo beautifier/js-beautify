@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.14.9
+* Bump semver and editorconfig ([#2161](https://github.com/beautify-web/js-beautify/pull/2161))
+* Update editorconfig package ([#2160](https://github.com/beautify-web/js-beautify/issues/2160))
+* Allow to configure the "custom elements as inline elements" behavior ([#2113](https://github.com/beautify-web/js-beautify/issues/2113))
+
+## v1.14.8
+* Require nodejs v12 or greater ([#2151](https://github.com/beautify-web/js-beautify/pull/2151))
+* CSS insideNonNestedAtRule generic variable  ([#2147](https://github.com/beautify-web/js-beautify/pull/2147))
+* Update dependencies ([#2145](https://github.com/beautify-web/js-beautify/pull/2145))
+* Fix CI build ([#2144](https://github.com/beautify-web/js-beautify/pull/2144))
+* Fixed #2133 Theme Toggle on without\_codemirror Mode ([#2138](https://github.com/beautify-web/js-beautify/pull/2138))
+* use correct variable name ([#2135](https://github.com/beautify-web/js-beautify/pull/2135))
+* docs: Fix a few typos ([#2127](https://github.com/beautify-web/js-beautify/pull/2127))
+* Add support for new record types (cont.) ([#2118](https://github.com/beautify-web/js-beautify/pull/2118))
+* fix - semicolon followed by block statement doesnt have new line ([#2117](https://github.com/beautify-web/js-beautify/pull/2117))
+* Fix formatting related to the <menu> element ([#2114](https://github.com/beautify-web/js-beautify/pull/2114))
+* issue prettifying (function(){code();{code}})() ([#1852](https://github.com/beautify-web/js-beautify/issues/1852))
+
 ## v1.14.7
 * Doc: Updates web browser implementation examples ([#2107](https://github.com/beautify-web/js-beautify/pull/2107))
 * HTML formatter breaks layout by introducing newlines ([#1989](https://github.com/beautify-web/js-beautify/issues/1989))

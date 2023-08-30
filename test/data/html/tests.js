@@ -1194,6 +1194,105 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Test wrap_attributes_min_attrs with force/force-xx options",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '       ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: '\n    ',
+      indent_end: '\n',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: [
+        '<input{{indent_attr_first}}type="four attributes should wrap"',
+        '{{indent_attr}}class="form-control"',
+        '{{indent_attr}}autocomplete="off"',
+        '{{indent_attr}}[(ngModel)]="myValue"{{indent_end}}/>'
+      ]
+    }, {
+      input: [
+        '<input type="three attributes should not wrap"    autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />'
+    }, {
+      input: [
+        '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  ' +
+        '@someevent="dosomething"  someprop',
+        'class="xx-button">',
+        '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ],
+      output: [
+        '<cmpnt{{indent_attr_first}}v-bind:xx="four attributes with valueless attribute should wrap"',
+        '{{indent_attr}}@someevent="dosomething"',
+        '{{indent_attr}}someprop',
+        '{{indent_attr}}class="xx-button"{{newline_end}}>',
+        '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ]
+    }]
+  }, {
+    name: "Test wrap_attributes_min_attrs = 1 with force/force-xx options",
+    description: "",
+    matrix: [{
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should wrap
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: '\n    ',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="one attribute"/>'
+      ],
+      output: '<input{{indent_attr}}type="one attribute"{{newline_end}}/>'
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
@@ -3710,6 +3809,32 @@ exports.test_data = {
         '<span>',
         '    <span>',
         '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ]
+    }]
+  }, {
+    name: "Disables custom elements inlining with inline_custom_elements=false",
+    description: "https://github.com/beautify-web/js-beautify/issues/2113",
+    options: [
+      { name: "inline_custom_elements", value: "false" }
+    ],
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <time-dot>.</time-dot>',
+        '        <time-decimals>27</time-decimals>',
         '    </span>',
         '</span>'
       ]
