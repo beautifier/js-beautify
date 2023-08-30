@@ -1231,6 +1231,21 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue #1932 - Javascript object property with -/+ symbol wraps issue",
+          input: [
+            '{',
+            '            "1234567891234567891234567891234": -433,',
+            '            "abcdefghijklmnopqrstuvwxyz12345": +11',
+            '}'
+          ],
+          output: [
+            '{',
+            '    "1234567891234567891234567891234": -433,',
+            '    "abcdefghijklmnopqrstuvwxyz12345": +11',
+            '}'
+          ]
+        },
+        {
           fragment: true,
           input: '\' + wrap_input_2 + \'',
           output: [
