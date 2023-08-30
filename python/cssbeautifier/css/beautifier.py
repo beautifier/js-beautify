@@ -110,14 +110,14 @@ class Beautifier:
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
         self.NESTED_AT_RULE = {
-            "@page",
-            "@font-face",
-            "@keyframes",
-            "@media",
-            "@supports",
-            "@document",
+            "page",
+            "font-face",
+            "keyframes",
+            "media",
+            "supports",
+            "document",
         }
-        self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
+        self.CONDITIONAL_GROUP_RULE = {"media", "supports", "document"}
         self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template-areas", "grid-template"]
 
     def eatString(self, endChars):
@@ -220,8 +220,7 @@ class Beautifier:
         insideRule = False
         insidePropertyValue = False
         enteringConditionalGroup = False
-        insideAtExtend = False
-        insideAtImport = False
+        insideNonNestedAtRule = False
         insideScssMap = False
         topCharacter = self._ch
         insideNonSemiColonValues = False
@@ -270,7 +269,29 @@ class Beautifier:
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
-            elif self._ch == "@" or self._ch == "$":
+            elif self._ch == "$":
+                self.preserveSingleSpace(isAfterSpace)
+
+                self.print_string(self._ch)
+
+                # strip trailing space, for hash property check
+                variable = self._input.peekUntilAfter(
+                    re.compile(r"[: ,;{}()[\]\/='\"]")
+                )
+
+                if variable[-1] in ": ":
+                    # we have a variable or pseudo-class, add it and
+                    # insert one space before continuing
+                    variable = self.eatString(": ").rstrip()
+                    self.print_string(variable)
+                    self._output.space_before_token = True
+
+                # might be sass variable
+                if parenLevel == 0 and ":" in variable:
+                    insidePropertyValue = True
+                    self.indent()
+
+            elif self._ch == "@":
                 self.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
@@ -284,32 +305,26 @@ class Beautifier:
                     )
 
                     if variableOrRule[-1] in ": ":
-                        # wwe have a variable or pseudo-class, add it and
+                        # we have a variable or pseudo-class, add it and
                         # insert one space before continuing
-                        variableOrRule = self.eatString(": ")
-                        if variableOrRule[-1].isspace():
-                            variableOrRule = variableOrRule[:-1]
+                        variableOrRule = self.eatString(": ").rstrip()
                         self.print_string(variableOrRule)
                         self._output.space_before_token = True
 
-                    if variableOrRule[-1].isspace():
-                        variableOrRule = variableOrRule[:-1]
-
-                    if variableOrRule == "extend":
-                        insideAtExtend = True
-                    elif variableOrRule == "import":
-                        insideAtImport = True
+                    # might be less variable
+                    if parenLevel == 0 and ":" in variableOrRule:
+                        insidePropertyValue = True
+                        self.indent()
 
                     # might be a nesting at-rule
-                    if variableOrRule in self.NESTED_AT_RULE:
+                    elif variableOrRule in self.NESTED_AT_RULE:
                         self._nestedLevel += 1
                         if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                             enteringConditionalGroup = True
-                    elif (
-                        not insideRule and parenLevel == 0 and variableOrRule[-1] == ":"
-                    ):
-                        insidePropertyValue = True
-                        self.indent()
+
+                    # might be a non-nested at-rule
+                    elif parenLevel == 0 and not insidePropertyValue:
+                        insideNonNestedAtRule = True
             elif self._ch == "#" and self._input.peek() == "{":
                 self.preserveSingleSpace(isAfterSpace)
                 self.print_string(self._ch + self.eatString("}"))
@@ -317,6 +332,9 @@ class Beautifier:
                 if insidePropertyValue:
                     insidePropertyValue = False
                     self.outdent()
+
+                # non nested at rule becomes nested
+                insideNonNestedAtRule = False
 
                 # when entering conditional groups, only rulesets are
                 # allowed
@@ -359,8 +377,6 @@ class Beautifier:
                 self._output.add_new_line()
                 if previous_ch == "{":
                     self._output.trim(True)
-                insideAtExtend = False
-                insideAtImport = False
                 if insidePropertyValue:
                     self.outdent()
                     insidePropertyValue = False
@@ -392,7 +408,7 @@ class Beautifier:
                     (insideRule or enteringConditionalGroup)
                     and not (self._input.lookBack("&") or self.foundNestedPseudoClass())
                     and not self._input.lookBack("(")
-                    and not insideAtExtend
+                    and not insideNonNestedAtRule
                     and parenLevel == 0
                 ):
                     # 'property: value' delimiter
@@ -430,8 +446,7 @@ class Beautifier:
                     if insidePropertyValue:
                         self.outdent()
                         insidePropertyValue = False
-                    insideAtExtend = False
-                    insideAtImport = False
+                    insideNonNestedAtRule = False
                     self.print_string(self._ch)
                     self.eatWhitespace(True)
 
@@ -501,8 +516,7 @@ class Beautifier:
                     self._options.selector_separator_newline
                     and (not insidePropertyValue or insideScssMap)
                     and parenLevel == 0
-                    and not insideAtImport
-                    and not insideAtExtend
+                    and not insideNonNestedAtRule
                 ):
                     self._output.add_new_line()
                 else:
