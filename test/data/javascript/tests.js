@@ -137,6 +137,20 @@ exports.test_data = {
       }, {
         input_: "var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";",
         output: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+      }, {
+        comment: 'Issue #2159: Invalid prettification of object with unicode escape character as object key - test scenario: object with unicode as key',
+        input: '{\\\\u{1d4b6}:"ascr"}',
+        output: [
+          '{',
+          '    \\\\u{1d4b6}: "ascr"',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          "var \\\\u{E4}\\\\u{ca0}\\\\u{0cA0}\\\\u{000000Ca0} = {",
+          "    \\\\u{ca0}rgerlich: true",
+          "};"
+        ]
       }]
     }, {
       name: "Test template and continuation strings",
@@ -1750,15 +1764,6 @@ exports.test_data = {
         {
           input: 'fn[0]`tagged`',
           output: 'fn[0] `tagged`'
-        },
-        {
-          comment: 'Issue #2159: Invalid prettification of object with unicode escape character as object key - test scenario: object with unicode as key',
-          input: '{\\\\u{1d4b6}:"ascr"}',
-          output: [
-            '{',
-            '    \\\\u{1d4b6}: "ascr"',
-            '}'
-          ]
         }
       ]
     }, {

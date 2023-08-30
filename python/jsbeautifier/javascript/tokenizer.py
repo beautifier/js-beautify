@@ -51,7 +51,6 @@ class TokenTypes(BaseTokenTypes):
     BLOCK_COMMENT = "TK_BLOCK_COMMENT"
     COMMENT = "TK_COMMENT"
     DOT = "TK_DOT"
-    UNICODE = ("TK_UNICODE",)
     UNKNOWN = "TK_UNKNOWN"
 
     def __init__(self):
@@ -165,8 +164,6 @@ class TokenizerPatterns(BaseTokenizerPatterns):
         self.template_text = templatable.until(r"[`\\$]")
         self.template_expression = templatable.until(r"[`}\\]")
 
-        self.unicode = pattern.matching(r"\\u{[0-9a-fA-F]{4,5}}")
-
 
 class Tokenizer(BaseTokenizer):
     positionable_operators = positionable_operators
@@ -232,7 +229,6 @@ class Tokenizer(BaseTokenizer):
         token = token or self._read_regexp(c, previous_token)
         token = token or self._read_xml(c, previous_token)
         token = token or self._read_punctuation()
-        token = token or self._read_unicode_with_braces(c)
         token = token or self._create_token(TOKEN.UNKNOWN, self._input.next())
 
         return token
@@ -504,15 +500,6 @@ class Tokenizer(BaseTokenizer):
 
         return token
 
-    def _read_unicode_with_braces(self, c):
-        token = None
-        if c == "\\":
-            unicode = ""
-            if self._input.peek(1) == "u":
-                unicode = self._patterns.unicode.read()
-                token = self._create_token(TOKEN.UNICODE, unicode)
-        return token
-
     __regexTokens = {
         TOKEN.COMMENT,
         TOKEN.START_EXPR,
@@ -613,6 +600,8 @@ class Tokenizer(BaseTokenizer):
                 matched = input_scan.match(re.compile(r"x([0-9A-Fa-f]{2})"))
             elif input_scan.peek() == "u":
                 matched = input_scan.match(re.compile(r"u([0-9A-Fa-f]{4})"))
+                if not matched:
+                    matched = input_scan.match(re.compile(r"u\{([0-9A-Fa-f]+)\}"))
             else:
                 out += "\\"
                 if input_scan.hasNext():
@@ -633,7 +622,9 @@ class Tokenizer(BaseTokenizer):
             elif escaped >= 0x00 and escaped < 0x20:
                 # leave 0x00...0x1f escaped
                 out += "\\" + matched.group(0)
-                continue
+            elif escaped > 0x10FFFF:
+                # If the escape sequence is out of bounds, keep the original sequence and continue conversion
+                out += "\\" + matched.group(0)
             elif escaped == 0x22 or escaped == 0x27 or escaped == 0x5C:
                 # single-quote, apostrophe, backslash - escape these
                 out += "\\" + chr(escaped)

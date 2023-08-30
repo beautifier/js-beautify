@@ -57,7 +57,6 @@ var TOKEN = {
   BLOCK_COMMENT: 'TK_BLOCK_COMMENT',
   COMMENT: 'TK_COMMENT',
   DOT: 'TK_DOT',
-  UNICODE: 'TK_UNICODE',
   UNKNOWN: 'TK_UNKNOWN',
   START: BASETOKEN.START,
   RAW: BASETOKEN.RAW,
@@ -130,7 +129,6 @@ var Tokenizer = function(input_string, options) {
     xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[^}]+?}|!\[CDATA\[[^\]]*?\]\]|)(\s*{[^}]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{([^{}]|{[^}]+?})+?}))*\s*(\/?)\s*>/),
     single_quote: templatable.until(/['\\\n\r\u2028\u2029]/),
     double_quote: templatable.until(/["\\\n\r\u2028\u2029]/),
-    unicode: pattern_reader.matching(/\\u{[0-9a-fA-F]{4,5}}/),
     template_text: templatable.until(/[`\\$]/),
     template_expression: templatable.until(/[`}\\]/)
   };
@@ -176,7 +174,6 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_regexp(c, previous_token);
   token = token || this._read_xml(c, previous_token);
   token = token || this._read_punctuation();
-  token = token || this._read_unicode_with_braces(c);
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
@@ -460,18 +457,6 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
   return null;
 };
 
-Tokenizer.prototype._read_unicode_with_braces = function(c) {
-  var token = null;
-  if (c === '\\') {
-    var unicode = '';
-    if (this._input.peek(1) === 'u') {
-      unicode = this.__patterns.unicode.read();
-      token = this._create_token(TOKEN.UNICODE, unicode);
-    }
-  }
-  return token;
-};
-
 function unescape_string(s) {
   // You think that a regex would work for this
   // return s.replace(/\\x([0-9a-f]{2})/gi, function(match, val) {
@@ -499,6 +484,9 @@ function unescape_string(s) {
         matched = input_scan.match(/x([0-9A-Fa-f]{2})/g);
       } else if (input_scan.peek() === 'u') {
         matched = input_scan.match(/u([0-9A-Fa-f]{4})/g);
+        if (!matched) {
+          matched = input_scan.match(/u\{([0-9A-Fa-f]+)\}/g);
+        }
       } else {
         out += '\\';
         if (input_scan.hasNext()) {
@@ -522,7 +510,9 @@ function unescape_string(s) {
       } else if (escaped >= 0x00 && escaped < 0x20) {
         // leave 0x00...0x1f escaped
         out += '\\' + matched[0];
-        continue;
+      } else if (escaped > 0x10FFFF) {
+        // If the escape sequence is out of bounds, keep the original sequence and continue conversion
+        out += '\\' + matched[0];
       } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
         // single-quote, apostrophe, backslash - escape these
         out += '\\' + String.fromCharCode(escaped);
