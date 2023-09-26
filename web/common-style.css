@@ -87,6 +87,8 @@ input[type="checkbox"], select, button {
   grid-template-areas:
     "title options"
     "editor options";
+  margin: 10px;
+  padding: 10px
 }
 
 .title {
@@ -113,8 +115,8 @@ select, .buttons-box button {
   box-sizing: border-box;
 }
 
-select {
-  display: block;
+select{
+  width: 100%;
 }
 
 .options-checkboxes, .options-select {
@@ -162,7 +164,7 @@ select {
   }
 
   .options-checkboxes, .options-select {
-    max-width: 50%;
+    max-width: 100%;
   }
 
   .title {
@@ -200,6 +202,10 @@ select {
   background-color: #2e3037;
   color: #e8eaed;
   border: 1px solid #333333;
+}
+
+.dark-mode option{
+  color: white;
 }
 
 #theme-toggle-wrapper {
