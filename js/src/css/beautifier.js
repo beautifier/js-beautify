@@ -258,12 +258,10 @@ Beautifier.prototype.beautify = function() {
 
       if (variable.match(/[ :]$/)) {
         // we have a variable or pseudo-class, add it and insert one space before continuing
-        variable = this.eatString(": ").replace(/\s$/, '');
+        variable = this.eatString(": ").replace(/\s+$/, '');
         this.print_string(variable);
         this._output.space_before_token = true;
       }
-
-      variable = variable.replace(/\s$/, '');
 
       // might be sass variable
       if (parenLevel === 0 && variable.indexOf(':') !== -1) {
@@ -284,12 +282,10 @@ Beautifier.prototype.beautify = function() {
 
         if (variableOrRule.match(/[ :]$/)) {
           // we have a variable or pseudo-class, add it and insert one space before continuing
-          variableOrRule = this.eatString(": ").replace(/\s$/, '');
+          variableOrRule = this.eatString(": ").replace(/\s+$/, '');
           this.print_string(variableOrRule);
           this._output.space_before_token = true;
         }
-
-        variableOrRule = variableOrRule.replace(/\s$/, '');
 
         // might be less variable
         if (parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {

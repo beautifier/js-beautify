@@ -600,6 +600,8 @@ class Tokenizer(BaseTokenizer):
                 matched = input_scan.match(re.compile(r"x([0-9A-Fa-f]{2})"))
             elif input_scan.peek() == "u":
                 matched = input_scan.match(re.compile(r"u([0-9A-Fa-f]{4})"))
+                if not matched:
+                    matched = input_scan.match(re.compile(r"u\{([0-9A-Fa-f]+)\}"))
             else:
                 out += "\\"
                 if input_scan.hasNext():
@@ -620,7 +622,9 @@ class Tokenizer(BaseTokenizer):
             elif escaped >= 0x00 and escaped < 0x20:
                 # leave 0x00...0x1f escaped
                 out += "\\" + matched.group(0)
-                continue
+            elif escaped > 0x10FFFF:
+                # If the escape sequence is out of bounds, keep the original sequence and continue conversion
+                out += "\\" + matched.group(0)
             elif escaped == 0x22 or escaped == 0x27 or escaped == 0x5C:
                 # single-quote, apostrophe, backslash - escape these
                 out += "\\" + chr(escaped)

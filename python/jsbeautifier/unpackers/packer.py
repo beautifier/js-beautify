@@ -28,7 +28,7 @@ def detect(source):
     begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
     mystr = re.search(
-        "eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c["
+        r"eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c["
         " ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*",
         source,
     )

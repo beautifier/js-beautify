@@ -362,6 +362,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
             //  -- output --
             'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
+        
+        // Issue #2159: Invalid prettification of object with unicode escape character as object key - test scenario: object with unicode as key
+        bt(
+            '{\\u{1d4b6}:"ascr"}',
+            //  -- output --
+            '{\n' +
+            '    \\u{1d4b6}: "ascr"\n' +
+            '}');
+        bt(
+            'var \\u{E4}\\u{ca0}\\u{0cA0}\\u{000000Ca0} = {\n' +
+            '    \\u{ca0}rgerlich: true\n' +
+            '};');
 
 
         //============================================================
@@ -2754,6 +2766,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        !but_this_can,\n' +
             '    proper: "first_token_should_never_wrap" +\n' +
             '        "but_this_can"\n' +
+            '}');
+        
+        // Issue #1932 - Javascript object property with -/+ symbol wraps issue
+        bt(
+            '{\n' +
+            '            "1234567891234567891234567891234": -433,\n' +
+            '            "abcdefghijklmnopqrstuvwxyz12345": +11\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    "1234567891234567891234567891234": -433,\n' +
+            '    "abcdefghijklmnopqrstuvwxyz12345": +11\n' +
             '}');
         test_fragment(
             '' + wrap_input_2 + '',
@@ -10271,21 +10295,40 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('"—"');
         bt('"\\x41\\x42\\x43\\x01"', '"\\x41\\x42\\x43\\x01"');
         bt('"\\u2022"', '"\\u2022"');
+        bt('"\\u{2022}"', '"\\u{2022}"');
         bt('a = /\s+/');
         // bt('a = /\\x41/','a = /A/');
         bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);');
-        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+
+        test_fragment('"\\x41\\x42\\x01\\x43"');
+        test_fragment('"\\x41\\x42\\u0001\\x43"');
+        test_fragment('"\\x41\\x42\\u{0001}\\x43"');
+        test_fragment('"\\x20\\x40\\x4a"');
+        test_fragment('"\\xff\\x40\\x4a"');
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"');
+        test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"');
+        test_fragment('"Google Chrome est\\u00E1 actualizado."');
+        test_fragment(
+            '"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+            '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         opts.unescape_strings = true;
+        
+        test_fragment('"\\x41\\x42\\x01\\x43"', '"AB\\x01C"');
+        test_fragment('"\\x41\\x42\\u0001\\x43"', '"AB\\u0001C"');
+        test_fragment('"\\x41\\x42\\u{0001}\\x43"', '"AB\\u{0001}C"');
         test_fragment('"\\x20\\x40\\x4a"', '" @J"');
         test_fragment('"\\xff\\x40\\x4a"');
         test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"');
+        test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"', '"\u0072\u016B\\u{110000}\u0137\u012B\u0074\u0069\u0073"');
         test_fragment('"Google Chrome est\\u00E1 actualizado."', '"Google Chrome está actualizado."');
-        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
-           '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
+        test_fragment(
+            '"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
+            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
 
         // For error case, return the string unchanged
-        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+        test_fragment(
+            '"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
             '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         reset_options();
