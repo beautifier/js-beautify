@@ -32,6 +32,9 @@
 
 */
 /*jshint strict:false */
+/*jshint esversion: 6 */
+
+const { globSync } = require('glob');
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
     console.error.apply(console, arguments);
@@ -41,7 +44,7 @@ var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
     nopt = require('nopt'),
-    glob = require('glob');
+    glob = require("glob");
 
 nopt.invalidHandler = function(key, val) {
     throw new Error(key + " was invalid with value \"" + val + "\"");
@@ -634,8 +637,7 @@ function checkFiles(parsed) {
         // Input was a glob
         if (isGlob) {
             hadGlob = true;
-            foundFiles = glob(f, {
-                sync: true,
+            foundFiles = globSync(f, {
                 absolute: true,
                 ignore: ['**/node_modules/**', '**/.git/**']
             });
