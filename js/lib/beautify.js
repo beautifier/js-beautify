@@ -1036,7 +1036,9 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
-    if (!this.start_of_object_property()) {
+    if (!this.start_of_object_property() && !(
+        // start of object property is different for numeric values with +/- prefix operators
+        in_array(this._flags.last_token.text, ['+', '-']) && this._last_last_text === ':' && this._flags.parent.mode === MODE.ObjectLiteral)) {
       this.allow_wrap_or_preserved_newline(current_token);
     }
   }
@@ -1313,6 +1315,12 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
   if (current_token.text === '::') {
     // no spaces around exotic namespacing syntax operator
+    this.print_token(current_token);
+    return;
+  }
+
+  if (in_array(current_token.text, ['-', '+']) && this.start_of_object_property()) {
+    // numeric value with +/- symbol in front as a property
     this.print_token(current_token);
     return;
   }
@@ -2143,12 +2151,13 @@ var nonASCIIidentifierChars = "\\u0300-\\u036f\\u0483-\\u0487\\u0591-\\u05bd\\u0
 //var nonASCIIidentifierStart = new RegExp("[" + nonASCIIidentifierStartChars + "]");
 //var nonASCIIidentifier = new RegExp("[" + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]");
 
-var identifierStart = "(?:\\\\u[0-9a-fA-F]{4}|[" + baseASCIIidentifierStartChars + nonASCIIidentifierStartChars + "])";
-var identifierChars = "(?:\\\\u[0-9a-fA-F]{4}|[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "])*";
+var unicodeEscapeOrCodePoint = "\\\\u[0-9a-fA-F]{4}|\\\\u\\{[0-9a-fA-F]+\\}";
+var identifierStart = "(?:" + unicodeEscapeOrCodePoint + "|[" + baseASCIIidentifierStartChars + nonASCIIidentifierStartChars + "])";
+var identifierChars = "(?:" + unicodeEscapeOrCodePoint + "|[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "])*";
 
 exports.identifier = new RegExp(identifierStart + identifierChars, 'g');
 exports.identifierStart = new RegExp(identifierStart);
-exports.identifierMatch = new RegExp("(?:\\\\u[0-9a-fA-F]{4}|[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "])+");
+exports.identifierMatch = new RegExp("(?:" + unicodeEscapeOrCodePoint + "|[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "])+");
 
 var nonASCIIwhitespace = /[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]/; // jshint ignore:line
 
@@ -2953,6 +2962,9 @@ function unescape_string(s) {
         matched = input_scan.match(/x([0-9A-Fa-f]{2})/g);
       } else if (input_scan.peek() === 'u') {
         matched = input_scan.match(/u([0-9A-Fa-f]{4})/g);
+        if (!matched) {
+          matched = input_scan.match(/u\{([0-9A-Fa-f]+)\}/g);
+        }
       } else {
         out += '\\';
         if (input_scan.hasNext()) {
@@ -2976,7 +2988,9 @@ function unescape_string(s) {
       } else if (escaped >= 0x00 && escaped < 0x20) {
         // leave 0x00...0x1f escaped
         out += '\\' + matched[0];
-        continue;
+      } else if (escaped > 0x10FFFF) {
+        // If the escape sequence is out of bounds, keep the original sequence and continue conversion
+        out += '\\' + matched[0];
       } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
         // single-quote, apostrophe, backslash - escape these
         out += '\\' + String.fromCharCode(escaped);
