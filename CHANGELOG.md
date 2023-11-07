@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.14.10
+## v1.14.11
 * Editor not working https://beautifier.io/ ([#2201](https://github.com/beautify-web/js-beautify/issues/2201))
 * Set nodejs minimum to v14 ([#2169](https://github.com/beautify-web/js-beautify/pull/2169))
 * Invalid prettification of object with unicode escape character as object key ([#2159](https://github.com/beautify-web/js-beautify/issues/2159))
