@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.14.10
+* Editor not working https://beautifier.io/ ([#2201](https://github.com/beautify-web/js-beautify/issues/2201))
+* Set nodejs minimum to v14 ([#2169](https://github.com/beautify-web/js-beautify/pull/2169))
+* Invalid prettification of object with unicode escape character as object key ([#2159](https://github.com/beautify-web/js-beautify/issues/2159))
+* invalid json being generated with wrap\_line\_length ([#1932](https://github.com/beautify-web/js-beautify/issues/1932))
+
 ## v1.14.9
 * Bump semver and editorconfig ([#2161](https://github.com/beautify-web/js-beautify/pull/2161))
 * Update editorconfig package ([#2160](https://github.com/beautify-web/js-beautify/issues/2160))
