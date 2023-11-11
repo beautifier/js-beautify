@@ -37,6 +37,8 @@ var Pattern = require('../core/pattern').Pattern;
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
   TAG_CLOSE: 'TK_TAG_CLOSE',
+  CONTROL_FLOW_OPEN: 'TK_CONTROL_FLOW_OPEN',
+  CONTROL_FLOW_CLOSE: 'TK_CONTROL_FLOW_CLOSE',
   ATTRIBUTE: 'TK_ATTRIBUTE',
   EQUALS: 'TK_EQUALS',
   VALUE: 'TK_VALUE',
@@ -97,14 +99,16 @@ Tokenizer.prototype._is_comment = function(current_token) { // jshint unused:fal
 };
 
 Tokenizer.prototype._is_opening = function(current_token) {
-  return current_token.type === TOKEN.TAG_OPEN;
+  return current_token.type === TOKEN.TAG_OPEN || current_token.type === TOKEN.CONTROL_FLOW_OPEN;
 };
 
 Tokenizer.prototype._is_closing = function(current_token, open_token) {
-  return current_token.type === TOKEN.TAG_CLOSE &&
+  return (current_token.type === TOKEN.TAG_CLOSE &&
     (open_token && (
       ((current_token.text === '>' || current_token.text === '/>') && open_token.text[0] === '<') ||
-      (current_token.text === '}}' && open_token.text[0] === '{' && open_token.text[1] === '{')));
+      (current_token.text === '}}' && open_token.text[0] === '{' && open_token.text[1] === '{')))
+    ) || (current_token.type === TOKEN.CONTROL_FLOW_CLOSE && 
+    (current_token.text === '}' && open_token.text.endsWith('{')));
 };
 
 Tokenizer.prototype._reset = function() {
@@ -123,6 +127,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_close(c, open_token);
+  token = token || this._read_control_flows(c);
   token = token || this._read_raw_content(c, previous_token, open_token);
   token = token || this._read_content_word(c);
   token = token || this._read_comment_or_cdata(c);
@@ -189,7 +194,7 @@ Tokenizer.prototype._read_processing = function(c) { // jshint unused:false
 Tokenizer.prototype._read_open = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (!open_token) {
+  if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
     if (c === '<') {
 
       resulting_string = this._input.next();
@@ -206,7 +211,7 @@ Tokenizer.prototype._read_open = function(c, open_token) {
 Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (!open_token) {
+  if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
     if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
       if (this._input.peek(2) === '!') {
         resulting_string = this.__patterns.handlebars_comment.read();
@@ -221,11 +226,36 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   return token;
 };
 
+Tokenizer.prototype._read_control_flows = function (c) {
+  var resulting_string = '';
+  var token = null;
+  if (c === '@' && /[a-zA-Z0-9]/.test(this._input.peek(1))) {
+    var opening_parentheses_count = 0;
+    var closing_parentheses_count = 0;
+    while(!(resulting_string.endsWith('{') && opening_parentheses_count === closing_parentheses_count)) {
+      var next_char = this._input.next();
+      if(next_char === null) {
+        break;
+      } else if(next_char === '(') {
+        opening_parentheses_count++;
+      } else if(next_char === ')') {
+        closing_parentheses_count++;
+      }
+      resulting_string += next_char;
+    }
+    token = this._create_token(TOKEN.CONTROL_FLOW_OPEN, resulting_string);
+  } else if (c === '}' && this._input.peek(1) !== '}' && this._input.peek(-1) !== '}') {
+    resulting_string = this._input.next();
+    token = this._create_token(TOKEN.CONTROL_FLOW_CLOSE, resulting_string);
+  }
+  return token;
+};
+
 
 Tokenizer.prototype._read_close = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (open_token) {
+  if (open_token && open_token.type === TOKEN.TAG_OPEN) {
     if (open_token.text[0] === '<' && (c === '>' || (c === '/' && this._input.peek(1) === '>'))) {
       resulting_string = this._input.next();
       if (c === '/') { //  for close tag "/>"
