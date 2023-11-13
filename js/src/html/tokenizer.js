@@ -127,7 +127,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_close(c, open_token);
-  token = token || this._read_control_flows(c);
+  token = token || this._read_control_flows(c, open_token);
   token = token || this._read_raw_content(c, previous_token, open_token);
   token = token || this._read_content_word(c);
   token = token || this._read_comment_or_cdata(c);
@@ -226,7 +226,7 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   return token;
 };
 
-Tokenizer.prototype._read_control_flows = function (c) {
+Tokenizer.prototype._read_control_flows = function (c, open_token) {
   var resulting_string = '';
   var token = null;
   // Only check for control flows if angular templating is set
@@ -251,7 +251,7 @@ Tokenizer.prototype._read_control_flows = function (c) {
       resulting_string += next_char;
     }
     token = this._create_token(TOKEN.CONTROL_FLOW_OPEN, resulting_string);
-  } else if (c === '}' && this._input.peek(1) !== '}' && this._input.peek(-1) !== '}') {
+  } else if (c === '}' && open_token && open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
     resulting_string = this._input.next();
     token = this._create_token(TOKEN.CONTROL_FLOW_CLOSE, resulting_string);
   }
