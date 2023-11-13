@@ -229,9 +229,16 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
 Tokenizer.prototype._read_control_flows = function (c) {
   var resulting_string = '';
   var token = null;
+  // Only check for control flows if angular templating is set
+  if(!this._options.templating.includes('angular')) {
+    return token;
+  }
+
   if (c === '@' && /[a-zA-Z0-9]/.test(this._input.peek(1))) {
     var opening_parentheses_count = 0;
     var closing_parentheses_count = 0;
+    // The opening brace of the control flow is where the number of opening and closing parentheses equal
+    // e.g. @if({value: true} !== null) { 
     while(!(resulting_string.endsWith('{') && opening_parentheses_count === closing_parentheses_count)) {
       var next_char = this._input.next();
       if(next_char === null) {

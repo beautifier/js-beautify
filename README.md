@@ -223,7 +223,7 @@ Beautifier Options:
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
   --indent-empty-lines              Keep indentation on empty lines
-  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in HTML
+  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in HTML
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -379,7 +379,7 @@ HTML Beautifier Options:
   --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
   --unformatted_content_delimiter    Keep text content together between this string [""]
   --indent-empty-lines               Keep indentation on empty lines
-  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
+  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in html
 ```
 
 ## Directives
