@@ -335,8 +335,12 @@ Beautifier.prototype._handle_control_flow_open = function(printer, raw_token) {
     text: raw_token.text,
     type: raw_token.type
   };
-
-  printer.print_newline(true); // TODO: handle indentation based on brace_style (and preserve-inline)
+  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  if(raw_token.newlines) {
+    printer.print_preserved_newlines(raw_token);
+  } else {
+    printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  }
   printer.print_token(raw_token);
   printer.indent();
   return parser_token;
@@ -349,7 +353,11 @@ Beautifier.prototype._handle_control_flow_close = function(printer, raw_token) {
   };
 
   printer.deindent();
-  printer.print_newline(true);
+  if(raw_token.newlines) {
+    printer.print_preserved_newlines(raw_token);
+  } else {
+    printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  }
   printer.print_token(raw_token);
   return parser_token;
 };
