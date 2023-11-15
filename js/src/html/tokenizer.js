@@ -107,7 +107,7 @@ Tokenizer.prototype._is_closing = function(current_token, open_token) {
     (open_token && (
       ((current_token.text === '>' || current_token.text === '/>') && open_token.text[0] === '<') ||
       (current_token.text === '}}' && open_token.text[0] === '{' && open_token.text[1] === '{')))
-    ) || (current_token.type === TOKEN.CONTROL_FLOW_CLOSE && 
+  ) || (current_token.type === TOKEN.CONTROL_FLOW_CLOSE &&
     (current_token.text === '}' && open_token.text.endsWith('{')));
 };
 
@@ -226,11 +226,11 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   return token;
 };
 
-Tokenizer.prototype._read_control_flows = function (c, open_token) {
+Tokenizer.prototype._read_control_flows = function(c, open_token) {
   var resulting_string = '';
   var token = null;
   // Only check for control flows if angular templating is set
-  if(!this._options.templating.includes('angular')) {
+  if (!this._options.templating.includes('angular')) {
     return token;
   }
 
@@ -239,13 +239,13 @@ Tokenizer.prototype._read_control_flows = function (c, open_token) {
     var closing_parentheses_count = 0;
     // The opening brace of the control flow is where the number of opening and closing parentheses equal
     // e.g. @if({value: true} !== null) { 
-    while(!(resulting_string.endsWith('{') && opening_parentheses_count === closing_parentheses_count)) {
+    while (!(resulting_string.endsWith('{') && opening_parentheses_count === closing_parentheses_count)) {
       var next_char = this._input.next();
-      if(next_char === null) {
+      if (next_char === null) {
         break;
-      } else if(next_char === '(') {
+      } else if (next_char === '(') {
         opening_parentheses_count++;
-      } else if(next_char === ')') {
+      } else if (next_char === ')') {
         closing_parentheses_count++;
       }
       resulting_string += next_char;
