@@ -40,6 +40,8 @@ function Options(options) {
   this.indent_body_inner_html = this._get_boolean('indent_body_inner_html', true);
   this.indent_head_inner_html = this._get_boolean('indent_head_inner_html', true);
 
+  this.space_before_self_closing_tag = this._get_boolean('space_before_self_closing_tag', true);
+
   this.indent_handlebars = this._get_boolean('indent_handlebars', true);
   this.wrap_attributes = this._get_selection('wrap_attributes',
     ['auto', 'force', 'force-aligned', 'force-expand-multiline', 'aligned-multiple', 'preserve', 'preserve-aligned']);
