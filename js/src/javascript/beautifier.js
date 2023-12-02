@@ -36,7 +36,7 @@ var Tokenizer = require('./tokenizer').Tokenizer;
 var line_starters = require('./tokenizer').line_starters;
 var positionable_operators = require('./tokenizer').positionable_operators;
 var TOKEN = require('./tokenizer').TOKEN;
-
+var test  = "test";
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
