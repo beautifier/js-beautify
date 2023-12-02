@@ -3826,6 +3826,7 @@ exports.test_data = {
         '        <span>The time for this result is 1:02</span',
         '        ><time-dot>.</time-dot',
         '        ><time-decimals>27</time-decimals>',
+        '        ><time-decimals>27</time-decimals>',
         '    </span>',
         '</span>'
       ],
@@ -3834,6 +3835,7 @@ exports.test_data = {
         '    <span>',
         '        <span>The time for this result is 1:02</span>',
         '        <time-dot>.</time-dot>',
+        '        <time-decimals>27</time-decimals>',
         '        <time-decimals>27</time-decimals>',
         '    </span>',
         '</span>'
