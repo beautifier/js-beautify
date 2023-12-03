@@ -4136,6 +4136,24 @@ exports.test_data = {
         '    }',
         '</div>'
       ]
+    }, {
+      comment: 'If no whitespace before @, then don\'t indent',
+      input: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        'Text',
+        '</p>',
+        '}'
+      ],
+      output: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        '    Text',
+        '</p>',
+        '}'
+      ]
     }]
   }, {
     name: "New Test Suite"

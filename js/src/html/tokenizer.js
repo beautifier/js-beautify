@@ -68,6 +68,7 @@ var Tokenizer = function(input_string, options) {
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
     element_name: templatable_reader.until(/[\n\r\t >\/]/),
 
+    angular_control_flow_start: pattern_reader.matching(/\@([a-zA-z]+[\n\t ]*)+[({]/),
     handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
     handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
     handlebars_open: pattern_reader.until(/[\n\r\t }]/),
@@ -234,8 +235,13 @@ Tokenizer.prototype._read_control_flows = function(c, open_token) {
     return token;
   }
 
-  if (c === '@' && /[a-zA-Z0-9]/.test(this._input.peek(1))) {
-    var opening_parentheses_count = 0;
+  if (c === '@') {
+    resulting_string = this.__patterns.angular_control_flow_start.read();
+    if (resulting_string === '') {
+      return token;
+    }
+
+    var opening_parentheses_count = resulting_string.endsWith('(') ? 1 : 0;
     var closing_parentheses_count = 0;
     // The opening brace of the control flow is where the number of opening and closing parentheses equal
     // e.g. @if({value: true} !== null) { 
