@@ -4154,6 +4154,30 @@ exports.test_data = {
         '</p>',
         '}'
       ]
+    }, {
+      comment: 'Check if control flow is indented well if we have oneliners with no space before the closing token',
+      input: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        'Hello there',
+        '</div>',
+        '<div>',
+        '{{b}} @if (a > b) {is less than}@else{',
+        'is greater than or equal to} {{a}}',
+        'Hello there',
+        '</div>'
+      ],
+      output: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        '    Hello there',
+        '</div>',
+        '<div>',
+        '    {{b}} @if (a > b) {is less than}@else{',
+        '        is greater than or equal to} {{a}}',
+        '    Hello there',
+        '</div>'
+      ]
     }]
   }, {
     name: "New Test Suite"

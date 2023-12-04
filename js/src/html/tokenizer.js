@@ -63,6 +63,7 @@ var Tokenizer = function(input_string, options) {
 
   this.__patterns = {
     word: templatable_reader.until(/[\n\r\t <]/),
+    word_control_flow_close_excluded: templatable_reader.until(/[\n\r\t <}]/),
     single_quote: templatable_reader.until_after(/'/),
     double_quote: templatable_reader.until_after(/"/),
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
@@ -82,6 +83,7 @@ var Tokenizer = function(input_string, options) {
 
   if (this._options.indent_handlebars) {
     this.__patterns.word = this.__patterns.word.exclude('handlebars');
+    this.__patterns.word_control_flow_close_excluded = this.__patterns.word_control_flow_close_excluded.exclude('handlebars');
   }
 
   this._unformatted_content_delimiter = null;
@@ -130,7 +132,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_close(c, open_token);
   token = token || this._read_control_flows(c, open_token);
   token = token || this._read_raw_content(c, previous_token, open_token);
-  token = token || this._read_content_word(c);
+  token = token || this._read_content_word(c, open_token);
   token = token || this._read_comment_or_cdata(c);
   token = token || this._read_processing(c);
   token = token || this._read_open(c, open_token);
@@ -355,7 +357,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
   return null;
 };
 
-Tokenizer.prototype._read_content_word = function(c) {
+Tokenizer.prototype._read_content_word = function(c, open_token) {
   var resulting_string = '';
   if (this._options.unformatted_content_delimiter) {
     if (c === this._options.unformatted_content_delimiter[0]) {
@@ -364,7 +366,7 @@ Tokenizer.prototype._read_content_word = function(c) {
   }
 
   if (!resulting_string) {
-    resulting_string = this.__patterns.word.read();
+    resulting_string = (open_token && open_token.type === TOKEN.CONTROL_FLOW_OPEN) ? this.__patterns.word_control_flow_close_excluded.read() : this.__patterns.word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
