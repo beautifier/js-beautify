@@ -69,7 +69,7 @@ var Tokenizer = function(input_string, options) {
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
     element_name: templatable_reader.until(/[\n\r\t >\/]/),
 
-    angular_control_flow_start: pattern_reader.matching(/\@([a-zA-z]+[\n\t ]*)+[({]/),
+    angular_control_flow_start: pattern_reader.matching(/\@[^\n\t ][^({]*[({]/),
     handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
     handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
     handlebars_open: pattern_reader.until(/[\n\r\t }]/),
@@ -232,8 +232,8 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
 Tokenizer.prototype._read_control_flows = function(c, open_token) {
   var resulting_string = '';
   var token = null;
-  // Only check for control flows if angular templating is set
-  if (!this._options.templating.includes('angular')) {
+  // Only check for control flows if angular templating is set AND indenting is set
+  if (!this._options.templating.includes('angular') || !this._options.indent_handlebars) {
     return token;
   }
 
