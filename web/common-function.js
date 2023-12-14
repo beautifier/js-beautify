@@ -268,11 +268,11 @@ function submitIssue() {
   window.open(url, '_blank').focus();
 }
 
-function getSubmitIssueBody(trucate) {
+function getSubmitIssueBody(truncate) {
   var input = the.lastInput;
   var output = the.lastOutput;
 
-  if (trucate) {
+  if (truncate) {
     input = '/* Your input text */';
     output = '/* Output text currently returned by the beautifier */';
   }
