@@ -1316,7 +1316,7 @@ Beautifier.prototype.handle_operator = function(current_token) {
       // a++ + ++b;
       // a - -b
       space_before = in_array(current_token.text, ['--', '-', '++', '+']) && in_array(this._flags.last_token.text, ['--', '-', '++', '+']);
-      // + and - are not unary when preceeded by -- or ++ operator
+      // + and - are not unary when proceeded by -- or ++ operator
       // a-- + b
       // a * +b
       // a - -b

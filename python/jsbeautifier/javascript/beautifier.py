@@ -1492,7 +1492,7 @@ class Beautifier:
                     "++",
                     "+",
                 ] and self._flags.last_token.text in ["--", "-", "++", "+"]
-                # + and - are not unary when preceeded by -- or ++ operator
+                # + and - are not unary when proceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
                 # a - -b
