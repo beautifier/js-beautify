@@ -490,7 +490,7 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
     if (text) {
       if (_beautifier) {
 
-        // call the Beautifier if avaliable
+        // call the Beautifier if available
         var Child_options = function() {
           this.eol = '\n';
         };
