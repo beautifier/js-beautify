@@ -20,7 +20,7 @@ build_js()
   cp ./js/src/cli.js ./js/lib/
 
   # Wrap webkit output into an non-breaking form.
-  # In an upcoming verion these will be replaced with standard webpack umd
+  # In an upcoming version these will be replaced with standard webpack umd
   sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_js.js' <./tools/template/beautify.wrapper.js >./js/lib/beautify.js || exit 1
   sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_css.js' <./tools/template/beautify-css.wrapper.js >./js/lib/beautify-css.js || exit 1
   sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_html.js' <./tools/template/beautify-html.wrapper.js >./js/lib/beautify-html.js || exit 1
