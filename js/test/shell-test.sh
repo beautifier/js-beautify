@@ -362,7 +362,7 @@ test_cli_js_beautify()
 
     cd $SCRIPT_DIR/resources/configerror
     $CLI_SCRIPT $TEST_TEMP/example1-default.js 2>&1 |  grep -q "Error while loading beautifier configuration\." || {
-        echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configration load error message."
+        echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configuration load error message."
         cleanup 1
     }
 
