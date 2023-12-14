@@ -3859,7 +3859,7 @@ exports.test_data = {
           ]
         },
         {
-          comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+          comment: "Issue 298 - do not under indent if/while/for conditionals experesions",
           unchanged: [
             '\\\'use strict\\\';',
             'if ([].some(function() {',
@@ -3870,7 +3870,7 @@ exports.test_data = {
           ]
         },
         {
-          comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+          comment: "Issue 298 - do not under indent if/while/for conditionals experesions",
           unchanged: [
             '\\\'use strict\\\';',
             'if ([].some(function() {',
