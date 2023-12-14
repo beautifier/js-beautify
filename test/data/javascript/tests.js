@@ -3851,7 +3851,7 @@ exports.test_data = {
           unchanged: [
             'a = {',
             '    get b() {',
-            '        retun 0;',
+            '        return 0;',
             '    },',
             '    c: 1,',
             '    d: function() {}',
