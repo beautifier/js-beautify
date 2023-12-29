@@ -17,7 +17,7 @@
     "js/lib/*.js",
     "js/lib/unpackers/",
     "js/index.js",
-    "js/src/**/*"
+    "js/src/"
   ],
   "scripts": {},
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
