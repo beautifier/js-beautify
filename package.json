@@ -20,11 +20,11 @@
     "js/src/"
   ],
   "scripts": {},
-  "bugs": "https://github.com/beautify-web/js-beautify/issues",
+  "bugs": "https://github.com/beautifier/js-beautify/issues",
   "homepage": "https://beautifier.io/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/beautify-web/js-beautify.git"
+    "url": "git://github.com/beautifier/js-beautify.git"
   },
   "keywords": [
     "beautify",

@@ -3775,7 +3775,7 @@ exports.test_data = {
     }]
   }, {
     name: "Does not add whitespace around custom elements ",
-    description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
+    description: "Regression test for https://github.com/beautifier/js-beautify/issues/1989",
     tests: [{
       input: [
         '<span>',
@@ -3815,7 +3815,7 @@ exports.test_data = {
     }]
   }, {
     name: "Disables custom elements inlining with inline_custom_elements=false",
-    description: "https://github.com/beautify-web/js-beautify/issues/2113",
+    description: "https://github.com/beautifier/js-beautify/issues/2113",
     options: [
       { name: "inline_custom_elements", value: "false" }
     ],
