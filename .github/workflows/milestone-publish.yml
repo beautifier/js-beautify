@@ -49,7 +49,7 @@ jobs:
           ssh-add ~/.ssh/deploy_js_beautify
                     
           git remote add site git@beautifier-github.com:beautifier/beautifier.io.git
-          git remote add trigger git@js-beautify-github.com:beautify-web/js-beautify.git
+          git remote add trigger git@js-beautify-github.com:beautifier/js-beautify.git
           git fetch --all
       - name: Install python twinE
         run: pip install twine        

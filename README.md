@@ -1,10 +1,10 @@
-<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/beautifier/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-<p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
+<p align="center"><a href="https://github.com/beautifier/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautifier/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautifier/js-beautify.svg"/></a></p>
 
 <p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
-<p align="center"><a href="https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautify-web/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
+<p align="center"><a href="https://gitter.im/beautifier/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautifier/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
 
 <p align="center"><a href="https://www.npmjs.org/package/js-beautify" target="_blank"><img alt="NPM stats" src=https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true"/></a></p>
 
@@ -21,7 +21,7 @@ I'm putting this front and center above because existing owners have very limite
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both
 customer facing bugs and underlying problems with the internal design and implementation.
 
-If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/main/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
+If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautifier/js-beautify/blob/main/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautifier/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
 
 
 # Installation
