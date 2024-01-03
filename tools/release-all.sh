@@ -82,7 +82,7 @@ update_versions()
     git clean -xfd || exit 1
 
     # Disabled due to build break
-     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
+     $SCRIPT_DIR/generate-changelog.sh beautifier/js-beautify $GITHUB_TOKEN || exit 1
 
     $SCRIPT_DIR/npm version --no-git-tag-version $NEW_VERSION || exit 1
 
