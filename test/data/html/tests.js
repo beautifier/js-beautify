@@ -3839,7 +3839,38 @@ exports.test_data = {
         '</span>'
       ]
     }]
-  }, {
+  },
+  {
+    name: "Prevent adding space before self closing tag with space_before_self_closing_tag=false",
+    description: "https://github.com/beautify-web/js-beautify/issues/654",
+    options: [
+      { name: "space_before_self_closing_tag", value: "false" }
+    ],
+    tests: [{
+      input: [
+        '<img class="no-space-please"    />'
+      ],
+      output: [
+        '<img class="no-space-please"/>'
+      ]
+    }]
+  },
+  {
+    name: "Add space before before self closing tag with space_before_self_closing_tag=true",
+    description: "https://github.com/beautify-web/js-beautify/issues/654",
+    options: [
+      { name: "space_before_self_closing_tag", value: "true" }
+    ],
+    tests: [{
+      input: [
+        '<img class="some-space-please"    />'
+      ],
+      output: [
+        '<img class="some-space-please" />'
+      ]
+    }]
+  },
+  {
     name: "New Test Suite"
   }]
 };

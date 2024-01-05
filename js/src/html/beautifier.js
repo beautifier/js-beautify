@@ -327,12 +327,17 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
   printer.alignment_size = 0;
   last_tag_token.tag_complete = true;
 
-  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  if(this._options.space_before_self_closing_tag || !in_array(last_tag_token.tag_name,this._options.void_elements)){ // no space before in void_elements /> if space_before_self_closing_tag is false
+    printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  }
+  
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
+      if(this._options.space_before_self_closing_tag || !in_array(last_tag_token.tag_name,this._options.void_elements)){
+        printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
+      }
       if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
@@ -365,6 +370,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
   };
 
   printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
   } else if (last_tag_token.tag_start_char === '{' && raw_token.type === TOKEN.TEXT) {
