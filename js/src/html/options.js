@@ -84,6 +84,7 @@ function Options(options) {
   ]);
   this.unformatted_content_delimiter = this._get_characters('unformatted_content_delimiter');
   this.indent_scripts = this._get_selection('indent_scripts', ['normal', 'keep', 'separate']);
+  this.closing_bracket_newline = this._get_boolean('closing_bracket_newline');
 
 }
 Options.prototype = new BaseOptions();
