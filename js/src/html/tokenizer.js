@@ -69,7 +69,7 @@ var Tokenizer = function(input_string, options) {
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
     element_name: templatable_reader.until(/[\n\r\t >\/]/),
 
-    angular_control_flow_start: pattern_reader.matching(/\@[^\n\t ][^({]*[({]/),
+    angular_control_flow_start: pattern_reader.matching(/\@[a-zA-Z]+[^({]*[({]/),
     handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
     handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
     handlebars_open: pattern_reader.until(/[\n\r\t }]/),
