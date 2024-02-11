@@ -49,7 +49,7 @@
   },
   "browserslist": "ie 11",
   "dependencies": {
-    "config-chain": "^1.1.13",
+    "configuration-chain": "^1.1.15",
     "editorconfig": "^1.0.4",
     "glob": "^10.3.3",
     "js-cookie": "^3.0.5",
