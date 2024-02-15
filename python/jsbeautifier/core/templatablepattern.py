@@ -35,6 +35,7 @@ class TemplateNames:
         self.handlebars = False
         self.php = False
         self.smarty = False
+        self.angular = False
 
 
 class TemplatePatterns:
@@ -78,7 +79,7 @@ class TemplatablePattern(Pattern):
 
     def read_options(self, options):
         result = self._create()
-        for language in ["django", "erb", "handlebars", "php", "smarty"]:
+        for language in ["django", "erb", "handlebars", "php", "smarty", "angular"]:
             setattr(result._disabled, language, not (language in options.templating))
         result._update()
         return result

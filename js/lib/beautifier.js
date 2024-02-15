@@ -2315,10 +2315,10 @@ function Options(options, merge_child_field) {
 
   this.indent_empty_lines = this._get_boolean('indent_empty_lines');
 
-  // valid templating languages ['django', 'erb', 'handlebars', 'php', 'smarty']
+  // valid templating languages ['django', 'erb', 'handlebars', 'php', 'smarty', 'angular']
   // For now, 'auto' = all off for javascript, all on for html (and inline javascript).
   // other values ignored
-  this.templating = this._get_selection_list('templating', ['auto', 'none', 'django', 'erb', 'handlebars', 'php', 'smarty'], ['auto']);
+  this.templating = this._get_selection_list('templating', ['auto', 'none', 'django', 'erb', 'handlebars', 'php', 'smarty', 'angular'], ['auto']);
 }
 
 Options.prototype._get_array = function(name, default_value) {
@@ -3782,7 +3782,8 @@ var template_names = {
   erb: false,
   handlebars: false,
   php: false,
-  smarty: false
+  smarty: false,
+  angular: false
 };
 
 // This lets templates appear anywhere we would do a readUntil
@@ -4785,6 +4786,13 @@ Printer.prototype.indent = function() {
   this.indent_level++;
 };
 
+Printer.prototype.deindent = function() {
+  if (this.indent_level > 0) {
+    this.indent_level--;
+    this._output.set_indent(this.indent_level, this.alignment_size);
+  }
+};
+
 Printer.prototype.get_full_indent = function(level) {
   level = this.indent_level + (level || 0);
   if (level < 1) {
@@ -4979,6 +4987,10 @@ Beautifier.prototype.beautify = function() {
       parser_token = this._handle_tag_close(printer, raw_token, last_tag_token);
     } else if (raw_token.type === TOKEN.TEXT) {
       parser_token = this._handle_text(printer, raw_token, last_tag_token);
+    } else if (raw_token.type === TOKEN.CONTROL_FLOW_OPEN) {
+      parser_token = this._handle_control_flow_open(printer, raw_token);
+    } else if (raw_token.type === TOKEN.CONTROL_FLOW_CLOSE) {
+      parser_token = this._handle_control_flow_close(printer, raw_token);
     } else {
       // This should never happen, but if it does. Print the raw token
       printer.add_raw_token(raw_token);
@@ -4991,6 +5003,38 @@ Beautifier.prototype.beautify = function() {
   var sweet_code = printer._output.get_code(eol);
 
   return sweet_code;
+};
+
+Beautifier.prototype._handle_control_flow_open = function(printer, raw_token) {
+  var parser_token = {
+    text: raw_token.text,
+    type: raw_token.type
+  };
+  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  if (raw_token.newlines) {
+    printer.print_preserved_newlines(raw_token);
+  } else {
+    printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  }
+  printer.print_token(raw_token);
+  printer.indent();
+  return parser_token;
+};
+
+Beautifier.prototype._handle_control_flow_close = function(printer, raw_token) {
+  var parser_token = {
+    text: raw_token.text,
+    type: raw_token.type
+  };
+
+  printer.deindent();
+  if (raw_token.newlines) {
+    printer.print_preserved_newlines(raw_token);
+  } else {
+    printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
+  }
+  printer.print_token(raw_token);
+  return parser_token;
 };
 
 Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_token) {
@@ -5589,7 +5633,7 @@ var BaseOptions = (__webpack_require__(7).Options);
 function Options(options) {
   BaseOptions.call(this, options, 'html');
   if (this.templating.length === 1 && this.templating[0] === 'auto') {
-    this.templating = ['django', 'erb', 'handlebars', 'php'];
+    this.templating = ['django', 'erb', 'handlebars', 'php', 'angular'];
   }
 
   this.indent_inner_html = this._get_boolean('indent_inner_html');
@@ -5692,6 +5736,8 @@ var Pattern = (__webpack_require__(13).Pattern);
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
   TAG_CLOSE: 'TK_TAG_CLOSE',
+  CONTROL_FLOW_OPEN: 'TK_CONTROL_FLOW_OPEN',
+  CONTROL_FLOW_CLOSE: 'TK_CONTROL_FLOW_CLOSE',
   ATTRIBUTE: 'TK_ATTRIBUTE',
   EQUALS: 'TK_EQUALS',
   VALUE: 'TK_VALUE',
@@ -5716,11 +5762,13 @@ var Tokenizer = function(input_string, options) {
 
   this.__patterns = {
     word: templatable_reader.until(/[\n\r\t <]/),
+    word_control_flow_close_excluded: templatable_reader.until(/[\n\r\t <}]/),
     single_quote: templatable_reader.until_after(/'/),
     double_quote: templatable_reader.until_after(/"/),
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
     element_name: templatable_reader.until(/[\n\r\t >\/]/),
 
+    angular_control_flow_start: pattern_reader.matching(/\@[a-zA-Z]+[^({]*[({]/),
     handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
     handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
     handlebars_open: pattern_reader.until(/[\n\r\t }]/),
@@ -5734,6 +5782,7 @@ var Tokenizer = function(input_string, options) {
 
   if (this._options.indent_handlebars) {
     this.__patterns.word = this.__patterns.word.exclude('handlebars');
+    this.__patterns.word_control_flow_close_excluded = this.__patterns.word_control_flow_close_excluded.exclude('handlebars');
   }
 
   this._unformatted_content_delimiter = null;
@@ -5752,14 +5801,16 @@ Tokenizer.prototype._is_comment = function(current_token) { // jshint unused:fal
 };
 
 Tokenizer.prototype._is_opening = function(current_token) {
-  return current_token.type === TOKEN.TAG_OPEN;
+  return current_token.type === TOKEN.TAG_OPEN || current_token.type === TOKEN.CONTROL_FLOW_OPEN;
 };
 
 Tokenizer.prototype._is_closing = function(current_token, open_token) {
-  return current_token.type === TOKEN.TAG_CLOSE &&
+  return (current_token.type === TOKEN.TAG_CLOSE &&
     (open_token && (
       ((current_token.text === '>' || current_token.text === '/>') && open_token.text[0] === '<') ||
-      (current_token.text === '}}' && open_token.text[0] === '{' && open_token.text[1] === '{')));
+      (current_token.text === '}}' && open_token.text[0] === '{' && open_token.text[1] === '{')))
+  ) || (current_token.type === TOKEN.CONTROL_FLOW_CLOSE &&
+    (current_token.text === '}' && open_token.text.endsWith('{')));
 };
 
 Tokenizer.prototype._reset = function() {
@@ -5778,8 +5829,9 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_close(c, open_token);
+  token = token || this._read_control_flows(c, open_token);
   token = token || this._read_raw_content(c, previous_token, open_token);
-  token = token || this._read_content_word(c);
+  token = token || this._read_content_word(c, open_token);
   token = token || this._read_comment_or_cdata(c);
   token = token || this._read_processing(c);
   token = token || this._read_open(c, open_token);
@@ -5844,7 +5896,7 @@ Tokenizer.prototype._read_processing = function(c) { // jshint unused:false
 Tokenizer.prototype._read_open = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (!open_token) {
+  if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
     if (c === '<') {
 
       resulting_string = this._input.next();
@@ -5861,7 +5913,7 @@ Tokenizer.prototype._read_open = function(c, open_token) {
 Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (!open_token) {
+  if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
     if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
       if (this._input.peek(2) === '!') {
         resulting_string = this.__patterns.handlebars_comment.read();
@@ -5876,11 +5928,48 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   return token;
 };
 
+Tokenizer.prototype._read_control_flows = function(c, open_token) {
+  var resulting_string = '';
+  var token = null;
+  // Only check for control flows if angular templating is set AND indenting is set
+  if (!this._options.templating.includes('angular') || !this._options.indent_handlebars) {
+    return token;
+  }
+
+  if (c === '@') {
+    resulting_string = this.__patterns.angular_control_flow_start.read();
+    if (resulting_string === '') {
+      return token;
+    }
+
+    var opening_parentheses_count = resulting_string.endsWith('(') ? 1 : 0;
+    var closing_parentheses_count = 0;
+    // The opening brace of the control flow is where the number of opening and closing parentheses equal
+    // e.g. @if({value: true} !== null) { 
+    while (!(resulting_string.endsWith('{') && opening_parentheses_count === closing_parentheses_count)) {
+      var next_char = this._input.next();
+      if (next_char === null) {
+        break;
+      } else if (next_char === '(') {
+        opening_parentheses_count++;
+      } else if (next_char === ')') {
+        closing_parentheses_count++;
+      }
+      resulting_string += next_char;
+    }
+    token = this._create_token(TOKEN.CONTROL_FLOW_OPEN, resulting_string);
+  } else if (c === '}' && open_token && open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
+    resulting_string = this._input.next();
+    token = this._create_token(TOKEN.CONTROL_FLOW_CLOSE, resulting_string);
+  }
+  return token;
+};
+
 
 Tokenizer.prototype._read_close = function(c, open_token) {
   var resulting_string = null;
   var token = null;
-  if (open_token) {
+  if (open_token && open_token.type === TOKEN.TAG_OPEN) {
     if (open_token.text[0] === '<' && (c === '>' || (c === '/' && this._input.peek(1) === '>'))) {
       resulting_string = this._input.next();
       if (c === '/') { //  for close tag "/>"
@@ -5967,7 +6056,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
   return null;
 };
 
-Tokenizer.prototype._read_content_word = function(c) {
+Tokenizer.prototype._read_content_word = function(c, open_token) {
   var resulting_string = '';
   if (this._options.unformatted_content_delimiter) {
     if (c === this._options.unformatted_content_delimiter[0]) {
@@ -5976,7 +6065,7 @@ Tokenizer.prototype._read_content_word = function(c) {
   }
 
   if (!resulting_string) {
-    resulting_string = this.__patterns.word.read();
+    resulting_string = (open_token && open_token.type === TOKEN.CONTROL_FLOW_OPEN) ? this.__patterns.word_control_flow_close_excluded.read() : this.__patterns.word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);

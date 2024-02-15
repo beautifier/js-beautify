@@ -9,6 +9,7 @@ python/*/__pycache__
 python/MANIFEST
 python/build
 python/dist
+python/.eggs/
 python/jsbeautifier.egg-info
 python/cssbeautifier.egg-info
 .nvmrc

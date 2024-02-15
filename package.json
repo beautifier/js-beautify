@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.14.11",
+  "version": "1.15.0",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -17,14 +17,14 @@
     "js/lib/*.js",
     "js/lib/unpackers/",
     "js/index.js",
-    "js/src/**/*"
+    "js/src/"
   ],
   "scripts": {},
-  "bugs": "https://github.com/beautify-web/js-beautify/issues",
+  "bugs": "https://github.com/beautifier/js-beautify/issues",
   "homepage": "https://beautifier.io/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/beautify-web/js-beautify.git"
+    "url": "git://github.com/beautifier/js-beautify.git"
   },
   "keywords": [
     "beautify",
@@ -50,14 +50,15 @@
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
-    "editorconfig": "^1.0.3",
+    "editorconfig": "^1.0.4",
     "glob": "^10.3.3",
+    "js-cookie": "^3.0.5",
     "nopt": "^7.2.0"
   },
   "devDependencies": {
     "ansi-regex": "^6.0.1",
     "benchmark": "^2.1.4",
-    "codemirror": "^5.65.13",
+    "codemirror": "^5.65.16",
     "jquery": "^3.6.4",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
