@@ -243,7 +243,7 @@ function mergeObjects(allOptions, additionalOptions) {
 }
 
 function submitIssue() {
-  var url = 'https://github.com/beautify-web/js-beautify/issues/new?';
+  var url = 'https://github.com/beautifier/js-beautify/issues/new?';
 
   var encoded = encodeURIComponent(getSubmitIssueBody()).replace(/%20/g, "+");
   if (encoded.length > 7168) {
