@@ -3840,6 +3840,497 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Indenting angular control flow with indent size 2",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    options: [
+      { name: "templating", value: "'angular'" },
+      { name: "indent_size", value: "2" }
+    ],
+    tests: [{
+      input: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ],
+      output: [
+        '@if (a > b) {',
+        '  {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '  {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '  {{a}} is less than {{b}}',
+        '} @else {',
+        '  {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '  <li> {{ item.name }} </li>',
+        '} @empty {',
+        '  <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '  @case (caseA) {',
+        '    Case A.',
+        '  }',
+        '  @case (caseB) {',
+        '    Case B.',
+        '  }',
+        '  @default {',
+        '    Default case.',
+        '  }',
+        '}'
+      ]
+    }]
+  }, {
+    name: "Indenting angular control flow with default indent size",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    options: [
+      { name: "templating", value: "'angular, handlebars'" }
+    ],
+    tests: [{
+      input: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ],
+      output: [
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '    {{a}} is less than {{b}}',
+        '} @else {',
+        '    {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '    <li> {{ item.name }} </li>',
+        '} @empty {',
+        '    <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '    @case (caseA) {',
+        '        Case A.',
+        '    }',
+        '    @case (caseB) {',
+        '        Case B.',
+        '    }',
+        '    @default {',
+        '        Default case.',
+        '    }',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if (a > b) {',
+        '       {{a}} is greater than {{b}}',
+        '     }',
+        '',
+        '   @if (a > b) {',
+        ' {{a}} is greater than {{b}}',
+        '     } @else if (b > a) {',
+        '       {{a}} is less than {{b}}',
+        '     } @else {',
+        '       {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '   @for (item of items; track item.name) {',
+        '             <li> {{ item.name }} </li>',
+        '       } @empty {',
+        '     <li> There are no items. </li>',
+        '   }',
+        '',
+        ' @switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '       }',
+        '       @case (caseB) {',
+        'Case B.',
+        '   }',
+        ' @default {',
+        'Default case.',
+        '}',
+        '     }'
+      ],
+      output: [
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '    {{a}} is less than {{b}}',
+        '} @else {',
+        '    {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '    <li> {{ item.name }} </li>',
+        '} @empty {',
+        '    <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '    @case (caseA) {',
+        '        Case A.',
+        '    }',
+        '    @case (caseB) {',
+        '        Case B.',
+        '    }',
+        '    @default {',
+        '        Default case.',
+        '    }',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>{{val.value}}</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '    <div>{{val.value}}</div>',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '@defer {',
+        '{{val.value}}',
+        '}',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '    <div>',
+        '        @defer {',
+        '            {{val.value}}',
+        '        }',
+        '    </div>',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        'Item #{{ idx }}: {{ item.name }}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '        Item #{{ idx }}: {{ item.name }}',
+        '        <p>',
+        '            Item #{{ idx }}: {{ item.name }}',
+        '        </p>',
+        '    }',
+        '</div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        '{{{value: true} | json}}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '{{ {value: true} }}',
+        '<div>',
+        '@if(true) {',
+        '{{ {value: true} }}',
+        ' }',
+        '',
+        'Placeholder',
+        '</div>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '        {{{value: true} | json}}',
+        '        <p>',
+        '            Item #{{ idx }}: {{ item.name }}',
+        '        </p>',
+        '        {{ {value: true} }}',
+        '        <div>',
+        '            @if(true) {',
+        '                {{ {value: true} }}',
+        '            }',
+        '',
+        '            Placeholder',
+        '        </div>',
+        '    }',
+        '</div>'
+      ]
+    }, {
+      comment: 'If no whitespace before @, then don\'t indent',
+      input: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        'Text',
+        '</p>',
+        '}'
+      ],
+      output: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        '    Text',
+        '</p>',
+        '}'
+      ]
+    }, {
+      comment: 'Check if control flow is indented well if we have oneliners with no space before the closing token',
+      input: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        'Hello there',
+        '</div>',
+        '<div>',
+        '{{b}} @if (a > b) {is less than}@else{',
+        'is greater than or equal to} {{a}}',
+        'Hello there',
+        '</div>'
+      ],
+      output: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        '    Hello there',
+        '</div>',
+        '<div>',
+        '    {{b}} @if (a > b) {is less than}@else{',
+        '        is greater than or equal to} {{a}}',
+        '    Hello there',
+        '</div>'
+      ]
+    }, {
+      comment: 'Multiline conditions should also be recognized and indented correctly',
+      input: [
+        '@if(',
+        'condition1',
+        '&& condition2',
+        ') {',
+        'Text inside if',
+        '}'
+      ],
+      output: [
+        '@if(',
+        'condition1',
+        '&& condition2',
+        ') {',
+        '    Text inside if',
+        '}'
+      ]
+    }, {
+      comment: 'Indentation should work if opening brace is in new line',
+      input: [
+        '@if( condition )',
+        '{',
+        'Text inside if',
+        '}'
+      ],
+      output: [
+        '@if( condition )',
+        '{',
+        '    Text inside if',
+        '}'
+      ]
+    }, {
+      comment: 'Indentation should work if condition is in new line',
+      input: [
+        '@if',
+        '( condition )',
+        '{',
+        'Text inside if',
+        '} @else if',
+        '(condition2)',
+        '{',
+        '<div>',
+        'Text',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if',
+        '( condition )',
+        '{',
+        '    Text inside if',
+        '} @else if',
+        '(condition2)',
+        '{',
+        '    <div>',
+        '        Text',
+        '    </div>',
+        '}'
+      ]
+    }]
+  }, {
+    name: "No indenting for angular control flow should be done if indent_handlebars is false",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    options: [
+      { name: "templating", value: "'angular, handlebars'" },
+      { name: "indent_handlebars", value: "false" }
+    ],
+    tests: [{
+      unchanged: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) {',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '@if( {value: true}; as val) {',
+        '<div>{{val.value}}</div>',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '@defer {',
+        '{{val.value}}',
+        '}',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '    @defer {',
+        '    {{val.value}}',
+        '    }',
+        '</div>',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        'Item #{{ idx }}: {{ item.name }}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '    Item #{{ idx }}: {{ item.name }}',
+        '    <p>',
+        '        Item #{{ idx }}: {{ item.name }}',
+        '    </p>',
+        '    }',
+        '</div>'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };
