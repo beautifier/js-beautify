@@ -9654,6 +9654,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        Text\n' +
             '    </div>\n' +
             '}');
+        
+        // CSS @media should remain unchanged
+        bth(
+            '<style type="text/css">\n' +
+            '    @media only screen and (min-width:480px) {\n' +
+            '        .mj-column-per-100 {\n' +
+            '            width: 100% !important;\n' +
+            '            max-width: 100%;\n' +
+            '        }\n' +
+            '    }\n' +
+            '</style>',
+            //  -- output --
+            '<style type="text/css">\n' +
+            '@media only screen and (min-width:480px) {\n' +
+            '        .mj-column-per-100\n' +
+            '        {\n' +
+            '        width:\n' +
+            '        100%\n' +
+            '        !important;\n' +
+            '        max-width:\n' +
+            '        100%;\n' +
+            '}\n' +
+            '    }\n' +
+            '</style>');
 
 
         //============================================================
@@ -9731,6 +9755,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </p>\n' +
             '    }\n' +
             '</div>');
+        
+        // CSS @media should remain unchanged
+        bth(
+            '<style type="text/css">\n' +
+            '    @media only screen and (min-width:480px) {\n' +
+            '        .mj-column-per-100 {\n' +
+            '            width: 100% !important;\n' +
+            '            max-width: 100%;\n' +
+            '        }\n' +
+            '    }\n' +
+            '</style>');
 
 
         //============================================================

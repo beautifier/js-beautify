@@ -33,7 +33,7 @@ var BaseOptions = require('../core/options').Options;
 function Options(options) {
   BaseOptions.call(this, options, 'html');
   if (this.templating.length === 1 && this.templating[0] === 'auto') {
-    this.templating = ['django', 'erb', 'handlebars', 'php', 'angular'];
+    this.templating = ['django', 'erb', 'handlebars', 'php'];
   }
 
   this.indent_inner_html = this._get_boolean('indent_inner_html');
