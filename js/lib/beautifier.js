@@ -2316,9 +2316,9 @@ function Options(options, merge_child_field) {
   this.indent_empty_lines = this._get_boolean('indent_empty_lines');
 
   // valid templating languages ['django', 'erb', 'handlebars', 'php', 'smarty', 'angular']
-  // For now, 'auto' = all off for javascript, all on for html (and inline javascript).
+  // For now, 'auto' = all off for javascript, all except angular on for html (and inline javascript/css).
   // other values ignored
-  this.templating = this._get_selection_list('templating', ['auto', 'none', 'django', 'erb', 'handlebars', 'php', 'smarty', 'angular'], ['auto']);
+  this.templating = this._get_selection_list('templating', ['auto', 'none', 'angular', 'django', 'erb', 'handlebars', 'php', 'smarty'], ['auto']);
 }
 
 Options.prototype._get_array = function(name, default_value) {
@@ -5633,7 +5633,7 @@ var BaseOptions = (__webpack_require__(7).Options);
 function Options(options) {
   BaseOptions.call(this, options, 'html');
   if (this.templating.length === 1 && this.templating[0] === 'auto') {
-    this.templating = ['django', 'erb', 'handlebars', 'php', 'angular'];
+    this.templating = ['django', 'erb', 'handlebars', 'php'];
   }
 
   this.indent_inner_html = this._get_boolean('indent_inner_html');
