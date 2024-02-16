@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.15.0
+* Fixed #2219 - formatting of new Angular control flow syntax ([#2221](https://github.com/beautifier/js-beautify/pull/2221))
+
 ## v1.14.11
 * Editor not working https://beautifier.io/ ([#2201](https://github.com/beautifier/js-beautify/issues/2201))
 * Set nodejs minimum to v14 ([#2169](https://github.com/beautifier/js-beautify/pull/2169))
