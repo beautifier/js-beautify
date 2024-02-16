@@ -4238,6 +4238,43 @@ exports.test_data = {
         '    </div>',
         '}'
       ]
+    }, {
+      comment: 'CSS @media should remain unchanged',
+      // This behavior is currently incorrect. This codifies the way it fails.
+      // unchanged: [
+      //   '<style type="text/css">',
+      //   '    @media only screen and (min-width:480px) {',
+      //   '        .mj-column-per-100 {',
+      //   '            width: 100% !important;',
+      //   '            max-width: 100%;',
+      //   '        }',
+      //   '    }',
+      //   '</style>'
+      // ]
+      input: [
+        '<style type="text/css">',
+        '    @media only screen and (min-width:480px) {',
+        '        .mj-column-per-100 {',
+        '            width: 100% !important;',
+        '            max-width: 100%;',
+        '        }',
+        '    }',
+        '</style>'
+      ],
+      output: [
+        '<style type="text/css">',
+        '@media only screen and (min-width:480px) {',
+        '        .mj-column-per-100',
+        '        {',
+        '        width:',
+        '        100%',
+        '        !important;',
+        '        max-width:',
+        '        100%;',
+        '}',
+        '    }',
+        '</style>'
+      ]
     }]
   }, {
     name: "No indenting for angular control flow should be done if indent_handlebars is false",
@@ -4328,6 +4365,18 @@ exports.test_data = {
         '    </p>',
         '    }',
         '</div>'
+      ]
+    }, {
+      comment: 'CSS @media should remain unchanged',
+      unchanged: [
+        '<style type="text/css">',
+        '    @media only screen and (min-width:480px) {',
+        '        .mj-column-per-100 {',
+        '            width: 100% !important;',
+        '            max-width: 100%;',
+        '        }',
+        '    }',
+        '</style>'
       ]
     }]
   }, {
