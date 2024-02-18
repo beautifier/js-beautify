@@ -200,7 +200,7 @@ var path = require('path'),
         // no shorthand for "config"
         // no shorthand for "editorconfig"
         // no shorthand for "indent_empty_lines"
-        // not shorthad for "templating"
+        // no shorthad for "templating"
     });
 
 function verifyExists(fullPath) {
@@ -371,7 +371,8 @@ function usage(err) {
         '                                    [first newline in file, otherwise "\\n]',
         '  -n, --end-with-newline            End output with newline',
         '  --indent-empty-lines              Keep indentation on empty lines',
-        '  --templating                      List of templating languages (auto,none,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in html',
+        '  --templating                      List of templating languages (auto,none,angular,django,erb,handlebars,php,smarty)',
+        '                                    ["auto", auto = none in JavaScript, auto = all except angular in html (and inline javascript/css)]',
         '  --editorconfig                    Use EditorConfig to set up the options'
     ];
 
