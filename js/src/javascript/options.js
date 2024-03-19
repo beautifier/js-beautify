@@ -74,6 +74,7 @@ function Options(options) {
   this.space_before_conditional = this._get_boolean('space_before_conditional', true);
   this.unescape_strings = this._get_boolean('unescape_strings');
   this.e4x = this._get_boolean('e4x');
+  this.qml = this._get_boolean('qml');
   this.comma_first = this._get_boolean('comma_first');
   this.operator_position = this._get_selection('operator_position', validPositionValues);
 
