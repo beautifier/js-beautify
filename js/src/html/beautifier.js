@@ -749,7 +749,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
     }
 
     // Don't add a newline before elements that should remain where they are.
-    if (parser_token.tag_name === '!--' && last_token.type === TOKEN.TAG_CLOSE &&
+    if ((parser_token.tag_name !== '!--' || parser_token.tag_name === '!--') && last_token.type === TOKEN.TAG_CLOSE &&
       last_tag_token.is_end_tag && parser_token.text.indexOf('\n') === -1) {
       //Do nothing. Leave comments on same line.
     } else {
