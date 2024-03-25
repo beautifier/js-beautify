@@ -4380,6 +4380,50 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Add newline before tag closing bracket when tag has wrapped attributes",
+    description: "https://github.com/beautifier/js-beautify/issues/1707",
+    template: "^^^ $$$",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'auto'" },
+        { name: "closing_bracket_newline", value: "true" }
+      ],
+      closing_bracket_newline: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" },
+        { name: "closing_bracket_newline", value: "true" }
+      ],
+      fill_indent: '   ', // fill missing indent space
+      closing_bracket_newline: '\n'
+    }, {
+      options: [
+        { name: "closing_bracket_newline", value: "false" }
+      ],
+      closing_bracket_newline: ''
+    }],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<div style="display: block;" width="100" height="200">',
+        '    <p>test content</p>',
+        '</div>'
+      ]
+    }, {
+      fragment: true,
+      input: [
+        '<div',
+        '    style="display: block;" width="100" height="200">',
+        '    <p>test content</p>',
+        '</div>'
+      ],
+      output: [
+        '<div^^^closing_bracket_newline$$$^^^fill_indent$$$ style="display: block;" width="100" height="200"^^^closing_bracket_newline$$$>',
+        '    <p>test content</p>',
+        '</div>'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };

@@ -376,7 +376,11 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
   } else {
     if (last_tag_token.tag_start_char === '<') {
       printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
-      if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
+      // Add newline before tag closing bracket:
+      // 1. add newline only if 'force-expand-multiline' or 'closing-bracket-newline' is specified
+      // 2. add newline only if tag has wrapped_attrs
+      if ((this._is_wrap_attributes_force_expand_multiline || this._options.closing_bracket_newline) &&
+        last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
     }
