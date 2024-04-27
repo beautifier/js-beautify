@@ -327,27 +327,6 @@ Tokenizer.prototype._is_content_unformatted = function(tag_name) {
       this._options.unformatted.indexOf(tag_name) !== -1);
 };
 
-
-Tokenizer.prototype._read_script_and_style = function(c, previous_token) { // jshint unused:false 
-  if (previous_token.type === TOKEN.TAG_CLOSE && previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
-    var tag_name = previous_token.opened.text.substr(1).toLowerCase();
-    if (tag_name === 'script' || tag_name === 'style') {
-      // Script and style tags are allowed to have comments wrapping their content
-      // or just have regular content.
-      var token = this._read_comment_or_cdata(c);
-      if (token) {
-        token.type = TOKEN.TEXT;
-        return token;
-      }
-      var resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
-      if (resulting_string) {
-        return this._create_token(TOKEN.TEXT, resulting_string);
-      }
-    }
-  }
-  return null;
-};
-
 Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) { // jshint unused:false
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
@@ -366,6 +345,26 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     return this._create_token(TOKEN.TEXT, resulting_string);
   }
 
+  return null;
+};
+
+Tokenizer.prototype._read_script_and_style = function(c, previous_token) { // jshint unused:false 
+  if (previous_token.type === TOKEN.TAG_CLOSE && previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
+    var tag_name = previous_token.opened.text.substr(1).toLowerCase();
+    if (tag_name === 'script' || tag_name === 'style') {
+      // Script and style tags are allowed to have comments wrapping their content
+      // or just have regular content.
+      var token = this._read_comment_or_cdata(c);
+      if (token) {
+        token.type = TOKEN.TEXT;
+        return token;
+      }
+      var resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
+      if (resulting_string) {
+        return this._create_token(TOKEN.TEXT, resulting_string);
+      }
+    }
+  }
   return null;
 };
 
