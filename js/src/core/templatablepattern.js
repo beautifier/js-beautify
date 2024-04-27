@@ -132,8 +132,11 @@ TemplatablePattern.prototype.__set_templated_pattern = function() {
   if (!this._disabled.php) {
     items.push(this.__patterns.php._starting_pattern.source);
   }
-  // Handlebars ('{{' and '}}') are also special tokens in Angular)
-  if (!this._disabled.handlebars || !this._disabled.angular) {
+  if (!this._disabled.handlebars) {
+    items.push(this.__patterns.handlebars._starting_pattern.source);
+  }
+  if (!this._disabled.angular) {
+    // Handlebars ('{{' and '}}') are also special tokens in Angular)
     items.push(this.__patterns.handlebars._starting_pattern.source);
   }
   if (!this._disabled.erb) {
