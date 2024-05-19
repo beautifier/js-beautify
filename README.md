@@ -219,6 +219,7 @@ Beautifier Options:
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
   -w, --wrap-line-length            Wrap lines that exceed N characters [0]
   -X, --e4x                         Pass E4X xml literals through untouched
+  --qml                             Add support of qml format
   --good-stuff                      Warm the cockles of Crockford's heart
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
@@ -252,6 +253,7 @@ Which correspond to the underscored option keys for both library interfaces
     "unescape_strings": false,
     "wrap_line_length": 0,
     "e4x": false,
+    "qml": false,
     "comma_first": false,
     "operator_position": "before-newline",
     "indent_empty_lines": false,
