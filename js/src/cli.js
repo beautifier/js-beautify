@@ -136,7 +136,8 @@ var path = require('path'),
         "quiet": Boolean,
         "type": ["js", "css", "html"],
         "config": path,
-        "editorconfig": Boolean
+        "editorconfig": Boolean,
+        "closing_bracket_newline": Boolean
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
     // translation, allowing more convenient dashes in CLI arguments
@@ -411,6 +412,7 @@ function usage(err) {
             msg.push('  -T, --content_unformatted         List of tags (defaults to pre) whose content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             msg.push('  --unformatted_content_delimiter   Keep text content together between this string [""]');
+            msg.push('  --closing-bracket-newline         Add a newline before tag closing brackets');
             break;
         case "css":
             msg.push('  -b, --brace-style                       [collapse|expand] ["collapse"]');

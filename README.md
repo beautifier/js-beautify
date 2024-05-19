@@ -380,6 +380,7 @@ HTML Beautifier Options:
   --unformatted_content_delimiter    Keep text content together between this string [""]
   --indent-empty-lines               Keep indentation on empty lines
   --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in html
+  --closing-bracket-newline          Add a newline before tag closing brackets
 ```
 
 ## Directives
