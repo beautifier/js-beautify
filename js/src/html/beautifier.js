@@ -533,7 +533,7 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
     if (text) {
       if (_beautifier) {
 
-        // call the Beautifier if avaliable
+        // call the Beautifier if available
         var Child_options = function() {
           this.eol = '\n';
         };
@@ -865,12 +865,12 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
 
   } else if (parser_token.tag_name === 'colgroup') {
     // DONE: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be omitted if a colgroup, thead, tfoot, tbody, or tr element is started.
     result = result || this._tag_stack.try_pop('caption', ['table']);
 
   } else if (parser_token.tag_name === 'thead') {
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    // A colgroup element's end tag may be omitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be omitted if a colgroup, thead, tfoot, tbody, or tr element is started.
     result = result || this._tag_stack.try_pop('caption', ['table']);
     result = result || this._tag_stack.try_pop('colgroup', ['table']);
 
@@ -880,8 +880,8 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   } else if (parser_token.tag_name === 'tbody' || parser_token.tag_name === 'tfoot') {
     // A thead element’s end tag may be omitted if the thead element is immediately followed by a tbody or tfoot element.
     // A tbody element’s end tag may be omitted if the tbody element is immediately followed by a tbody or tfoot element, or if there is no more content in the parent element.
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    // A colgroup element's end tag may be omitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be omitted if a colgroup, thead, tfoot, tbody, or tr element is started.
     result = result || this._tag_stack.try_pop('caption', ['table']);
     result = result || this._tag_stack.try_pop('colgroup', ['table']);
     result = result || this._tag_stack.try_pop('thead', ['table']);
@@ -892,8 +892,8 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
 
   } else if (parser_token.tag_name === 'tr') {
     // A tr element’s end tag may be omitted if the tr element is immediately followed by another tr element, or if there is no more content in the parent element.
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    // A colgroup element's end tag may be omitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be omitted if a colgroup, thead, tfoot, tbody, or tr element is started.
     result = result || this._tag_stack.try_pop('caption', ['table']);
     result = result || this._tag_stack.try_pop('colgroup', ['table']);
     result = result || this._tag_stack.try_pop('tr', ['table', 'thead', 'tbody', 'tfoot']);
