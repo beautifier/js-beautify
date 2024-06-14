@@ -335,8 +335,6 @@ class Tokenizer(BaseTokenizer):
             if self._input.peek() == c:
                 resulting_string += self._input.next()
 
-            resulting_string = re.sub(self.acorn.allLineBreaks, "\n", resulting_string)
-
             return self._create_token(TOKEN.STRING, resulting_string)
 
         return None
