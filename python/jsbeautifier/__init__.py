@@ -190,7 +190,7 @@ def main():
                 "space-in-empty-paren",
                 "space-in-paren",
                 "stdin",
-                "templating",
+                "templating=",
                 "unescape-strings",
                 "usage",
                 "version",
