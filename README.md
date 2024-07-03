@@ -152,6 +152,17 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 });
 ```
 
+If you are using ESM Imports, you can import `js-beautify` like this:
+
+```js
+// 'beautify' can be any name here.
+import beautify from 'js-beautify';
+
+beautify.js(data, options);
+beautify.html(data, options);
+beautify.css(data, options);
+```
+
 ## Python
 After installing, to beautify using Python:
 
