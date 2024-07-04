@@ -115,7 +115,7 @@ class TemplatablePattern(Pattern):
             next = self._read_template()
 
         if self._until_after:
-            result += self._input.readUntilAfter(self._until_after)
+            result += self._input.readUntilAfter(self._until_pattern)
 
         return result
 
