@@ -27,15 +27,14 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-
+    with open("README.md", "r", encoding="utf-8") as fh:
+        long_description = fh.read()
 setup(
     name="jsbeautifier",
     version=__version__,
     description="JavaScript unobfuscator and beautifier.",
-    long_description=(
-        "Beautify, unpack or deobfuscate JavaScript. "
-        "Handles popular online obfuscators."
-    ),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Liam Newman, Einar Lielmanis, et al.",
     author_email="team@beautifier.io",
     url="https://beautifier.io",
