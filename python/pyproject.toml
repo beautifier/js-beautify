@@ -1,3 +1,7 @@
+[build-system]
+# pinned at v71 since v72 removed the test command https://setuptools.pypa.io/en/stable/history.html#v72-0-0
+requires = ["setuptools==71.1.0"]
+
 [tool.black]
 target-version = ['py33', 'py36', 'py37', 'py38']
 exclude = '''
