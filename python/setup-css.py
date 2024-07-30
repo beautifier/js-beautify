@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from pathlib import Path
 import os
 import sys
 
@@ -32,7 +32,8 @@ setup(
     name="cssbeautifier",
     version=__version__,
     description="CSS unobfuscator and beautifier.",
-    long_description=("Beautify, unpack or deobfuscate CSS"),
+    long_description=Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     author="Liam Newman, Einar Lielmanis, et al.",
     author_email="team@beautifier.io",
     url="https://beautifier.io",

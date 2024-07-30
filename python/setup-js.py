@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from pathlib import Path
 import os
 import sys
 
@@ -26,16 +26,13 @@ class PyTest(TestCommand):
 
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
-
-
+        
 setup(
     name="jsbeautifier",
     version=__version__,
     description="JavaScript unobfuscator and beautifier.",
-    long_description=(
-        "Beautify, unpack or deobfuscate JavaScript. "
-        "Handles popular online obfuscators."
-    ),
+    long_description=Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     author="Liam Newman, Einar Lielmanis, et al.",
     author_email="team@beautifier.io",
     url="https://beautifier.io",
