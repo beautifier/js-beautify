@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from pathlib import Path
 import os
 import sys
 
@@ -27,15 +27,14 @@ class PyTestCSS(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-    with open("README.md", "r", encoding="utf-8") as fh:
-        long_description = fh.read()
+    
 
 
 setup(
     name="cssbeautifier",
     version=__version__,
     description="CSS unobfuscator and beautifier.",
-    long_description=long_description,
+    long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     author="Liam Newman, Einar Lielmanis, et al.",
     author_email="team@beautifier.io",
