@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 import sys
 
+
 from setuptools import setup
 from jsbeautifier.__version__ import __version__
 
@@ -49,6 +50,4 @@ setup(
     ],
     install_requires=["six>=1.13.0", "editorconfig>=0.12.2"],
     license="MIT",
-    test_suite="pytest.collector",
-    cmdclass={"test": PyTest},
 )
