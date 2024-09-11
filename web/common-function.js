@@ -150,6 +150,38 @@ function unpacker_filter(source) {
   return leading_comments + source;
 }
 
+/* exported downloadBeautifiedCode */
+function downloadBeautifiedCode() {
+  var content = the.editor ? the.editor.getValue() : $('#source').val();
+
+  // Getting the selected language to determine the file extension
+  var language = $('#language').val();
+  var fileExtension = "txt"; // Default extension
+
+  // Setting the  file extension based on the selected language
+  if (language === 'html') {
+    fileExtension = 'html';
+  } else if (language === 'css') {
+    fileExtension = 'css';
+  } else if (language === 'js') {
+    fileExtension = 'js';
+  }
+
+  // Creating a Blob object with the content
+  var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+
+  // Creating a temporary anchor element to trigger the download
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "js-beautify." + fileExtension; // Dynamic file name based on extension
+
+  // Triggering the download
+  link.click();
+
+  // Cleanup
+  URL.revokeObjectURL(link.href);
+}
+
 
 function beautify() {
   if (the.beautify_in_progress) {
@@ -157,12 +189,15 @@ function beautify() {
   }
 
   store_settings_to_cookie();
+
   the.beautify_in_progress = true;
 
   var source = the.editor ? the.editor.getValue() : $('#source').val(),
-      output,
-      opts = {};
+    output,
+    opts = {};
   the.lastInput = source;
+
+  var additional_options = $('#additional-options').val();
 
   var language = $('#language').val();
   the.language = $('#language option:selected').text();
@@ -199,7 +234,7 @@ function beautify() {
 
   var selectedOptions = JSON.stringify(opts, null, 2);
   $('#options-selected').val(selectedOptions);
-  // Perform beautification based on selected language
+
   if (language === 'html') {
     output = the.beautifier.html(source, opts);
   } else if (language === 'css') {
@@ -211,7 +246,6 @@ function beautify() {
     output = the.beautifier.js(source, opts);
   }
 
-  // Set the beautified code to the editor or textarea
   if (the.editor) {
     the.editor.setValue(output);
   } else {
@@ -219,46 +253,13 @@ function beautify() {
   }
 
   the.lastOutput = output;
-  the.lastOpts = JSON.stringify(opts, null, 2);
+  the.lastOpts = selectedOptions;
 
-  // Generate download link
-  var fileName = getFileName(language);
-  generateDownloadLink(output, fileName);
+  $('#open-issue').show();
+  set_editor_mode();
 
   the.beautify_in_progress = false;
 }
-
-
-function getFileName(language) {
-  if (language === 'html') {
-    return 'beautified.html';
-  } else if (language === 'css') {
-    return 'beautified.css';
-  } else {
-    return 'beautified.js';
-  }
-}
-
-function generateDownloadLink(content, fileName) {
-  var downloadBtn = document.getElementById('download-btn');
-
-  // Create a Blob with the content
-  var fileBlob = new Blob([content], { type: 'text/plain' });
-
-  // Create an object URL for the Blob
-  var downloadUrl = URL.createObjectURL(fileBlob);
-
-  // Update the download button to link to the file and make it visible
-  downloadBtn.setAttribute('href', downloadUrl);
-  downloadBtn.setAttribute('download', fileName);
-  downloadBtn.style.display = 'inline'; // Show the button
-}
-
-function downloadFile() {
-  var downloadBtn = document.getElementById('download-btn');
-  downloadBtn.click();
-}
-
 
 function mergeObjects(allOptions, additionalOptions) {
   var finalOpts = {};
