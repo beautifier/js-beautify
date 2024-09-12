@@ -173,13 +173,15 @@ function downloadBeautifiedCode() {
   // Creating a temporary anchor element to trigger the download
   var link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "js-beautify." + fileExtension; // Dynamic file name based on extension
+  try {
+    link.download = "js-beautify." + fileExtension; // Dynamic file name based on extension
 
-  // Triggering the download
-  link.click();
-
-  // Cleanup
-  URL.revokeObjectURL(link.href);
+    // Triggering the download
+    link.click();
+  } finally {
+    // Cleanup
+    URL.revokeObjectURL(link.href);
+  }
 }
 
 
