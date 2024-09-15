@@ -52,14 +52,14 @@ jobs:
           git remote add trigger git@js-beautify-github.com:beautifier/js-beautify.git
           git fetch --all
       - name: Install python twinE
-        run: pip install twine        
+        run: pip install twine wheel
       - name: Run release script for ${{ github.event.milestone.title }}
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-          TWINE_USERNAME: ${{secrets.PYPI_USERNAME}} 
-          TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}} 
+          TWINE_USERNAME: ${{secrets.PYPI_USERNAME}}
+          TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}}
         run: |
           ./tools/release-all.sh ${MILESTONE_VERSION}
