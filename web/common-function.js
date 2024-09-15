@@ -174,7 +174,7 @@ function downloadBeautifiedCode() {
   var link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   try {
-    link.download = "js-beautify." + fileExtension; // Dynamic file name based on extension
+    link.download = "beautified." + fileExtension; // Dynamic file name based on extension
 
     // Triggering the download
     link.click();
