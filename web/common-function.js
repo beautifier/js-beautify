@@ -150,6 +150,40 @@ function unpacker_filter(source) {
   return leading_comments + source;
 }
 
+/* exported downloadBeautifiedCode */
+function downloadBeautifiedCode() {
+  var content = the.editor ? the.editor.getValue() : $('#source').val();
+
+  // Getting the selected language to determine the file extension
+  var language = $('#language').val();
+  var fileExtension = "txt"; // Default extension
+
+  // Setting the  file extension based on the selected language
+  if (language === 'html') {
+    fileExtension = 'html';
+  } else if (language === 'css') {
+    fileExtension = 'css';
+  } else if (language === 'js') {
+    fileExtension = 'js';
+  }
+
+  // Creating a Blob object with the content
+  var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+
+  // Creating a temporary anchor element to trigger the download
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  try {
+    link.download = "beautified." + fileExtension; // Dynamic file name based on extension
+
+    // Triggering the download
+    link.click();
+  } finally {
+    // Cleanup
+    URL.revokeObjectURL(link.href);
+  }
+}
+
 
 function beautify() {
   if (the.beautify_in_progress) {
