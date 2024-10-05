@@ -66,6 +66,7 @@ var JavascriptObfuscator = {
       str = matches[1];
       str = "'" + str.replace(/'/g, "\\'") + "'";
     }
+
     return str;
   },
 
@@ -97,7 +98,8 @@ var JavascriptObfuscator = {
 
 
   _unescape: function(str) {
-    // inefficient if used repeatedly or on small strings, but wonderful on single large chunk of text
+    str = str.replace("$", "$$$$");
+    // inefficient if used repeatedly or on small strings, but wonderful on single large chunk of text    
     for (var i = 32; i < 128; i++) {
       str = str.replace(new RegExp('\\\\x' + i.toString(16), 'ig'), String.fromCharCode(i));
     }
