@@ -10,5 +10,5 @@
   m.parentNode.insertBefore(a, m)
 })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-ga('create', 'UA-7409939-1', 'auto'); // Replace with your property ID.
+ga('create', '**-*******-*', 'auto'); // '**-*******-*' Replace with your property ID.
 ga('send', 'pageview');
