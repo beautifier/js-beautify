@@ -291,7 +291,7 @@ Beautifier.prototype.beautify = function() {
     type: ''
   };
 
-  var last_tag_token = new TagOpenParserToken();
+  var last_tag_token = new TagOpenParserToken(this._options);
 
   var printer = new Printer(this._options, baseIndentString);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
@@ -614,7 +614,7 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
   return parser_token;
 };
 
-var TagOpenParserToken = function(parent, raw_token) {
+var TagOpenParserToken = function(options, parent, raw_token) {
   this.parent = parent || null;
   this.text = '';
   this.type = 'TK_TAG_OPEN';
@@ -681,13 +681,14 @@ var TagOpenParserToken = function(parent, raw_token) {
     }
 
     // handlebars tags that don't start with # or ^ are single_tags, and so also start and end.
+    // if they start with # or ^, they are still considered single tags if indenting of handlebars is set to false
     this.is_end_tag = this.is_end_tag ||
-      (this.tag_start_char === '{' && (this.text.length < 3 || (/[^#\^]/.test(this.text.charAt(handlebar_starts)))));
+      (this.tag_start_char === '{' && (!options.indent_handlebars || this.text.length < 3 || (/[^#\^]/.test(this.text.charAt(handlebar_starts)))));
   }
 };
 
 Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to get a full tag and parse its type
-  var parser_token = new TagOpenParserToken(this._tag_stack.get_parser_token(), raw_token);
+  var parser_token = new TagOpenParserToken(this._options, this._tag_stack.get_parser_token(), raw_token);
 
   parser_token.alignment_size = this._options.wrap_attributes_indent_size;
 
