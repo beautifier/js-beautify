@@ -62,7 +62,7 @@
     "jquery": "^3.6.4",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
-    "mocha": "^10.2.0",
+    "mocha": "^11.0.1",
     "mustache": "^4.2.0",
     "requirejs": "^2.3.6",
     "serve": "^14.2.0",
