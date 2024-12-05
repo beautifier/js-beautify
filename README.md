@@ -58,13 +58,13 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
 ```
 
 Example usage of a JS tag in html:
@@ -76,7 +76,7 @@ Example usage of a JS tag in html:
 
 . . .
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.11/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
@@ -152,6 +152,17 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 });
 ```
 
+If you are using ESM Imports, you can import `js-beautify` like this:
+
+```js
+// 'beautify' can be any name here.
+import beautify from 'js-beautify';
+
+beautify.js(data, options);
+beautify.html(data, options);
+beautify.css(data, options);
+```
+
 ## Python
 After installing, to beautify using Python:
 
@@ -223,7 +234,7 @@ Beautifier Options:
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
   --indent-empty-lines              Keep indentation on empty lines
-  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in HTML
+  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in HTML
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -379,7 +390,7 @@ HTML Beautifier Options:
   --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
   --unformatted_content_delimiter    Keep text content together between this string [""]
   --indent-empty-lines               Keep indentation on empty lines
-  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
+  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in html
 ```
 
 ## Directives
@@ -434,4 +445,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.14.11)
+(README.md: js-beautify@1.15.1)
