@@ -1604,6 +1604,22 @@ class Beautifier:
         self.print_token(current_token)
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
+    def guess_current_lloc_len(self):
+        """Try to guess how long, in chars, the this lloc would be if no indentation happened
+        Doesn't look backwards, assumes the lloc started on this line"""
+        # use toString to include current line indent/whitespace
+        total = len(self._output.current_line.toString())
+        
+        peekn = 0
+        next_token: Token = Token(TOKEN.START, "")
+        # loop until we find a stop token
+        while next_token.type not in self._peek_lloc_stop:
+            # from what i can tell, token.text doesn't include whitespace/indentation
+            total += len(next_token.text)
+            next_token = self._tokens.peek(peekn)
+            peekn += 1
+        return total
+
     def handle_dot(self, current_token):
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1622,7 +1638,8 @@ class Beautifier:
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
                 current_token,
-                self._flags.last_token.text == ")"
+                self._options.wrap_line_length > 0
+                and self.guess_current_lloc_len() > self._options.wrap_line_length
                 and self._options.break_chained_methods,
             )
 
