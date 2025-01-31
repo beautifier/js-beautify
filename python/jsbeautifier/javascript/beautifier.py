@@ -1604,21 +1604,32 @@ class Beautifier:
         self.print_token(current_token)
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
+    _peek_lloc_stop = [TOKEN.SEMICOLON, TOKEN.END_BLOCK, TOKEN.EOF, TOKEN.RESERVED]
+
     def guess_current_lloc_len(self):
-        """Try to guess how long, in chars, the this lloc would be if no indentation happened
-        Doesn't look backwards, assumes the lloc started on this line"""
-        # use toString to include current line indent/whitespace
-        total = len(self._output.current_line.toString())
-        
-        peekn = 0
-        next_token: Token = Token(TOKEN.START, "")
+        """Try to guess how long, in chars, this lloc would be if it was condensed to a single line."""
+        total = 0
+        peekforward = 0
+        peekbackward = -1
+        fwd_token: Token = Token(TOKEN.START, "")
+        bak_token: Token = Token(TOKEN.START, "")
         # loop until we find a stop token
-        while next_token.type not in self._peek_lloc_stop:
-            # from what i can tell, token.text doesn't include whitespace/indentation
-            total += len(next_token.text)
-            next_token = self._tokens.peek(peekn)
-            peekn += 1
-        return total
+        while peekforward is not None or peekbackward is not None:
+            if fwd_token.type in self._peek_lloc_stop:
+                peekforward = None
+            else:
+                total += len(fwd_token.text)
+                fwd_token = self._tokens.peek(peekforward)
+                peekforward += 1
+            if bak_token.type in self._peek_lloc_stop + [TOKEN.START_BLOCK]:
+                peekbackward = None
+            else:
+                bak_token = self._tokens.peek(peekbackward)
+                total += len(bak_token.text)
+                peekbackward -= 1
+        cur_l = self._output.current_line.toString()
+        indent_chars = len(cur_l) - len(cur_l.lstrip())
+        return total + indent_chars
 
     def handle_dot(self, current_token):
         if self.start_of_statement(current_token):
@@ -1638,9 +1649,10 @@ class Beautifier:
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
                 current_token,
-                self._options.wrap_line_length > 0
-                and self.guess_current_lloc_len() > self._options.wrap_line_length
-                and self._options.break_chained_methods,
+                (
+                    0 < self._options.wrap_line_length < self.guess_current_lloc_len()
+                    or self._flags.last_token.text == ")"
+                ) and self._options.break_chained_methods,
             )
 
         # Only unindent chained method dot if this dot starts a new line.
