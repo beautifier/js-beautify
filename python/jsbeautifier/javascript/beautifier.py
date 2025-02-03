@@ -1606,30 +1606,40 @@ class Beautifier:
 
     _peek_lloc_stop = [TOKEN.SEMICOLON, TOKEN.END_BLOCK, TOKEN.EOF, TOKEN.RESERVED]
 
-    def guess_current_lloc_len(self):
+    def guess_current_lloc_len(self: Beautifier):
         """Try to guess how long, in chars, this lloc would be if it was condensed to a single line."""
-        total = 0
-        peekforward = 0
-        peekbackward = -1
-        fwd_token: Token = Token(TOKEN.START, "")
-        bak_token: Token = Token(TOKEN.START, "")
-        # loop until we find a stop token
-        while peekforward is not None or peekbackward is not None:
-            if fwd_token.type in self._peek_lloc_stop:
-                peekforward = None
-            else:
-                total += len(fwd_token.text)
-                fwd_token = self._tokens.peek(peekforward)
-                peekforward += 1
-            if bak_token.type in self._peek_lloc_stop + [TOKEN.START_BLOCK]:
-                peekbackward = None
-            else:
-                bak_token = self._tokens.peek(peekbackward)
-                total += len(bak_token.text)
-                peekbackward -= 1
-        cur_l = self._output.current_line.toString()
-        indent_chars = len(cur_l) - len(cur_l.lstrip())
-        return total + indent_chars
+
+        # empty string is the "separator" between forwards and backwards
+        txts = [""]
+
+        # lookbehind loop
+        while True:
+            bak_token = self._tokens.peek(-len(txts))
+            if bak_token is None:
+                break
+            if bak_token.type in [*_peek_lloc_stop, TOKEN.START_BLOCK]:
+                break
+            txts.append(bak_token.text)
+
+        # since we looped backwards, reverse the gathered texts here
+        txts = list(reversed(txts))
+
+        bak_tokens = len(txts)
+        # lookahead loop
+        while True:
+            fwd_token = self._tokens.peek(len(txts) - bak_tokens)
+            if fwd_token is None:
+                break
+            if fwd_token.type in _peek_lloc_stop:
+                break
+            txts.append(fwd_token.text)
+
+        line = "".join(txts)
+        # print(len(line), line)
+
+        cur_line = self._output.current_line.toString()
+        indent_chars = len(cur_line) - len(cur_line.lstrip())
+        return len(line) + indent_chars
 
     def handle_dot(self, current_token):
         if self.start_of_statement(current_token):
