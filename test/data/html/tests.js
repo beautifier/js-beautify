@@ -3916,7 +3916,7 @@ exports.test_data = {
     description: "https://github.com/beautify-web/js-beautify/issues/2219",
     template: "^^^ $$$",
     options: [
-      { name: "templating", value: "'angular, handlebars'" }
+      { name: "templating", value: "'angular'" }
     ],
     tests: [{
       input: [
@@ -4240,18 +4240,7 @@ exports.test_data = {
       ]
     }, {
       comment: 'CSS @media should remain unchanged',
-      // This behavior is currently incorrect. This codifies the way it fails.
-      // unchanged: [
-      //   '<style type="text/css">',
-      //   '    @media only screen and (min-width:480px) {',
-      //   '        .mj-column-per-100 {',
-      //   '            width: 100% !important;',
-      //   '            max-width: 100%;',
-      //   '        }',
-      //   '    }',
-      //   '</style>'
-      // ]
-      input: [
+      unchanged: [
         '<style type="text/css">',
         '    @media only screen and (min-width:480px) {',
         '        .mj-column-per-100 {',
@@ -4260,30 +4249,63 @@ exports.test_data = {
         '        }',
         '    }',
         '</style>'
-      ],
-      output: [
+      ]
+    }, {
+      comment: 'CSS @media, the inside of <script> tag and control flows should be indented correctly',
+      fragment: true,
+      input: [
+        '<head>',
         '<style type="text/css">',
         '@media only screen and (min-width:480px) {',
-        '        .mj-column-per-100',
-        '        {',
-        '        width:',
-        '        100%',
-        '        !important;',
-        '        max-width:',
-        '        100%;',
+        '.mj-column-per-100 {',
+        'width: 100% !important;',
+        'max-width: 100%;',
         '}',
-        '    }',
-        '</style>'
+        '}',
+        '</style>',
+        '<script>',
+        'if(someExpression) {',
+        'callFunc();',
+        '}',
+        '</script>',
+        '</head>',
+        '<body>',
+        '<div>',
+        '@if(someOtherExpression) {',
+        'Text',
+        '}',
+        '</div>',
+        '</body>'
+      ],
+      output: [
+        '<head>',
+        '    <style type="text/css">',
+        '        @media only screen and (min-width:480px) {',
+        '            .mj-column-per-100 {',
+        '                width: 100% !important;',
+        '                max-width: 100%;',
+        '            }',
+        '        }',
+        '    </style>',
+        '    <script>',
+        '        if (someExpression) {',
+        '            callFunc();',
+        '        }',
+        '    </script>',
+        '</head>',
+        '<body>',
+        '    <div>',
+        '        @if(someOtherExpression) {',
+        '            Text',
+        '        }',
+        '    </div>',
+        '</body>'
       ]
     }]
   }, {
-    name: "No indenting for angular control flow should be done if indent_handlebars is false",
+    name: "No indenting for angular control flow should be done if angular templating is not set",
     description: "https://github.com/beautify-web/js-beautify/issues/2219",
     template: "^^^ $$$",
-    options: [
-      { name: "templating", value: "'angular, handlebars'" },
-      { name: "indent_handlebars", value: "false" }
-    ],
     tests: [{
       unchanged: [
         '@if (a > b) {',

@@ -130,6 +130,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_close(c, open_token);
+  token = token || this._read_script_and_style(c, previous_token);
   token = token || this._read_control_flows(c, open_token);
   token = token || this._read_raw_content(c, previous_token, open_token);
   token = token || this._read_content_word(c, open_token);
@@ -215,8 +216,8 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   var resulting_string = null;
   var token = null;
   if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
-    if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
-      if (this._input.peek(2) === '!') {
+    if ((this._options.templating.includes('angular') || this._options.indent_handlebars) && c === '{' && this._input.peek(1) === '{') {
+      if (this._options.indent_handlebars && this._input.peek(2) === '!') {
         resulting_string = this.__patterns.handlebars_comment.read();
         resulting_string = resulting_string || this.__patterns.handlebars.read();
         token = this._create_token(TOKEN.COMMENT, resulting_string);
@@ -232,8 +233,8 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
 Tokenizer.prototype._read_control_flows = function(c, open_token) {
   var resulting_string = '';
   var token = null;
-  // Only check for control flows if angular templating is set AND indenting is set
-  if (!this._options.templating.includes('angular') || !this._options.indent_handlebars) {
+  // Only check for control flows if angular templating is set
+  if (!this._options.templating.includes('angular')) {
     return token;
   }
 
@@ -326,7 +327,6 @@ Tokenizer.prototype._is_content_unformatted = function(tag_name) {
       this._options.unformatted.indexOf(tag_name) !== -1);
 };
 
-
 Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) { // jshint unused:false
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
@@ -335,16 +335,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
     // ^^ empty tag has no content 
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
-    if (tag_name === 'script' || tag_name === 'style') {
-      // Script and style tags are allowed to have comments wrapping their content
-      // or just have regular content.
-      var token = this._read_comment_or_cdata(c);
-      if (token) {
-        token.type = TOKEN.TEXT;
-        return token;
-      }
-      resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
-    } else if (this._is_content_unformatted(tag_name)) {
+    if (this._is_content_unformatted(tag_name)) {
 
       resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
     }
@@ -354,6 +345,26 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     return this._create_token(TOKEN.TEXT, resulting_string);
   }
 
+  return null;
+};
+
+Tokenizer.prototype._read_script_and_style = function(c, previous_token) { // jshint unused:false 
+  if (previous_token.type === TOKEN.TAG_CLOSE && previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
+    var tag_name = previous_token.opened.text.substr(1).toLowerCase();
+    if (tag_name === 'script' || tag_name === 'style') {
+      // Script and style tags are allowed to have comments wrapping their content
+      // or just have regular content.
+      var token = this._read_comment_or_cdata(c);
+      if (token) {
+        token.type = TOKEN.TEXT;
+        return token;
+      }
+      var resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
+      if (resulting_string) {
+        return this._create_token(TOKEN.TEXT, resulting_string);
+      }
+    }
+  }
   return null;
 };
 
@@ -371,6 +382,7 @@ Tokenizer.prototype._read_content_word = function(c, open_token) {
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
   }
+  return null;
 };
 
 module.exports.Tokenizer = Tokenizer;

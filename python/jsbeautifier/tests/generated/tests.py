@@ -84,9 +84,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('"\\x41\\x42\\x43\\x01"', '"\\x41\\x42\\x43\\x01"')
         bt('"\\u2022"', '"\\u2022"')
         bt('"\\u{2022}"', '"\\u{2022}"')
-        bt('a = /\s+/')
+        bt('a = /\\s+/')
         #bt('a = /\\x41/','a = /A/')
-        bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);')
+        bt('"\\u2022";a = /\\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);')
 
         test_fragment('"\\x41\\x42\\x01\\x43"')
         test_fragment('"\\x41\\x42\\u0001\\x43"')
@@ -110,7 +110,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', six.u('"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"'))
         test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"', six.u('"\u0072\u016B\\u{110000}\u0137\u012B\u0074\u0069\u0073"'))
 
-        bt('a = /\s+/')
+        bt('a = /\\s+/')
         test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"')
 
