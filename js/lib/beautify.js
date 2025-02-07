@@ -3912,6 +3912,10 @@ TemplatablePattern.prototype.__set_templated_pattern = function() {
   if (!this._disabled.handlebars) {
     items.push(this.__patterns.handlebars._starting_pattern.source);
   }
+  if (!this._disabled.angular) {
+    // Handlebars ('{{' and '}}') are also special tokens in Angular)
+    items.push(this.__patterns.handlebars._starting_pattern.source);
+  }
   if (!this._disabled.erb) {
     items.push(this.__patterns.erb._starting_pattern.source);
   }
