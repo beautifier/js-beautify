@@ -294,7 +294,7 @@ class Beautifier:
             elif self._ch == "@":
                 self.preserveSingleSpace(isAfterSpace)
 
-                # deal with less propery mixins @{...}
+                # deal with less property mixins @{...}
                 if self._input.peek() == "{":
                     self.print_string(self._ch + self.eatString("}"))
                 else:

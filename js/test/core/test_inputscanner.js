@@ -240,7 +240,7 @@ describe('IndexScanner', function() {
       assert.deepStrictEqual(inputText.get_regexp(pattern, matchFrom).toString(), '/ow/y');
     });
 
-    it('should return pattern with flags appeded when the input is not a string', function() {
+    it('should return pattern with flags appended when the input is not a string', function() {
       var inputText = new InputScanner("howdy");
       var matchFrom = true;
       var pattern = /ow/;
