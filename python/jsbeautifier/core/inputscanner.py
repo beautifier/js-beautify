@@ -119,7 +119,7 @@ class InputScanner:
     def get_regexp(self, pattern, match_from=False):
         result = None
         # strings are converted to regexp
-        if isinstance(pattern, self.__six.string_types) and pattern != "":
+        if isinstance(pattern, str) and pattern != "":
             result = re.compile(pattern)
         elif pattern is not None:
             result = re.compile(pattern.pattern)

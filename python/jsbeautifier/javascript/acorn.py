@@ -46,34 +46,34 @@ _nonASCIIidentifierChars = six.u(
 _unicodeEscapeOrCodePoint = six.u(r"\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]+\}")
 
 _identifierStart = (
-    six.u("(?:")
+    "(?:"
     + _unicodeEscapeOrCodePoint
-    + six.u("|[")
+    + "|["
     + _baseASCIIidentifierStartChars
     + _nonASCIIidentifierStartChars
-    + six.u("])")
+    + "])"
 )
 _identifierChars = (
-    six.u("(?:")
+    "(?:"
     + _unicodeEscapeOrCodePoint
-    + six.u("|[")
+    + "|["
     + _baseASCIIidentifierChars
     + _nonASCIIidentifierStartChars
     + _nonASCIIidentifierChars
-    + six.u("])*")
+    + "])*"
 )
 
 identifier = re.compile(_identifierStart + _identifierChars)
 
 identifierStart = re.compile(_identifierStart)
 identifierMatch = re.compile(
-    six.u("(?:")
+    "(?:"
     + _unicodeEscapeOrCodePoint
-    + six.u("|[")
+    + "|["
     + _baseASCIIidentifierChars
     + _nonASCIIidentifierStartChars
     + _nonASCIIidentifierChars
-    + six.u("])+")
+    + "])+"
 )
 
 _nonASCIIwhitespace = re.compile(
