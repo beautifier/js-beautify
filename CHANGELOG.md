@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.15.3
+* fix node 18 support by downgrading glob to v10 ([#2350](https://github.com/beautifier/js-beautify/pull/2350))
+
 ## v1.15.2
 * Patch SNYK-JS-CROSSSPAWN-8303230 issue brought it through old glob package ([#2328](https://github.com/beautifier/js-beautify/issues/2328))
 * release wheels on pypi ([#2313](https://github.com/beautifier/js-beautify/issues/2313))
