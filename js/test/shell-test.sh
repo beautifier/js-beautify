@@ -235,7 +235,7 @@ test_cli_js_beautify()
         cleanup 1
     }
 
-    # TODO: EditorConfig setting should NOT overide cli setting, but that is
+    # TODO: EditorConfig setting should NOT override cli setting, but that is
     # the current by-design behavior, due to code limitations.
 
     # file input scenario
@@ -243,7 +243,7 @@ test_cli_js_beautify()
     cd $TEST_TEMP/editorconfig || exit 1
     $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -251,7 +251,7 @@ test_cli_js_beautify()
     cd $TEST_TEMP/editorconfig/crlf || exit 1
     $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -259,7 +259,7 @@ test_cli_js_beautify()
     cd $TEST_TEMP/editorconfig/cr || exit 1
     $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -270,7 +270,7 @@ test_cli_js_beautify()
     echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -279,7 +279,7 @@ test_cli_js_beautify()
     echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -288,7 +288,7 @@ test_cli_js_beautify()
     echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -300,7 +300,7 @@ test_cli_js_beautify()
     echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js"
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -308,7 +308,7 @@ test_cli_js_beautify()
     cd $TEST_TEMP/editorconfig/crlf || exit 1
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -316,7 +316,7 @@ test_cli_js_beautify()
     cd $TEST_TEMP/editorconfig/cr || exit 1
     cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
     && diff -q example-${SCENARIO}.js example-ec.js || {
-        echo "EditorConfig setting should overide cli setting."
+        echo "EditorConfig setting should override cli setting."
         diff example-${SCENARIO}.js example-ec.js | cat -t -e
         cleanup 1
     }
@@ -362,7 +362,7 @@ test_cli_js_beautify()
 
     cd $SCRIPT_DIR/resources/configerror
     $CLI_SCRIPT $TEST_TEMP/example1-default.js 2>&1 |  grep -q "Error while loading beautifier configuration\." || {
-        echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configration load error message."
+        echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configuration load error message."
         cleanup 1
     }
 
