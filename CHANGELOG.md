@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.15.3
+* fix node 18 support by downgrading glob to v10 ([#2350](https://github.com/beautifier/js-beautify/pull/2350))
+
+## v1.15.2
+* Patch SNYK-JS-CROSSSPAWN-8303230 issue brought it through old glob package ([#2328](https://github.com/beautifier/js-beautify/issues/2328))
+* release wheels on pypi ([#2313](https://github.com/beautifier/js-beautify/issues/2313))
+* ModuleNotFoundError: No module named 'setuptools.command.test' as of latest setuptools package release ([#2301](https://github.com/beautifier/js-beautify/issues/2301))
+* [Python]Compatible with setuptools>=72 ([#2300](https://github.com/beautifier/js-beautify/issues/2300))
+
 ## v1.15.1
 * Turn new angular templating off by default in html ([#2247](https://github.com/beautifier/js-beautify/pull/2247))
 * Perf regression in latest release (1.15.0) ([#2246](https://github.com/beautifier/js-beautify/issues/2246))
