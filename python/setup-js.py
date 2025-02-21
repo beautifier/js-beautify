@@ -26,6 +26,6 @@ setup(
         "jsbeautifier.unpackers",
         "jsbeautifier.unpackers.tests",
     ],
-    install_requires=["six>=1.13.0", "editorconfig>=0.12.2"],
+    install_requires=["editorconfig>=0.12.2"],
     license="MIT",
 )

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 import re
 import copy
@@ -8,12 +7,6 @@ from jsbeautifier.core.inputscanner import InputScanner
 from jsbeautifier.core.directives import Directives
 from cssbeautifier.__version__ import __version__
 
-# This is not pretty, but given how we did the version import
-# it is the only way to do this without having setup.py fail on a missing
-# six dependency.
-six = __import__("six")
-
-#
 # The MIT License (MIT)
 
 # Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
@@ -87,11 +80,10 @@ class Beautifier:
     def __init__(self, source_text, opts=default_options()):
         # in javascript, these two differ
         # in python they are the same, different methods are called on them
-        # IMPORTANT: This string must be run through six to handle \u chars
-        self.lineBreak = re.compile(six.u(r"\r\n|[\n\r]"))
+        self.lineBreak = re.compile(r"\r\n|[\n\r]")
         self.allLineBreaks = self.lineBreak
 
-        self.comment_pattern = re.compile(six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
+        self.comment_pattern = re.compile(r"\/\/(?:[^\n\r\u2028\u2029]*)")
         self.block_comment_pattern = re.compile(r"\/\*(?:[\s\S]*?)((?:\*\/)|$)")
 
         if not source_text:

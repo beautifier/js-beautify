@@ -27,7 +27,6 @@ import re
 
 class InputScanner:
     def __init__(self, input_string):
-        self.__six = __import__("six")
         if input_string is None:
             input_string = ""
         self.__input = input_string

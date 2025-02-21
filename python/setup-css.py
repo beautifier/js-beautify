@@ -19,6 +19,6 @@ setup(
         "cssbeautifier.tests.generated",
         "cssbeautifier.css",
     ],
-    install_requires=["jsbeautifier", "six>=1.13.0", "editorconfig>=0.12.2"],
+    install_requires=["jsbeautifier", "editorconfig>=0.12.2"],
     license="MIT",
 )
