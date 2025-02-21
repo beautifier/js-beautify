@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 import os
 import platform
@@ -97,18 +96,7 @@ def process_file(file_name, opts, beautify_code):
 
         stream = sys.stdin
         if platform.platform().lower().startswith("windows"):
-            if sys.version_info.major >= 3:
-                # for python 3 on windows this prevents conversion
-                stream = io.TextIOWrapper(sys.stdin.buffer, newline="")
-            elif platform.architecture()[0] == "32bit":
-                # for python 2 x86 on windows this prevents conversion
-                import msvcrt
-
-                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-            else:
-                raise Exception(
-                    "Pipe to stdin not supported on Windows with Python 2.x 64-bit."
-                )
+            stream = io.TextIOWrapper(sys.stdin.buffer, newline="")
 
         input_string = stream.read()
 
@@ -116,7 +104,7 @@ def process_file(file_name, opts, beautify_code):
         if input_string == "":
             raise MissingInputStreamError()
     else:
-        stream = io.open(file_name, "rt", newline="", encoding="UTF-8")
+        stream = open(file_name, newline="", encoding="UTF-8")
         input_string = stream.read()
 
     return beautify_code(input_string, opts)
@@ -135,7 +123,7 @@ def mkdir_p(path):
 
 def isFileDifferent(filepath, expected):
     try:
-        return "".join(io.open(filepath, "rt", newline="").readlines()) != expected
+        return "".join(open(filepath, newline="").readlines()) != expected
     except BaseException:
         return True
 
@@ -158,9 +146,7 @@ def get_filepaths_from_params(filepath_params, replace):
         elif "*" in filepath_param or "?" in filepath_param:
             # handle globs
             # empty result is okay
-            if sys.version_info.major == 2 or (
-                sys.version_info.major == 3 and sys.version_info.minor <= 4
-            ):
+            if sys.version_info.major == 3 and sys.version_info.minor <= 4:
                 if "**" in filepath_param:
                     raise Exception("Recursive globs not supported on Python <= 3.4.")
                 filepaths.extend(glob.glob(filepath_param))
@@ -207,18 +193,7 @@ def write_beautified_output(pretty, local_options, outfile):
         # python automatically converts newlines in text to "\r\n" when on windows
         # switch to binary to prevent this
         if platform.platform().lower().startswith("windows"):
-            if sys.version_info.major >= 3:
-                # for python 3 on windows this prevents conversion
-                stream = io.TextIOWrapper(sys.stdout.buffer, newline="")
-            elif platform.architecture()[0] == "32bit":
-                # for python 2 x86 on windows this prevents conversion
-                import msvcrt
-
-                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-            else:
-                raise Exception(
-                    "Pipe to stdout not supported on Windows with Python 2.x 64-bit."
-                )
+            stream = io.TextIOWrapper(sys.stdout.buffer, newline="")
 
         stream.write(pretty)
     else:
@@ -227,17 +202,9 @@ def write_beautified_output(pretty, local_options, outfile):
 
             # python automatically converts newlines in text to "\r\n" when on windows
             # set newline to empty to prevent this
-            with io.open(outfile, "wt", newline="", encoding="UTF-8") as f:
+            with open(outfile, "w", newline="", encoding="UTF-8") as f:
                 if not local_options.keep_quiet:
                     print("beautified " + outfile, file=sys.stdout)
-
-                try:
-                    f.write(pretty)
-                except TypeError:
-                    # This is not pretty, but given how we did the version import
-                    # it is the only way to do this without having setup.py
-                    # fail on a missing six dependency.
-                    six = __import__("six")
-                    f.write(six.u(pretty))
+                f.write(pretty)
         elif not local_options.keep_quiet:
             print("beautified " + outfile + " - unchanged", file=sys.stdout)

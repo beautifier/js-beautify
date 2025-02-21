@@ -22,9 +22,9 @@ class TestMyObfuscate(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Load source files (encoded and decoded version) for tests."""
-        with open(INPUT, "r") as data:
+        with open(INPUT) as data:
             cls.input = data.read()
-        with open(OUTPUT, "r") as data:
+        with open(OUTPUT) as data:
             cls.output = data.read()
 
     def test_detect(self):
