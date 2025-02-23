@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import io
 import os
@@ -28,7 +27,7 @@ def report_perf(fn):
 if __name__ == "__main__":
     dirname = os.path.dirname(os.path.abspath(__file__))
     github_file = os.path.join(dirname, "../", "test/resources/github.css")
-    data = copy.copy("".join(io.open(github_file).readlines()))
+    data = copy.copy("".join(open(github_file).readlines()))
 
     # warm up
     beautifier_test_github_css()
