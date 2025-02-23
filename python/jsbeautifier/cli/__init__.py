@@ -146,7 +146,7 @@ def get_filepaths_from_params(filepath_params, replace):
         elif "*" in filepath_param or "?" in filepath_param:
             # handle globs
             # empty result is okay
-            if sys.version_info.major == 3 and sys.version_info.minor <= 4:
+            if sys.version_info <= (3, 4):
                 if "**" in filepath_param:
                     raise Exception("Recursive globs not supported on Python <= 3.4.")
                 filepaths.extend(glob.glob(filepath_param))
