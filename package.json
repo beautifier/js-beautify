@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -53,7 +53,7 @@
     "editorconfig": "^1.0.4",
     "glob": "^10.4.2",
     "js-cookie": "^3.0.5",
-    "nopt": "^8.0.0"
+    "nopt": "^7.2.1"
   },
   "devDependencies": {
     "ansi-regex": "^6.0.1",
