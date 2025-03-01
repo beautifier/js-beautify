@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
