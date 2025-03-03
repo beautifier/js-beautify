@@ -17,13 +17,13 @@ release_python()
     git fetch --all || exit 1
 
     git checkout -B staging/release origin/staging/release
-    git clean -xfd || exit 1 
+    git clean -xfd || exit 1
     cd python
     # python setup.py register -r pypi
     cp setup-js.py setup.py || exit 1
-    python setup.py sdist || exit 1
+    python setup.py sdist bdist_wheel || exit 1
     cp setup-css.py setup.py || exit 1
-    python setup.py sdist || exit 1
+    python setup.py sdist bdist_wheel || exit 1
     rm setup.py || exit 1
     python -m twine upload dist/* || exit 1
 }
@@ -57,7 +57,7 @@ release_web()
     git checkout -B staging/main site/staging/main || exit 1
     git reset --hard site/main || exit 1
     git merge origin/staging/main --no-edit || exit 1
-    git push || exit 1    
+    git push || exit 1
 }
 
 sedi() {
@@ -82,7 +82,7 @@ update_versions()
     git clean -xfd || exit 1
 
     # Disabled due to build break
-     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
+     $SCRIPT_DIR/generate-changelog.sh beautifier/js-beautify $GITHUB_TOKEN || exit 1
 
     $SCRIPT_DIR/npm version --no-git-tag-version $NEW_VERSION || exit 1
 
@@ -113,7 +113,7 @@ update_release_branch()
     git add -f js/test/generated/
     git add -f python/jsbeautifier/tests/generated/
     git add -f python/cssbeautifier/tests/generated/
-    
+
     git commit -m "Release: $NEW_VERSION"
     git tag "v$NEW_VERSION" || exit 1
     git push || exit 1
@@ -130,7 +130,7 @@ main()
     if [[ ! $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9].*$ ]]; then
         echo Version number must start with MAJOR.MINOR.INCREMENTAL numbering.
         exit 1
-    fi    
+    fi
 
     npm --version > /dev/null || {
         echo ERROR: npm must be installed before attempting release

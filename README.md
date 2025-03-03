@@ -1,10 +1,10 @@
-<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/beautifier/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-<p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
+<p align="center"><a href="https://github.com/beautifier/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautifier/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautifier/js-beautify.svg"/></a></p>
 
 <p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
-<p align="center"><a href="https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautify-web/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
+<p align="center"><a href="https://gitter.im/beautifier/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautifier/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
 
 <p align="center"><a href="https://www.npmjs.org/package/js-beautify" target="_blank"><img alt="NPM stats" src=https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true"/></a></p>
 
@@ -21,7 +21,7 @@ I'm putting this front and center above because existing owners have very limite
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both
 customer facing bugs and underlying problems with the internal design and implementation.
 
-If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/main/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
+If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautifier/js-beautify/blob/main/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautifier/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
 
 
 # Installation
@@ -58,13 +58,13 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify-html.min.js"></script>
 ```
 
 Example usage of a JS tag in html:
@@ -76,7 +76,7 @@ Example usage of a JS tag in html:
 
 . . .
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
@@ -152,6 +152,17 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 });
 ```
 
+If you are using ESM Imports, you can import `js-beautify` like this:
+
+```js
+// 'beautify' can be any name here.
+import beautify from 'js-beautify';
+
+beautify.js(data, options);
+beautify.html(data, options);
+beautify.css(data, options);
+```
+
 ## Python
 After installing, to beautify using Python:
 
@@ -223,7 +234,7 @@ Beautifier Options:
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
   --indent-empty-lines              Keep indentation on empty lines
-  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in HTML
+  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in HTML
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -368,8 +379,10 @@ HTML Beautifier Options:
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]
+  -M, --wrap-attributes-min-attrs    Minimum number of html tag attributes for force wrap attribute options [2]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
+  --inline_custom_elements           Inline custom elements [true]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
@@ -377,7 +390,7 @@ HTML Beautifier Options:
   --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
   --unformatted_content_delimiter    Keep text content together between this string [""]
   --indent-empty-lines               Keep indentation on empty lines
-  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
+  --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty,angular) ["auto"] auto = none in JavaScript, all in html
 ```
 
 ## Directives
@@ -432,4 +445,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.14.7)
+(README.md: js-beautify@1.15.4)

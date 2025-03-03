@@ -69,7 +69,7 @@ function run_tests() {
 function read_settings_from_cookie() {
   $('#tabsize').val(any(Cookies.get('tabsize'), '4'));
   $('#brace-style').val(any(Cookies.get('brace-style'), 'collapse'));
-  $('#detect-packers').prop('checked', Cookies.get('detect-packers') !== 'off');
+  $('#detect-packers').prop('checked', Cookies.get('detect-packers') === 'on');
   $('#max-preserve-newlines').val(any(Cookies.get('max-preserve-newlines'), '5'));
   $('#keep-array-indentation').prop('checked', Cookies.get('keep-array-indentation') === 'on');
   $('#break-chained-methods').prop('checked', Cookies.get('break-chained-methods') === 'on');
@@ -148,6 +148,40 @@ function unpacker_filter(source) {
   }
 
   return leading_comments + source;
+}
+
+/* exported downloadBeautifiedCode */
+function downloadBeautifiedCode() {
+  var content = the.editor ? the.editor.getValue() : $('#source').val();
+
+  // Getting the selected language to determine the file extension
+  var language = $('#language').val();
+  var fileExtension = "txt"; // Default extension
+
+  // Setting the  file extension based on the selected language
+  if (language === 'html') {
+    fileExtension = 'html';
+  } else if (language === 'css') {
+    fileExtension = 'css';
+  } else if (language === 'js') {
+    fileExtension = 'js';
+  }
+
+  // Creating a Blob object with the content
+  var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+
+  // Creating a temporary anchor element to trigger the download
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  try {
+    link.download = "beautified." + fileExtension; // Dynamic file name based on extension
+
+    // Triggering the download
+    link.click();
+  } finally {
+    // Cleanup
+    URL.revokeObjectURL(link.href);
+  }
 }
 
 
@@ -243,7 +277,7 @@ function mergeObjects(allOptions, additionalOptions) {
 }
 
 function submitIssue() {
-  var url = 'https://github.com/beautify-web/js-beautify/issues/new?';
+  var url = 'https://github.com/beautifier/js-beautify/issues/new?';
 
   var encoded = encodeURIComponent(getSubmitIssueBody()).replace(/%20/g, "+");
   if (encoded.length > 7168) {

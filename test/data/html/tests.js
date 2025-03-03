@@ -1194,6 +1194,105 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Test wrap_attributes_min_attrs with force/force-xx options",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '       ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: '\n    ',
+      indent_end: '\n',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: [
+        '<input{{indent_attr_first}}type="four attributes should wrap"',
+        '{{indent_attr}}class="form-control"',
+        '{{indent_attr}}autocomplete="off"',
+        '{{indent_attr}}[(ngModel)]="myValue"{{indent_end}}/>'
+      ]
+    }, {
+      input: [
+        '<input type="three attributes should not wrap"    autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />'
+    }, {
+      input: [
+        '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  ' +
+        '@someevent="dosomething"  someprop',
+        'class="xx-button">',
+        '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ],
+      output: [
+        '<cmpnt{{indent_attr_first}}v-bind:xx="four attributes with valueless attribute should wrap"',
+        '{{indent_attr}}@someevent="dosomething"',
+        '{{indent_attr}}someprop',
+        '{{indent_attr}}class="xx-button"{{newline_end}}>',
+        '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ]
+    }]
+  }, {
+    name: "Test wrap_attributes_min_attrs = 1 with force/force-xx options",
+    description: "",
+    matrix: [{
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should wrap
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: '\n    ',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="one attribute"/>'
+      ],
+      output: '<input{{indent_attr}}type="one attribute"{{newline_end}}/>'
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
@@ -3676,7 +3775,7 @@ exports.test_data = {
     }]
   }, {
     name: "Does not add whitespace around custom elements ",
-    description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
+    description: "Regression test for https://github.com/beautifier/js-beautify/issues/1989",
     tests: [{
       input: [
         '<span>',
@@ -3712,6 +3811,594 @@ exports.test_data = {
         '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
         '    </span>',
         '</span>'
+      ]
+    }]
+  }, {
+    name: "Disables custom elements inlining with inline_custom_elements=false",
+    description: "https://github.com/beautifier/js-beautify/issues/2113",
+    options: [
+      { name: "inline_custom_elements", value: "false" }
+    ],
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <time-dot>.</time-dot>',
+        '        <time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ]
+    }]
+  }, {
+    name: "Indenting angular control flow with indent size 2",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    options: [
+      { name: "templating", value: "'angular'" },
+      { name: "indent_size", value: "2" }
+    ],
+    tests: [{
+      input: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ],
+      output: [
+        '@if (a > b) {',
+        '  {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '  {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '  {{a}} is less than {{b}}',
+        '} @else {',
+        '  {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '  <li> {{ item.name }} </li>',
+        '} @empty {',
+        '  <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '  @case (caseA) {',
+        '    Case A.',
+        '  }',
+        '  @case (caseB) {',
+        '    Case B.',
+        '  }',
+        '  @default {',
+        '    Default case.',
+        '  }',
+        '}'
+      ]
+    }]
+  }, {
+    name: "Indenting angular control flow with default indent size",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    options: [
+      { name: "templating", value: "'angular'" }
+    ],
+    tests: [{
+      input: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ],
+      output: [
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '    {{a}} is less than {{b}}',
+        '} @else {',
+        '    {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '    <li> {{ item.name }} </li>',
+        '} @empty {',
+        '    <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '    @case (caseA) {',
+        '        Case A.',
+        '    }',
+        '    @case (caseB) {',
+        '        Case B.',
+        '    }',
+        '    @default {',
+        '        Default case.',
+        '    }',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if (a > b) {',
+        '       {{a}} is greater than {{b}}',
+        '     }',
+        '',
+        '   @if (a > b) {',
+        ' {{a}} is greater than {{b}}',
+        '     } @else if (b > a) {',
+        '       {{a}} is less than {{b}}',
+        '     } @else {',
+        '       {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '   @for (item of items; track item.name) {',
+        '             <li> {{ item.name }} </li>',
+        '       } @empty {',
+        '     <li> There are no items. </li>',
+        '   }',
+        '',
+        ' @switch (condition) {',
+        '@case (caseA) { ',
+        'Case A.',
+        '       }',
+        '       @case (caseB) {',
+        'Case B.',
+        '   }',
+        ' @default {',
+        'Default case.',
+        '}',
+        '     }'
+      ],
+      output: [
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '    {{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '    {{a}} is less than {{b}}',
+        '} @else {',
+        '    {{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '    <li> {{ item.name }} </li>',
+        '} @empty {',
+        '    <li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '    @case (caseA) {',
+        '        Case A.',
+        '    }',
+        '    @case (caseB) {',
+        '        Case B.',
+        '    }',
+        '    @default {',
+        '        Default case.',
+        '    }',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>{{val.value}}</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '    <div>{{val.value}}</div>',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '@defer {',
+        '{{val.value}}',
+        '}',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '    <div>',
+        '        @defer {',
+        '            {{val.value}}',
+        '        }',
+        '    </div>',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        'Item #{{ idx }}: {{ item.name }}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '        Item #{{ idx }}: {{ item.name }}',
+        '        <p>',
+        '            Item #{{ idx }}: {{ item.name }}',
+        '        </p>',
+        '    }',
+        '</div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        '{{{value: true} | json}}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '{{ {value: true} }}',
+        '<div>',
+        '@if(true) {',
+        '{{ {value: true} }}',
+        ' }',
+        '',
+        'Placeholder',
+        '</div>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '        {{{value: true} | json}}',
+        '        <p>',
+        '            Item #{{ idx }}: {{ item.name }}',
+        '        </p>',
+        '        {{ {value: true} }}',
+        '        <div>',
+        '            @if(true) {',
+        '                {{ {value: true} }}',
+        '            }',
+        '',
+        '            Placeholder',
+        '        </div>',
+        '    }',
+        '</div>'
+      ]
+    }, {
+      comment: 'If no whitespace before @, then don\'t indent',
+      input: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        'Text',
+        '</p>',
+        '}'
+      ],
+      output: [
+        'My email is loremipsum@if.com (only for work).',
+        'loremipsum@if {',
+        '<p>',
+        '    Text',
+        '</p>',
+        '}'
+      ]
+    }, {
+      comment: 'Check if control flow is indented well if we have oneliners with no space before the closing token',
+      input: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        'Hello there',
+        '</div>',
+        '<div>',
+        '{{b}} @if (a > b) {is less than}@else{',
+        'is greater than or equal to} {{a}}',
+        'Hello there',
+        '</div>'
+      ],
+      output: [
+        '{{b}} @if (a > b) {is less than}@else{is greater than or equal to} {{a}}',
+        '<div>',
+        '    Hello there',
+        '</div>',
+        '<div>',
+        '    {{b}} @if (a > b) {is less than}@else{',
+        '        is greater than or equal to} {{a}}',
+        '    Hello there',
+        '</div>'
+      ]
+    }, {
+      comment: 'Multiline conditions should also be recognized and indented correctly',
+      input: [
+        '@if(',
+        'condition1',
+        '&& condition2',
+        ') {',
+        'Text inside if',
+        '}'
+      ],
+      output: [
+        '@if(',
+        'condition1',
+        '&& condition2',
+        ') {',
+        '    Text inside if',
+        '}'
+      ]
+    }, {
+      comment: 'Indentation should work if opening brace is in new line',
+      input: [
+        '@if( condition )',
+        '{',
+        'Text inside if',
+        '}'
+      ],
+      output: [
+        '@if( condition )',
+        '{',
+        '    Text inside if',
+        '}'
+      ]
+    }, {
+      comment: 'Indentation should work if condition is in new line',
+      input: [
+        '@if',
+        '( condition )',
+        '{',
+        'Text inside if',
+        '} @else if',
+        '(condition2)',
+        '{',
+        '<div>',
+        'Text',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if',
+        '( condition )',
+        '{',
+        '    Text inside if',
+        '} @else if',
+        '(condition2)',
+        '{',
+        '    <div>',
+        '        Text',
+        '    </div>',
+        '}'
+      ]
+    }, {
+      comment: 'CSS @media should remain unchanged',
+      unchanged: [
+        '<style type="text/css">',
+        '    @media only screen and (min-width:480px) {',
+        '        .mj-column-per-100 {',
+        '            width: 100% !important;',
+        '            max-width: 100%;',
+        '        }',
+        '    }',
+        '</style>'
+      ]
+    }, {
+      comment: 'CSS @media, the inside of <script> tag and control flows should be indented correctly',
+      fragment: true,
+      input: [
+        '<head>',
+        '<style type="text/css">',
+        '@media only screen and (min-width:480px) {',
+        '.mj-column-per-100 {',
+        'width: 100% !important;',
+        'max-width: 100%;',
+        '}',
+        '}',
+        '</style>',
+        '<script>',
+        'if(someExpression) {',
+        'callFunc();',
+        '}',
+        '</script>',
+        '</head>',
+        '<body>',
+        '<div>',
+        '@if(someOtherExpression) {',
+        'Text',
+        '}',
+        '</div>',
+        '</body>'
+      ],
+      output: [
+        '<head>',
+        '    <style type="text/css">',
+        '        @media only screen and (min-width:480px) {',
+        '            .mj-column-per-100 {',
+        '                width: 100% !important;',
+        '                max-width: 100%;',
+        '            }',
+        '        }',
+        '    </style>',
+        '    <script>',
+        '        if (someExpression) {',
+        '            callFunc();',
+        '        }',
+        '    </script>',
+        '</head>',
+        '<body>',
+        '    <div>',
+        '        @if(someOtherExpression) {',
+        '            Text',
+        '        }',
+        '    </div>',
+        '</body>'
+      ]
+    }]
+  }, {
+    name: "No indenting for angular control flow should be done if angular templating is not set",
+    description: "https://github.com/beautify-web/js-beautify/issues/2219",
+    template: "^^^ $$$",
+    tests: [{
+      unchanged: [
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '}',
+        '',
+        '@if (a > b) {',
+        '{{a}} is greater than {{b}}',
+        '} @else if (b > a) {',
+        '{{a}} is less than {{b}}',
+        '} @else {',
+        '{{a}} is equal to {{b}}',
+        '}',
+        '',
+        '@for (item of items; track item.name) {',
+        '<li> {{ item.name }} </li>',
+        '} @empty {',
+        '<li> There are no items. </li>',
+        '}',
+        '',
+        '@switch (condition) {',
+        '@case (caseA) {',
+        'Case A.',
+        '}',
+        '@case (caseB) {',
+        'Case B.',
+        '}',
+        '@default {',
+        'Default case.',
+        '}',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '@if( {value: true}; as val) {',
+        '<div>{{val.value}}</div>',
+        '}'
+      ]
+    }, {
+      input: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '@defer {',
+        '{{val.value}}',
+        '}',
+        '</div>',
+        '}'
+      ],
+      output: [
+        '@if( {value: true}; as val) {',
+        '<div>',
+        '    @defer {',
+        '    {{val.value}}',
+        '    }',
+        '</div>',
+        '}'
+      ]
+    }, {
+      unchanged: [
+        '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      input: [
+        '<div>',
+        '@for (item of items; track item.id; let idx = $index, e = $even) {',
+        'Item #{{ idx }}: {{ item.name }}',
+        '<p>',
+        'Item #{{ idx }}: {{ item.name }}',
+        '</p>',
+        '}',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @for (item of items; track item.id; let idx = $index, e = $even) {',
+        '    Item #{{ idx }}: {{ item.name }}',
+        '    <p>',
+        '        Item #{{ idx }}: {{ item.name }}',
+        '    </p>',
+        '    }',
+        '</div>'
+      ]
+    }, {
+      comment: 'CSS @media should remain unchanged',
+      unchanged: [
+        '<style type="text/css">',
+        '    @media only screen and (min-width:480px) {',
+        '        .mj-column-per-100 {',
+        '            width: 100% !important;',
+        '            max-width: 100%;',
+        '        }',
+        '    }',
+        '</style>'
       ]
     }]
   }, {

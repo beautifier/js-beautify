@@ -12,18 +12,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 18
           registry-url: https://registry.npmjs.org/
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.11
       - name: Set git user
         run: |
           git config --global user.email "github-action@users.noreply.github.com"
@@ -49,17 +49,17 @@ jobs:
           ssh-add ~/.ssh/deploy_js_beautify
                     
           git remote add site git@beautifier-github.com:beautifier/beautifier.io.git
-          git remote add trigger git@js-beautify-github.com:beautify-web/js-beautify.git
+          git remote add trigger git@js-beautify-github.com:beautifier/js-beautify.git
           git fetch --all
       - name: Install python twinE
-        run: pip install twine        
+        run: pip install twine wheel
       - name: Run release script for ${{ github.event.milestone.title }}
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-          TWINE_USERNAME: ${{secrets.PYPI_USERNAME}} 
-          TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}} 
+          TWINE_USERNAME: ${{secrets.PYPI_USERNAME}}
+          TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}}
         run: |
           ./tools/release-all.sh ${MILESTONE_VERSION}

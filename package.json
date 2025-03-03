@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.14.7",
+  "version": "1.15.4",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -17,14 +17,14 @@
     "js/lib/*.js",
     "js/lib/unpackers/",
     "js/index.js",
-    "js/src/**/*"
+    "js/src/"
   ],
   "scripts": {},
-  "bugs": "https://github.com/beautify-web/js-beautify/issues",
+  "bugs": "https://github.com/beautifier/js-beautify/issues",
   "homepage": "https://beautifier.io/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/beautify-web/js-beautify.git"
+    "url": "git://github.com/beautifier/js-beautify.git"
   },
   "keywords": [
     "beautify",
@@ -45,28 +45,29 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
-    "editorconfig": "^0.15.3",
-    "glob": "^8.1.0",
-    "nopt": "^6.0.0"
+    "editorconfig": "^1.0.4",
+    "glob": "^10.4.2",
+    "js-cookie": "^3.0.5",
+    "nopt": "^7.2.1"
   },
   "devDependencies": {
     "ansi-regex": "^6.0.1",
     "benchmark": "^2.1.4",
-    "codemirror": "^5.65.13",
+    "codemirror": "^5.65.16",
     "jquery": "^3.6.4",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
-    "mocha": "^10.2.0",
+    "mocha": "^11.0.1",
     "mustache": "^4.2.0",
     "requirejs": "^2.3.6",
     "serve": "^14.2.0",
     "strip-ansi": "^7.0.1",
     "webpack": "^5.81.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^6.0.1"
   }
 }

@@ -36,7 +36,8 @@ var template_names = {
   erb: false,
   handlebars: false,
   php: false,
-  smarty: false
+  smarty: false,
+  angular: false
 };
 
 // This lets templates appear anywhere we would do a readUntil
@@ -132,6 +133,10 @@ TemplatablePattern.prototype.__set_templated_pattern = function() {
     items.push(this.__patterns.php._starting_pattern.source);
   }
   if (!this._disabled.handlebars) {
+    items.push(this.__patterns.handlebars._starting_pattern.source);
+  }
+  if (!this._disabled.angular) {
+    // Handlebars ('{{' and '}}') are also special tokens in Angular)
     items.push(this.__patterns.handlebars._starting_pattern.source);
   }
   if (!this._disabled.erb) {

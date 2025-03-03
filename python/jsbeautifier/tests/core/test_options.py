@@ -102,15 +102,13 @@ class TestOptions(unittest.TestCase):
 
     def test__get_selection_list(self):
         # should raise error with empty selection
-        with self.assertRaisesRegexp(
-            ValueError, "Selection list cannot" + " be empty."
-        ):
+        with self.assertRaisesRegex(ValueError, "Selection list cannot" + " be empty."):
             Options()._get_selection_list("a", [])
         # should raise error with invalid default
-        with self.assertRaisesRegexp(ValueError, "Invalid Default Value!"):
+        with self.assertRaisesRegex(ValueError, "Invalid Default Value!"):
             Options()._get_selection_list("a", ["a", "b"], ["c"])
         # should raise error with invalid option
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             ValueError, "^Invalid Option Value:" + " The option"
         ):
             Options({"a": ["c", "d"]})._get_selection_list("a", ["a", "b"], ["a", "b"])
@@ -120,7 +118,7 @@ class TestOptions(unittest.TestCase):
 
     def test__get_selection(self):
         # should raise error with multiple selection
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             ValueError, "^Invalid Option" + " Value: The option"
         ):
             Options({"a": ["a", "b"]})._get_selection("a", ["a", "b"], ["a"])
