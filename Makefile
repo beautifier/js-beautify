@@ -84,15 +84,17 @@ python/dist/*: $(BUILD_DIR)/python $(BUILD_DIR)/generate $(wildcard python/**/*.
 	@rm -f python/dist/*
 	@cd python && \
 		cp setup-css.py setup.py && \
+		$(PYTHON) -m pip install 'setuptools; python_version >= "3.12"' && \
 		$(PYTHON) setup.py sdist && \
 		rm setup.py
 	@cd python && \
 		cp setup-js.py setup.py && \
+		$(PYTHON) -m pip install 'setuptools; python_version >= "3.12"' && \
 		$(PYTHON) setup.py sdist && \
 		rm setup.py
 	# Order matters here! Install css then js to make sure the local dist version of js is used
-	$(SCRIPT_DIR)/python-rel pip install -U python/dist/cssbeautifier*
-	$(SCRIPT_DIR)/python-rel pip install -U python/dist/jsbeautifier*
+	$(SCRIPT_DIR)/python-rel pip install --upgrade python/dist/cssbeautifier*
+	$(SCRIPT_DIR)/python-rel pip install --upgrade python/dist/jsbeautifier*
 
 # python package generation
 build/*.tgz: js/lib/*.js
