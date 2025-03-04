@@ -5890,6 +5890,14 @@ exports.test_data = {
           comment: 'Issue #1896: Handle newlines with bitwise ~ operator',
           input: 'if (foo) {\nvar bar = 1;\n~bar ? 0 : 1\n }',
           output: 'if (foo) {\n    var bar = 1;\n    ~bar ? 0 : 1\n}'
+        },
+
+        {
+          comment: 'Issue #2128 - NPE in python implementation',
+          fragment: true,
+          unchanged: [
+            ') / a / g'
+          ]
         }
       ]
     }
