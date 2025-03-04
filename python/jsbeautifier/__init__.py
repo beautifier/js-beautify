@@ -123,6 +123,7 @@ Output options:
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
+      --qml                        Add QML support
  -C,  --comma-first                Put commas at the beginning of new line instead of end.
  -m,
  --max-preserve-newlines=NUMBER    Number of line-breaks to be preserved in one chunk (default 10)
@@ -184,6 +185,7 @@ def main():
                 "operator-position=",
                 "outfile=",
                 "quiet",
+                "qml",
                 "replace",
                 "space-after-anon-function",
                 "space-after-named-function",
@@ -252,6 +254,8 @@ def main():
             js_options.unescape_strings = True
         elif opt in ("--e4x", "-X"):
             js_options.e4x = True
+        elif opt in ("--qml",):
+            js_options.qml = True
         elif opt in ("--end-with-newline", "-n"):
             js_options.end_with_newline = True
         elif opt in ("--comma-first", "-C"):

@@ -976,7 +976,7 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (reserved_array(current_token, line_starters) && this._flags.last_token.text !== ')') {
-    if (this._flags.inline_frame || this._flags.last_token.text === 'else' || this._flags.last_token.text === 'export') {
+    if (this._flags.inline_frame || this._flags.last_token.text === 'else' || this._flags.last_token.text === 'export' || (this._options.qml && this._flags.last_token.text === 'property')) {
       prefix = 'SPACE';
     } else {
       prefix = 'NEWLINE';

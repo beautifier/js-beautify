@@ -105,6 +105,7 @@ var path = require('path'),
         "wrap_attributes_min_attrs": Number,
         "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
+        "qml": Boolean,
         "end_with_newline": Boolean,
         "comma_first": Boolean,
         "operator_position": ["before-newline", "after-newline", "preserve-newline"],
@@ -392,6 +393,7 @@ function usage(err) {
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
             msg.push('  -w, --wrap-line-length            Wrap lines that exceed N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
+            msg.push('  --qml                         Add Qml support');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
             msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
             msg.push('  -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]');
