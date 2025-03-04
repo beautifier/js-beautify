@@ -41,7 +41,7 @@
 
 var JavascriptObfuscator = {
   detect: function(str) {
-    return /^var _0x[a-f0-9]+ ?\= ?\[/.test(str);
+    return /^var _0x[a-f0-9]+ ?\= ?\[[\"|\'][\\]x/.test(str);
   },
 
   unpack: function(str) {
