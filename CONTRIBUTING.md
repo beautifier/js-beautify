@@ -122,7 +122,7 @@ To publish a release:
 This is script will:
 
 * Update README.md with correct cdn links
-* Update CHANGLOG.md with the milestone description and a list of closed issues
+* Update CHANGELOG.md with the milestone description and a list of closed issues
 * Commit the built files to the `release` branch
 * Publish the python version to PyPI
 * Publish the javascript version to npm

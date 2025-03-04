@@ -1479,7 +1479,7 @@ exports.test_data = {
         }
       ]
     }, {
-      name: "Regresssion Tests",
+      name: "Regression Tests",
       description: "General Regression tests for known issues",
       options: [{ name: "selector_separator_newline", value: "false" }],
       tests: [{
