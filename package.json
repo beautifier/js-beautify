@@ -51,7 +51,7 @@
   "dependencies": {
     "config-chain": "^1.1.13",
     "editorconfig": "^1.0.4",
-    "glob": "^10.4.2",
+    "glob": "^11.0.1",
     "js-cookie": "^3.0.5",
     "nopt": "^7.2.1"
   },
