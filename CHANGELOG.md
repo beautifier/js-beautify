@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.15.4
+* Downgrade nopt to v7.x to maintain Node.js v14 compatibility ([#2358](https://github.com/beautifier/js-beautify/issues/2358))
+
 ## v1.15.3
 * fix node 18 support by downgrading glob to v10 ([#2350](https://github.com/beautifier/js-beautify/pull/2350))
 
