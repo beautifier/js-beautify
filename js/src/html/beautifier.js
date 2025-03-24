@@ -263,6 +263,8 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
   this._is_wrap_attributes_aligned_multiple = (this._options.wrap_attributes === 'aligned-multiple');
   this._is_wrap_attributes_preserve = this._options.wrap_attributes.substr(0, 'preserve'.length) === 'preserve';
   this._is_wrap_attributes_preserve_aligned = (this._options.wrap_attributes === 'preserve-aligned');
+  this._is_element_brace_style_collapse = (this._options.element_brace_style === 'collapse');
+  this._is_element_brace_style_end_expand = (this._options.element_brace_style === 'end-expand');
 }
 
 Beautifier.prototype.beautify = function() {
@@ -377,9 +379,10 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     if (last_tag_token.tag_start_char === '<') {
       printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
       // Add newline before tag closing bracket:
-      // 1. add newline only if 'force_expand_multiline' or 'closing-bracket-newline' is specified
+      // 1. add newline only if 'force_expand_multiline' or 'element-brace-style=end-expand' is specified
       // 2. add newline only if tag has wrapped_attrs
-      if ((this._is_wrap_attributes_force_expand_multiline || this._options.closing_bracket_newline) && last_tag_token.has_wrapped_attrs) {
+      if ((this._is_wrap_attributes_force_expand_multiline || this._is_element_brace_style_end_expand) &&
+        last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
     }

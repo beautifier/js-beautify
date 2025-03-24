@@ -4408,19 +4408,19 @@ exports.test_data = {
     matrix: [{
       options: [
         { name: "wrap_attributes", value: "'auto'" },
-        { name: "closing_bracket_newline", value: "true" }
+        { name: "element_brace_style", value: "'end-expand'" }
       ],
       closing_bracket_newline: ''
     }, {
       options: [
         { name: "wrap_attributes", value: "'preserve'" },
-        { name: "closing_bracket_newline", value: "true" }
+        { name: "element_brace_style", value: "'end-expand'" }
       ],
       fill_indent: '   ', // fill missing indent space
       closing_bracket_newline: '\n'
     }, {
       options: [
-        { name: "closing_bracket_newline", value: "false" }
+        { name: "closing_bracket_newline", value: "'collapse'" }
       ],
       closing_bracket_newline: ''
     }],

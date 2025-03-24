@@ -84,7 +84,7 @@ function Options(options) {
   ]);
   this.unformatted_content_delimiter = this._get_characters('unformatted_content_delimiter');
   this.indent_scripts = this._get_selection('indent_scripts', ['normal', 'keep', 'separate']);
-  this.closing_bracket_newline = this._get_boolean('closing_bracket_newline');
+  this.element_brace_style = this._get_selection('element_brace_style', ['collapse', 'end-expand']);
 }
 Options.prototype = new BaseOptions();
 
