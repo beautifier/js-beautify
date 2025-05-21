@@ -131,15 +131,9 @@ class TokenizerPatterns(BaseTokenizerPatterns):
     def __init__(self, input_scanner, acorn, options):
         BaseTokenizerPatterns.__init__(self, input_scanner)
 
-        # This is not pretty, but given how we did the version import
-        # it is the only way to do this without having setup.py fail on a missing
-        # six dependency.
-        six = __import__("six")
-
-        # IMPORTANT: This string must be run through six to handle \u chars
         self.whitespace = self.whitespace.matching(
-            six.u(r"\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff"),
-            six.u(r"\u2028\u2029"),
+            r"\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff",
+            r"\u2028\u2029",
         )
 
         pattern = Pattern(input_scanner)
@@ -150,7 +144,7 @@ class TokenizerPatterns(BaseTokenizerPatterns):
         )
         self.number = pattern.matching(number_pattern)
         self.punct = pattern.matching(punct_pattern)
-        self.comment = pattern.starting_with(r"//").until(six.u(r"[\n\r\u2028\u2029]"))
+        self.comment = pattern.starting_with(r"//").until(r"[\n\r\u2028\u2029]")
         self.block_comment = pattern.starting_with(r"/\*").until_after(r"\*/")
         self.html_comment_start = pattern.matching(r"<!--")
         self.html_comment_end = pattern.matching(r"-->")
@@ -159,8 +153,8 @@ class TokenizerPatterns(BaseTokenizerPatterns):
 
         self.xml = pattern.matching(xmlRegExp)
 
-        self.single_quote = templatable.until(six.u(r"['\\\n\r\u2028\u2029]"))
-        self.double_quote = templatable.until(six.u(r'["\\\n\r\u2028\u2029]'))
+        self.single_quote = templatable.until(r"['\\\n\r\u2028\u2029]")
+        self.double_quote = templatable.until(r'["\\\n\r\u2028\u2029]')
         self.template_text = templatable.until(r"[`\\$]")
         self.template_expression = templatable.until(r"[`}\\]")
 
@@ -579,7 +573,7 @@ class Tokenizer(BaseTokenizer):
         #         return String.fromCharCode(parseInt(val, 16));
         #     })
         # However, dealing with '\xff', '\\xff', '\\\xff' makes this more fun.
-        out = self.acorn.six.u("")
+        out = ""
         escaped = 0
 
         input_scan = InputScanner(s)
@@ -630,6 +624,6 @@ class Tokenizer(BaseTokenizer):
                 # single-quote, apostrophe, backslash - escape these
                 out += "\\" + chr(escaped)
             else:
-                out += self.acorn.six.unichr(escaped)
+                out += chr(escaped)
 
         return out
