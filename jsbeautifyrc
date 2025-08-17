@@ -18,5 +18,11 @@
     "wrap_line_length": 0,
     "css": {
         "selector_separator_newline": false
-    }
+    },
+    "html": {
+    "indent_inner_html": true,
+    "indent_handlebars": true,
+    "extra_liners": [],
+    "custom_elements": ["tr"]
+  }
 }
