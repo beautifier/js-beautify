@@ -1,0 +1,17 @@
+engines:
+ eslint:
+   enabled: true
+ pep8:
+   enabled: true
+ratings:
+ paths:
+ - "**.js"
+ - "**.py"
+exclude_paths:
+- webpack.config.js
+- "**/resources/**"
+- js/test/**
+- test/data/**
+- web/lib/**
+- tools/template/*
+- "**/generated/*"

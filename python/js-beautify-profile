@@ -1,16 +1,34 @@
 #! /usr/bin/env python
 
+# To run this: ./js-beautify/tools/python-dev python ./python/js-beautify-profile
+
 import sys
 import unittest
+import pstats
+from pstats import SortKey
 
-#Speedup things...
+# Speedup things...
 try:
     import cProfile as profile
 except ImportError:
     import profile
+import os
+import copy
+import jsbeautifier
+options = jsbeautifier.default_options()
+options.wrap_line_length = 80
 
-def run():
-    sys.argv.append('discover')
-    unittest.main()
+def beautifier_test_github_min():
+    jsbeautifier.beautify(github_min, options)
 
-profile.run('run()')
+if __name__ == '__main__':
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    github_min_file = os.path.join(
+        dirname, "../", "test/resources/github-min.js")
+    github_min = copy.copy(''.join(open( github_min_file).readlines()))
+
+    profile.run('beautifier_test_github_min()',
+        os.path.join(dirname, "../", 'build/jsbstats'))
+
+    p = pstats.Stats(os.path.join(dirname, "../", 'build/jsbstats'))
+    p.strip_dirs().sort_stats(SortKey.CUMULATIVE).print_stats()

@@ -1,0 +1,258 @@
+body {
+  background: #eee;
+  color: #333;
+  height: 95vh;
+  margin: 8px;
+  max-width: 100%;
+  font: 13px/1.231 arial, sans-serif;
+}
+
+a.self {
+  font-weight: bold;
+  text-decoration: none;
+  color: #444;
+  border-bottom: 1px solid #aaa
+}
+
+h1.logo {
+  display: flex;
+  line-height: 1em;
+  margin: 0;
+}
+
+h1 img {
+  font-family: montserrat, nexa, gotham, sans-serif;
+  font-weight: 600;
+}
+
+p, select, label, .blurb, a.turn-off-codemirror {
+  font-size: small;
+}
+
+.sub-title {
+  margin-bottom: 8px;
+}
+
+.title {
+  margin-left: 40px;
+}
+
+textarea {
+  width: 100%;
+}
+
+textarea#source {
+  width: 100%;
+  height: 100%;
+}
+
+a.turn-off-codemirror {
+  margin-left: 25px;
+}
+
+input[type="checkbox"], select, button {
+  cursor: pointer;
+}
+
+#version-number {
+  align-self: flex-end;
+  font-family: arial, sans-serif;
+  font-size: .5em;
+  margin-left: 10px;
+}
+
+#testresults {
+  display: none;
+  font-family: monaco, consolas, "lucida console", "courier new", monospace;
+}
+
+.CodeMirror {
+  border: 1px solid #ccc;
+  height: 100%;
+  font-size: 90%;
+  background: white;
+}
+
+.hide {
+  display: none;
+}
+
+.container {
+  max-width: 95%;
+  display: grid;
+  grid-template-columns: 65% 35%;
+  grid-template-rows: 0.2fr 1.8fr;
+  gap: 0 14px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "title options"
+    "editor options";
+}
+
+.title {
+  grid-area: title;
+}
+
+.editor {
+  grid-area: editor;
+}
+
+.options {
+  grid-area: options;
+}
+
+select, .buttons-box button {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  line-height: 1.5em;
+  padding: 0.5em;
+  margin: 0 0 5px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+select {
+  display: block;
+}
+
+.options-checkboxes, .options-select {
+  display: inline-table;
+  max-width: 100%;
+}
+
+#language {
+  font-size: 20px;
+  width: 100%;
+  padding-left: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.buttons-box {
+  margin-top: 20px;
+}
+
+.buttons-box .submit {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
+  font-size: 1.5em;
+  width: 100%;
+  background-color: #7cffcb;
+  background-image: linear-gradient(315deg, #7cffcb 0%, #74f2ce 74%);
+}
+
+.buttons-box .control {
+  background-color: #2e3138;
+  color: white;
+  display: inline-flex;
+}
+
+@media only screen and (max-width: 800px) {
+  .container {
+    grid-template-columns: 100%;
+    grid-template-areas:
+      "title"
+      "editor"
+      "options";
+    grid-template-rows: 0.1fr 1.8fr 0.1fr;
+    max-width: 100%;
+  }
+
+  .options-checkboxes, .options-select {
+    max-width: 50%;
+  }
+
+  .title {
+    margin-left: 10px;
+  }
+
+  .editor, .title, .options {
+    max-width: 100%;
+  }
+
+  .CodeMirror {
+    height: 50vh;
+  }
+}
+
+.dark-mode {
+  background: #202124;
+  color: #f8f9fa;
+}
+
+.dark-mode a {
+  color: #9da2ff;
+}
+
+.dark-mode a:visited {
+  color: #d7affb;
+}
+
+.dark-mode a.self {
+  color: #d2d3d7;
+}
+
+.dark-mode select,
+.dark-mode textarea {
+  background-color: #2e3037;
+  color: #e8eaed;
+  border: 1px solid #333333;
+}
+
+#theme-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 5px;
+}
+
+#theme-toggle-wrapper span {
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+#theme-toggle-label {
+  display: inline-block;
+  height: 20px;
+  position: relative;
+  width: 40px;
+}
+
+#theme-toggle-slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+#theme-toggle-slider:before {
+  background-color: #fff;
+  content: "";
+  height: 20px;
+  position: absolute;
+  transition: .4s;
+  width: 20px;
+}
+
+input:checked+#theme-toggle-slider {
+  background-color: #66bb6a;
+}
+
+input:checked+#theme-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+#theme-toggle-slider {
+  border-radius: 20px;
+}
+
+#theme-toggle-slider:before {
+  border-radius: 50%;
+}

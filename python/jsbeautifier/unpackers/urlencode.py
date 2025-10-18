@@ -1,6 +1,6 @@
 #
 # Trivial bookmarklet/escaped script detector for the javascript beautifier
-#     written by Einar Lielmanis <einar@jsbeautifier.org>
+#     written by Einar Lielmanis <einar@beautifier.io>
 #     rewritten in Python by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 # Will always return valid javascript: if `detect()` is false, `code` is
@@ -23,11 +23,13 @@ except ImportError:
 
 PRIORITY = 0
 
+
 def detect(code):
     """Detects if a scriptlet is urlencoded."""
     # the fact that script doesn't contain any space, but has %20 instead
     # should be sufficient check for now.
-    return ' ' not in code and ('%20' in code or code.count('%') > 3)
+    return " " not in code and ("%20" in code or code.count("%") > 3)
+
 
 def unpack(code):
     """URL decode `code` source string."""

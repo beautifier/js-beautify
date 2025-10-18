@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+#
+# Stub script to run cssbeautifier
+#
+import sys
+from cssbeautifier import main
+sys.exit(main())

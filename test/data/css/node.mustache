@@ -1,0 +1,308 @@
+/*
+{{&header_text}}
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+/*jshint unused:false */
+/*jshint strict:false */
+
+function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
+{
+
+    var default_opts = {
+        indent_size: 4,
+        indent_char: ' ',
+        preserve_newlines: true,
+        jslint_happy: false,
+        keep_array_indentation: false,
+        brace_style: 'collapse',
+        space_before_conditional: true,
+        break_chained_methods: false,
+        selector_separator: '\n',
+        end_with_newline: false
+    };
+    var opts;
+
+{{#default_options}}    default_opts.{{name}} = {{&value}};
+{{/default_options}}
+
+    function reset_options()
+    {
+        opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'css-beautify';
+    }
+
+    function test_beautifier(input)
+    {
+        return css_beautify(input, opts);
+    }
+
+    var sanitytest;
+    var test_name = '';
+
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
+
+    // test the input on beautifier with the current flag settings
+    // does not check the indentation / surroundings as bt() does
+    function test_fragment(input, expected)
+    {
+        var success = true;
+        sanitytest.test_function(test_beautifier, test_name);
+        expected = expected || expected === '' ? expected : input;
+        success = success && sanitytest.expect(input, expected);
+        // if the expected is different from input, run it again
+        // expected output should be unchanged when run twice.
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
+        }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
+        opts.eol = '\r\\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        opts.disabled = true;
+        success = success && sanitytest.expect(input, input || '');
+        success = success && sanitytest.expect('\n\n' + expected, '\n\n' + expected);
+        opts.disabled = false;
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
+            input = input.replace(/[\n]/g, '\r\n');
+            sanitytest.expect(input, expected);
+            // Ensure support for auto eol detection
+            opts.eol = 'auto';
+            success = success && sanitytest.expect(input, expected);
+        }
+        opts.eol = '\n';
+        return success;
+    }
+
+    // test css
+    function t(input, expectation)
+    {
+        var success = true;
+        var wrapped_input, wrapped_expectation;
+
+        expectation = expectation || expectation === '' ? expectation : input;
+        success = success && test_fragment(input, expectation);
+
+        return success;
+    }
+
+    function unicode_char(value) {
+        return String.fromCharCode(value);
+    }
+
+    function beautifier_tests()
+    {
+        sanitytest = test_obj;
+
+        reset_options();
+        //============================================================
+        t(".tabs {}");
+
+{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
+        //============================================================
+    {{^matrix}}
+        // {{&name}}
+        reset_options();
+        set_name('{{&name}}');
+        {{#options}}
+        opts.{{name}} = {{&value}};
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}};
+        {{/tests}}
+
+    {{/matrix}}
+    {{#matrix}}
+        // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        reset_options();
+        set_name('{{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})');
+        {{#options}}
+        opts.{{name}} = {{&value}};
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}};
+        {{/tests}}
+
+    {{/matrix}}
+{{#unset_mustache_tags}}.{{/unset_mustache_tags}}{{/groups}}
+    }
+
+    function beautifier_unconverted_tests()
+    {
+        sanitytest = test_obj;
+
+        reset_options();
+        //============================================================
+        test_fragment(null, '');
+
+        reset_options();
+        //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
+
+        reset_options();
+        //============================================================
+        // test basic css beautifier
+        t(".tabs {}");
+        t(".tabs{color:red;}", ".tabs {\n    color: red;\n}");
+        t(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n    color: rgb(255, 255, 0)\n}");
+        t(".tabs{background:url('back.jpg')}", ".tabs {\n    background: url('back.jpg')\n}");
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}");
+        t("@media print {.tab{}}", "@media print {\n    .tab {}\n}");
+        t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n    .tab {\n        background-image: url(foo@2x.png)\n    }\n}");
+
+        t("a:before {\n" +
+            "    content: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}");
+
+        //lead-in whitespace determines base-indent.
+        // lead-in newlines are stripped.
+        t("\n\na, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}");
+        t("   a, img {padding: 0.2px}", "   a,\n   img {\n       padding: 0.2px\n   }");
+        t("      \na, img {padding: 0.2px}", "      a,\n      img {\n          padding: 0.2px\n      }");
+        t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}");
+
+        // separate selectors
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}");
+        t("a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}");
+
+        // block nesting
+        t("#foo {\n    background-image: url(foo@2x.png);\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}");
+        t("@media screen {\n    #foo:hover {\n        background-image: url(foo@2x.png);\n    }\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}");
+/*
+@font-face {
+    font-family: 'Bitstream Vera Serif Bold';
+    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');
+}
+@media screen {
+    #foo:hover {
+        background-image: url(foo.png);
+    }
+    @media screen and (min-device-pixel-ratio: 2) {
+        @font-face {
+            font-family: 'Helvetica Neue'
+        }
+        #foo:hover {
+            background-image: url(foo@2x.png);
+        }
+    }
+}
+*/
+        t("@font-face {\n    font-family: 'Bitstream Vera Serif Bold';\n    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n    #foo:hover {\n        background-image: url(foo.png);\n    }\n    @media screen and (min-device-pixel-ratio: 2) {\n        @font-face {\n            font-family: 'Helvetica Neue'\n        }\n        #foo:hover {\n            background-image: url(foo@2x.png);\n        }\n    }\n}");
+
+        // less-css cases
+        t('.well{@well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n    @well-bg: @bg-color;\n    @well-fg: @fg-color;\n}');
+        t('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n' +
+            '    &.active {\n' +
+            '        box-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '    }\n' +
+            '}');
+        t('a {\n' +
+            '    color: blue;\n' +
+            '    &:hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '    & & &&&.active {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '}');
+
+        // Not sure if this is sensible
+        // but I believe it is correct to not remove the space in "&: hover".
+        t('a {\n' +
+            '    &: hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '}');
+
+        // import
+        t('@import "test";');
+
+        // don't break nested pseudo-classes
+        t("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n    color: red;\n    div:first-child {\n        color: black;\n    }\n}");
+
+        // handle SASS/LESS parent reference
+        t("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n    &:first-letter {\n        text-transform: uppercase;\n    }\n}");
+
+        //nested modifiers (&:hover etc)
+        t(".tabs{&:hover{width:10px;}}", ".tabs {\n    &:hover {\n        width: 10px;\n    }\n}");
+        t(".tabs{&.big{width:10px;}}", ".tabs {\n    &.big {\n        width: 10px;\n    }\n}");
+        t(".tabs{&>big{width:10px;}}", ".tabs {\n    &>big {\n        width: 10px;\n    }\n}");
+        t(".tabs{&+.big{width:10px;}}", ".tabs {\n    &+.big {\n        width: 10px;\n    }\n}");
+
+        //nested rules
+        t(".tabs{.child{width:10px;}}", ".tabs {\n    .child {\n        width: 10px;\n    }\n}");
+
+        //variables
+        t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}");
+        t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}");
+
+        //mixins
+        t("div{.px2rem(width,12);}", "div {\n    .px2rem(width, 12);\n}");
+        // mixin next to 'background: url("...")' should not add a line break after the comma
+        t("div {\n    background: url(\"//test.com/dummy.png\");\n    .px2rem(width, 12);\n}");
+
+        // test options
+        opts.indent_size = 2;
+        opts.indent_char = ' ';
+        opts.selector_separator_newline = false;
+
+        // pseudo-classes and pseudo-elements
+        t("#foo:hover {\n  background-image: url(foo@2x.png)\n}");
+        t("#foo *:hover {\n  color: purple\n}");
+        t("::selection {\n  color: #ff0000;\n}");
+
+        // TODO: don't break nested pseduo-classes
+        t("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}");
+
+        // particular edge case with braces and semicolons inside tags that allows custom text
+        t("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
+            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}");
+
+        // may not eat the space before "["
+        t('html.js [data-custom="123"] {\n  opacity: 1.00;\n}');
+        t('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}');
+    }
+
+    beautifier_tests();
+    beautifier_unconverted_tests();
+}
+
+if (typeof exports !== "undefined") {
+    exports.run_css_tests = run_css_tests;
+}

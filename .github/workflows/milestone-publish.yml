@@ -1,0 +1,65 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Release new version
+
+on:
+  milestone:
+    types: [closed]
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Set git user
+        run: |
+          git config --global user.email "github-action@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+      - name: Fetch beautifier/beautifier.io
+        env:
+          BEAUTIFIER_IO_DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
+          JS_BEAUTIFY_DEPLOY_KEY: ${{ secrets.JS_BEAUTIFY_DEPLOY_KEY }}
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          cat .github/workflows/ssh_config.txt > ~/.ssh/config
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
+          cat > ~/.ssh/deploy_beautifier_io <<< "${BEAUTIFIER_IO_DEPLOY_KEY}"
+          cat > ~/.ssh/deploy_js_beautify <<< "${JS_BEAUTIFY_DEPLOY_KEY}"
+
+          chmod 400 ~/.ssh/deploy_beautifier_io
+          chmod 400 ~/.ssh/deploy_js_beautify
+
+          ssh-add ~/.ssh/deploy_beautifier_io
+          ssh-add ~/.ssh/deploy_js_beautify
+                    
+          git remote add site git@beautifier-github.com:beautifier/beautifier.io.git
+          git remote add trigger git@js-beautify-github.com:beautifier/js-beautify.git
+          git fetch --all
+      - name: Install python twinE
+        run: pip install twine wheel
+      - name: Run release script for ${{ github.event.milestone.title }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          MILESTONE_VERSION: ${{ github.event.milestone.title }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          TWINE_USERNAME: ${{secrets.PYPI_USERNAME}}
+          TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}}
+        run: |
+          ./tools/release-all.sh ${MILESTONE_VERSION}

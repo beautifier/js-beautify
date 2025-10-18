@@ -1,0 +1,7 @@
+*.java text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.svg text eol=lf
+*.css text eol=lf
+*.mustache text eol=lf

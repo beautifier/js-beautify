@@ -1,9 +1,24 @@
 *.orig
 node_modules
 gh-pages
+gh
 
 *.pyc
+python/setup.py
+python/*/__pycache__
 python/MANIFEST
 python/build
 python/dist
+python/.eggs/
+python/jsbeautifier.egg-info
+python/cssbeautifier.egg-info
+.nvmrc
+.nvm/
 
+target
+dist/
+build/
+js/lib/
+generated/
+.idea/
+.vscode/

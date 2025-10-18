@@ -1,0 +1,13 @@
+dist/**
+js/bin/**
+js/lib/**
+js/test/resources/**
+node_modules/**
+python/**
+target/**
+tools/**
+test/resources/*
+web/lib/**
+build/**
+
+web/google-analytics.js

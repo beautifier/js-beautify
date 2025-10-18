@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+REL_SCRIPT_DIR="`dirname \"$0\"`"
+SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
+
+# if you ask for the version from this script it will force an update to the latest version
+if [ "$1" == "--version" ]; then
+    echo Ensuring npm is up-to-date...
+    /usr/bin/env npm i npm --no-save
+fi
+
+if [ ! -f ${PROJECT_DIR}/node_modules/.bin/npm ]; then
+    /usr/bin/env npm i npm --no-save
+fi
+
+${PROJECT_DIR}/node_modules/.bin/npm $@
+
+# until this is fixed we ned to sed.
+# https://npm.community/t/some-packages-have-dist-tarball-as-http-and-not-https/285/16
+if [ -f package-lock.json ]; then
+    if [ "`uname`" = "Darwin" ]; then
+        sed -i '' -e 's/http:\/\//https:\/\//g' package-lock.json
+    else
+        sed -i -e 's/http:\/\//https:\/\//g' package-lock.json
+    fi
+fi

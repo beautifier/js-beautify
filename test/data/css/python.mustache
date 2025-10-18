@@ -1,0 +1,289 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''
+{{&header_text}}
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+'''
+
+import unittest
+import cssbeautifier
+import copy
+
+class CSSBeautifierTest(unittest.TestCase):
+
+    options = None
+
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    def reset_options(self):
+        false = False
+        true = True
+
+        default_options = cssbeautifier.default_options()
+        default_options.indent_size = 4
+        default_options.indent_char = ' '
+        default_options.selector_separator_newline = true
+        default_options.end_with_newline = false
+        default_options.newline_between_rules = false
+
+{{#default_options}}        default_options.{{name}} = {{&value}}
+{{/default_options}}
+
+        self.options = copy.copy(default_options)
+
+    def testGenerated(self):
+        self.reset_options()
+        test_fragment = self.decodesto
+        t = self.decodesto
+
+        false = False
+        true = True
+
+{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
+        #============================================================
+    {{^matrix}}
+        # {{&name}}
+        self.reset_options()
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+
+    {{/matrix}}
+    {{#matrix}}
+        # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        self.reset_options()
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+
+    {{/matrix}}
+{{#unset_mustache_tags}}.{{/unset_mustache_tags}}{{/groups}}
+
+    def testNewline(self):
+        self.reset_options()
+        t = self.decodesto
+
+        self.options.end_with_newline = True
+        t("", "\n")
+        t("\n", "\n")
+        t(".tabs{}\n", ".tabs {}\n")
+        t(".tabs{}", ".tabs {}\n")
+
+    def testBasics(self):
+        self.reset_options()
+        t = self.decodesto
+
+        self.reset_options()
+        #============================================================
+        t(None, "")
+
+        self.reset_options()
+        #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        t(None, '\n')
+        
+        self.reset_options()
+        #============================================================
+
+        t("", "")
+        t("\n", "")
+        t(".tabs{}\n", ".tabs {}")
+        t(".tabs{}", ".tabs {}")
+        t(".tabs{color:red}", ".tabs {\n    color: red\n}")
+        t(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n    color: rgb(255, 255, 0)\n}")
+        t(".tabs{background:url('back.jpg')}", ".tabs {\n    background: url('back.jpg')\n}")
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}")
+        t("@media print {.tab{}}", "@media print {\n    .tab {}\n}")
+        t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n    .tab {\n        background-image: url(foo@2x.png)\n    }\n}")
+
+        t("a:before {\n" +
+            "    content: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}")
+
+        # may not eat the space before "["
+        t('html.js [data-custom="123"] {\n    opacity: 1.00;\n}')
+        t('html.js *[data-custom="123"] {\n    opacity: 1.00;\n}')
+
+        # lead-in whitespace determines base-indent.
+        # lead-in newlines are stripped.
+        t("\n\na, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
+        t("   a, img {padding: 0.2px}", "   a,\n   img {\n       padding: 0.2px\n   }")
+        t("      \na, img {padding: 0.2px}", "      a,\n      img {\n          padding: 0.2px\n      }")
+        t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
+
+    def testSeperateSelectors(self):
+        self.reset_options()
+        t = self.decodesto
+
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}")
+        t("a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
+
+
+    def testBlockNesting(self):
+        self.reset_options()
+        t = self.decodesto
+
+        t("#foo {\n    background-image: url(foo@2x.png);\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}")
+        t("@media screen {\n    #foo:hover {\n        background-image: url(foo@2x.png);\n    }\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}")
+
+# @font-face {
+#     font-family: 'Bitstream Vera Serif Bold';
+#     src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');
+# }
+# @media screen {
+#     #foo:hover {
+#         background-image: url(foo.png);
+#     }
+#     @media screen and (min-device-pixel-ratio: 2) {
+#         @font-face {
+#             font-family: 'Helvetica Neue'
+#         }
+#         #foo:hover {
+#             background-image: url(foo@2x.png);
+#         }
+#     }
+# }
+        t("@font-face {\n    font-family: 'Bitstream Vera Serif Bold';\n    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n    #foo:hover {\n        background-image: url(foo.png);\n    }\n    @media screen and (min-device-pixel-ratio: 2) {\n        @font-face {\n            font-family: 'Helvetica Neue'\n        }\n        #foo:hover {\n            background-image: url(foo@2x.png);\n        }\n    }\n}")
+
+
+    def testOptions(self):
+        self.reset_options()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        # pseudo-classes and pseudo-elements
+        t("#foo:hover {\n  background-image: url(foo@2x.png)\n}")
+        t("#foo *:hover {\n  color: purple\n}")
+        t("::selection {\n  color: #ff0000;\n}")
+
+        # TODO: don't break nested pseduo-classes
+        t("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}")
+
+        # particular edge case with braces and semicolons inside tags that allows custom text
+        t(  "a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
+            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
+
+    def testLessCss(self):
+        self.reset_options()
+        t = self.decodesto
+
+        t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n    @well-bg: @bg-color;\n    @well-fg: @fg-color;\n}')
+        t('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n' +
+            '    &.active {\n' +
+            '        box-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '    }\n' +
+            '}')
+        t('a {\n' +
+            '    color: blue;\n' +
+            '    &:hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '    & & &&&.active {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '}')
+
+        # Not sure if this is sensible
+        # but I believe it is correct to not remove the space in "&: hover".
+        t('a {\n' +
+            '    &: hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '}')
+
+        # import
+        t('@import "test";')
+
+        # don't break nested pseudo-classes
+        t("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n    color: red;\n    div:first-child {\n        color: black;\n    }\n}")
+
+        # handle SASS/LESS parent reference
+        t("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n    &:first-letter {\n        text-transform: uppercase;\n    }\n}")
+
+        # nested modifiers (&:hover etc)
+        t(".tabs{&:hover{width:10px;}}", ".tabs {\n    &:hover {\n        width: 10px;\n    }\n}")
+        t(".tabs{&.big{width:10px;}}", ".tabs {\n    &.big {\n        width: 10px;\n    }\n}")
+        t(".tabs{&>big{width:10px;}}", ".tabs {\n    &>big {\n        width: 10px;\n    }\n}")
+        t(".tabs{&+.big{width:10px;}}", ".tabs {\n    &+.big {\n        width: 10px;\n    }\n}")
+
+        # nested rules
+        t(".tabs{.child{width:10px;}}", ".tabs {\n    .child {\n        width: 10px;\n    }\n}")
+
+        # variables
+        t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}")
+        t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}")
+
+    def decodesto(self, input, expectation=None):
+        if expectation == None:
+            expectation = input
+
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+
+        # if the expected is different from input, run it again
+        # expected output should be unchanged when run twice.
+        if not expectation != input:
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(expectation, self.options), expectation)
+
+        # Everywhere we do newlines, they should be replaced with opts.eol
+        self.options.eol = '\r\\n'
+        expectation = expectation.replace('\n', '\r\n')
+        self.options.disabled = True
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), input or '')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+        self.options.disabled = False;
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+        if input and input.find('\n') != -1:
+            input = input.replace('\n', '\r\n')
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
+            # Ensure support for auto eol detection
+            self.options.eol = 'auto'
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
+        self.options.eol = '\n'
+
+if __name__ == '__main__':
+    unittest.main()

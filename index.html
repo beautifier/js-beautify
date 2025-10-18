@@ -1,12 +1,14 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]><html lang="en-us" class="ie6"><![endif]-->
-<!--[if IE 7]><html lang="en-us" class="ie7"><![endif]-->
-<!--[if IE 8]><html lang="en-us" class="ie8"><![endif]-->
-<!--[if gt IE 8]><!--><html lang="en-us"><!--<![endif]-->
-<!--
+<!doctype html>
+<html lang="en-US" dir="ltr" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" /><!-- The <meta> element must be within the first 1024 bytes of the HTML -->
+
+  <!--
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -29,329 +31,98 @@
   SOFTWARE.
   -->
 
-<head>
-    <meta charset="utf-8">
-    <title>Online JavaScript beautifier</title>
-    <link rel="icon" href="favicon.png" type="image/png">
-    <script src="third-party/codemirror2/lib/codemirror.js"></script>
-    <script src="third-party/codemirror2/mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="third-party/codemirror2/lib/codemirror.css">
+  <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
+  <title>Online JavaScript beautifier</title>
+  <link rel="icon" href="web/favicon.png" type="image/png">
 
-    <style>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v2/polyfill.min.js?features=default&flags=gated"></script>
 
-body {
-    background: #eee;
-    color: #333;
-}
+  <!-- Codemirror from https://cdnjs.com/libraries/codemirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/darcula.min.css" integrity="sha512-kqCOYFDdyQF4JM8RddA6rMBi9oaLdR0aEACdB95Xl1EgaBhaXMIe8T4uxmPitfq4qRmHqo+nBU2d1l+M4zUx1g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" integrity="sha512-OeZ4Yrb/W7d2W4rAMOO0HQ9Ro/aWLtpW9BUSR2UOWnSV2hprXLkkYnnCGc9NeLUxxE4ZG7zN16UuT1Elqq8Opg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-img {
-    border: 0;
-}
+  <!-- Codemirror Modes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js" integrity="sha512-LarNmzVokUmcA7aUDtqZ6oTS+YXmUKzpGdm8DxC46A6AHu+PQiYCUlwEGWidjVYMo/QXZMFMIadZtrkfApYp/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" integrity="sha512-Cbz+kvn+l5pi5HfXsEB/FYgZVKjGIhOgYNBwj4W2IHP2y8r3AdyDCQRnEUqIQ+6aJjygKPTyaNT2eIihaykJlw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js" integrity="sha512-rQImvJlBa8MV1Tl1SXR5zD2bWfmgCEIzTieFegGg89AAt7j/NBEe50M5CqYQJnRwtkjKMmuYgHBqtD1Ubbk5ww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-HN6cn6mIWeFJFwRN9yetDAMSh+AK9myHF1X9GlSlKmThaat65342Yw8wL7ITuaJnPioG0SYG09gy0qd5+s777w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-a.self { font-weight: bold; text-decoration: none; color: #444; border-bottom: 1px solid #aaa }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js" integrity="sha512-Mw3RqCUHTyvN3iSp5TSs731TiLqnKrxzyy2UVZv3+tJa524Rj7pBC7Ivv3ka2oDnkQwLOMHNDKU5nMJ16YRgrA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js" integrity="sha512-+ZfZDC9gi1y9Xoxi9UUsSp+5k+AcFE0TRNjI0pfaAHQ7VZTaaoEpBZp9q9OvHdSomOze/7s5w27rcsYpT6xU6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js" integrity="sha512-NAJeqwfpM7/nfX90EweQhjudb66diK3Y9mkBjb4xJ6wufuVqFVAjHd8mJW//CGHNR9cI8wUfDRJ0jtLzZ9v8Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css" integrity="sha512-Vogm+Cii1SXP5oxWQyPdkA91rHB776209ZVvX4C/i4ypcfBlWVRXZGodoTDAyyZvO36JlTqDqkMhVKAYc7CMjQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-p, select, label, .blurb, a.turn-off-codemirror {
-    font:13px/1.231 arial, sans-serif;
-    *font-size:small;
-}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-a.turn-off-codemirror {
-    margin-left: 25px;
-}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js" integrity="sha512-nlp9/l96/EpjYBx7EP7pGASVXNe80hGhYAUrjeXnu/fyF5Py0/RXav4BBNs7n5Hx1WFhOEOWSAVjGeC3oKxDVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-button#submit {
-    clear: both;
-    margin-top: 5px;
-    width: 100%;
-    padding: 10px 0;
-    cursor: pointer;
-}
+  <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
+  <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
+  <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
+  <script src="js/lib/unpackers/myobfuscate_unpacker.js"></script>
+  <script src="web/common-function.js"></script>
 
-#source {
-    width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-}
-
-button#submit em {
-    font-size: 11px;
-    font-style: normal;
-    color: #999;
-}
-
-label {
-    cursor: pointer;
-}
-
-select {
-    width: 220px;
-}
-
-table#options {
-    float: right;
-}
-table#options td {
-    vertical-align: top;
-    padding-left: 10px;
-}
-
-#about p {
-    margin: 0 6px 6px 0;
-}
-
-li {
-    line-height: 150%;
-}
-li.writeme {
-    padding-top: 8px;
-}
-
-
-#testresults {
-    display: none;
-    font-family: monaco, "lucida console", "courier new", monospace;
-}
-
-.CodeMirror {
-    border: 1px solid #ccc;
-    margin-bottom: 6px;
-    background: white;
-}
-.CodeMirror-scroll {
-  min-height: 400px;
-  max-height: 100%;
-  height: auto;
-  overflow-y: hidden;
-  overflow-x: auto;
-  width: 100%
-}
-p {
-    margin-left: 40px;
-    margin-right: 40px;
-}
-a {
-    white-space: nowrap;
-    color: #36d;
-}
-.contributor-sep {
-    border-top: 1px solid #ccc;
-    padding-top: 8px;
-}
-
-    </style>
-<script src="third-party/jquery/jquery.js"></script>
-<script src="third-party/jquery/jquery.cookie.js"></script>
-
-
-<script src="beautify.js"></script>
-<script src="beautify-css.js"></script>
-<script src="beautify-html.js"></script>
-<script src="tests/sanitytest.js"></script>
-<script src="tests/beautify-tests.js"></script>
-<script src="unpackers/javascriptobfuscator_unpacker.js"></script>
-<script src="unpackers/urlencode_unpacker.js"></script>
-<script src="unpackers/p_a_c_k_e_r_unpacker.js"></script>
-<script src="unpackers/myobfuscate_unpacker.js"></script>
-<script src="unpackers/genericeval_unpacker.js"></script>
-
-<script>
-
-var the = {
-    use_codemirror: ( ! window.location.href.match(/without-codemirror/)),
-    beautify_in_progress: false,
-    editor: null // codemirror editor
-};
-
-function run_tests() {
-    var st = new SanityTest();
-    run_beautifier_tests(st, Urlencoded, js_beautify);
-    JavascriptObfuscator.run_tests(st);
-    P_A_C_K_E_R.run_tests(st);
-    Urlencoded.run_tests(st);
-    MyObfuscate.run_tests(st);
-    GenericEval.run_tests(st);
-    // $('#testresults').html(results.replace(/r/g, '').replace(/\n/g, '<br>'));
-    var results = st.results_raw().replace(/ /g, '&nbsp;').replace(/\r/g, '·').replace(/\n/g, '<br>');
-    $('#testresults').html(results).show();
-}
-
-
-function any(a, b) {
-    return a || b;
-}
-
-function read_settings_from_cookie() {
-    $('#tabsize').val(any($.cookie('tabsize'), '4'));
-    $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
-    $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
-    $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
-    $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
-    $('#break-chained-methods').attr('checked', $.cookie('break-chained-methods') === 'on');
-    $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
-    $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
-    $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
-    $('#unescape-strings').attr('checked', $.cookie('unescape-strings') === 'on');
-}
-
-function store_settings_to_cookie() {
-    var opts = { expires: 360 };
-    $.cookie('tabsize', $('#tabsize').val(), opts);
-    $.cookie('brace-style', $('#brace-style').val(), opts);
-    $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('break-chained-methods', $('#break-chained-methods').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('unescape-strings', $('#unescape-strings').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
-    $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
-}
-
-function unpacker_filter(source) {
-    var trailing_comments = '',
-        comment = '',
-        unpacked = '',
-        found = false;
-
-    // cut trailing comments
-    do {
-        found = false;
-        if (/^\s*\/\*/.test(source)) {
-            found = true;
-            comment = source.substr(0, source.indexOf('*/') + 2);
-            source = source.substr(comment.length).replace(/^\s+/, '');
-            trailing_comments += comment + "\n";
-        } else if (/^\s*\/\//.test(source)) {
-            found = true;
-            comment = source.match(/^\s*\/\/.*/)[0];
-            source = source.substr(comment.length).replace(/^\s+/, '');
-            trailing_comments += comment + "\n";
-        }
-    } while (found);
-
-    var unpackers = [P_A_C_K_E_R, Urlencoded, JavascriptObfuscator, MyObfuscate];
-    for (var i = 0; i < unpackers.length; i++) {
-        if (unpackers[i].detect(source)) {
-            unpacked = unpackers[i].unpack(source);
-            if (unpacked != source) {
-                source = unpacker_filter(unpacked);
-            }
-        }
-    }
-    if (GenericEval.detect(source)) {
-        var unpacked = GenericEval.unpack(source);
-        if (unpacked != source) {
-            source = unpacker_filter(unpacked);
-        }
-    }
-
-    return trailing_comments + source;
-}
-
-
-function beautify()
-{
-    if (the.beautify_in_progress) return;
-
-    store_settings_to_cookie();
-
-    the.beautify_in_progress = true;
-
-    var source = the.editor ? the.editor.getValue() : $('#source').val(),
-        output,
-        opts = {};
-
-    opts.indent_size = $('#tabsize').val();
-    opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
-    opts.preserve_newlines = $('#preserve-newlines').attr('checked');
-    opts.keep_array_indentation = $('#keep-array-indentation').attr('checked');
-    opts.break_chained_methods = $('#break-chained-methods').attr('checked');
-    opts.indent_scripts = $('#indent-scripts').val();
-    opts.brace_style = $('#brace-style').val();
-    opts.space_before_conditional = $('#space-before-conditional').attr('checked');
-    opts.unescape_strings = $('#unescape-strings').attr('checked');
-    opts.wrap_line_length = $('#wrap-line-length').val();
-    opts.space_after_anon_function = true;
-
-    if (looks_like_html(source)) {
-        output = style_html(source, opts);
-    } else {
-        if ($('#detect-packers').attr('checked')) {
-            source = unpacker_filter(source);
-        }
-        output = js_beautify(source, opts);
-    }
-    if (the.editor) {
-        the.editor.setValue(output);
-    } else {
-        $('#source').val(output);
-    }
-
-    the.beautify_in_progress = false;
-}
-
-function looks_like_html(source)
-{
-    // <foo> - looks like html
-    // <!--\nalert('foo!');\n--> - doesn't look like html
-
-    var trimmed = source.replace(/^[ \t\n\r]+/, '');
-    var comment_mark = '<' + '!-' + '-';
-    return (trimmed && (trimmed.substring(0, 1) === '<' && trimmed.substring(0, 4) !== comment_mark));
-}
-
-$(function() {
-
-    read_settings_from_cookie();
-
-    var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
-
-    if (the.use_codemirror && typeof CodeMirror !== 'undefined') {
-        the.editor = CodeMirror.fromTextArea($('#source').get(0))
-        the.editor.setValue(default_text);
-        $('.CodeMirror').click(function () {
-            if (the.editor.getValue() == default_text) {
-                the.editor.setValue('');
-            }
-        });
-    } else {
-        $('#source').val(default_text).bind('click focus', function () {
-            if ($(this).val() == default_text) {
-                $(this).val('');
-            }
-        }).bind('blur', function () {
-            if ( ! $(this).val()) {
-                $(this).val(default_text);
-            }
-        });
-    }
-
-
-    $(window).bind('keydown', function (e) {
-        if (e.ctrlKey && e.keyCode == 13) {
-            beautify();
-        }
-    })
-    $('#submit').click(beautify);
-    $('select').change(beautify);
-
-
-});
-</script>
+  <link rel="stylesheet" href="web/common-style.css">
 </head>
-<body>
 
-    <table id="options">
-        <tr>
-          <td>
+<body class="container">
+
+  <div class="title">
+    <h1 class="logo">
+      <img alt="js-beautify" src="web/banner-light.svg" height="54px" />
+      <span id="version-number"></span>
+    </h1>
+    <div class="sub-title">
+      <p>
+        <strong>Beautify JavaScript, JSON, React.js, HTML, CSS, SCSS, and SASS</strong>
+      </p>
+    </div>
+  </div>
+  <div class="options">
+    <div id="theme-toggle-wrapper">
+      <label id="theme-toggle-label" for="theme-toggle-btn">
+        <input type="checkbox" id="theme-toggle-btn" style="display: none" />
+        <div id="theme-toggle-slider"></div>
+      </label>
+      <span>Enable Dark Mode</span>
+    </div>
+    <select name="language" id="language">
+      <option value="css">Beautify CSS</option>
+      <option value="html">Beautify HTML</option>
+      <option value="js">Beautify JavaScript</option>
+    </select>
+
+    <div class="buttons-box">
+      <button class="submit"><strong>Beautify Code</strong> <em>(ctrl&#8209;enter)</em></button>
+      <button class="control" type="button" onclick="copyText()"><strong>Copy to Clipboard</strong></button>
+      <button class="control" type="button" onclick="downloadBeautifiedCode()"><strong>Download</strong></button>
+      <button class="control" type="button" onclick="selectAll()"><strong>Select All</strong></button>
+      <button class="control" type="button" onclick="clearAll()"><strong>Clear</strong></button>
+      <input type="file" onchange="changeToFileContent(this)">
+    </div>
+
+    <div class="config-options">
+      <h2>Options</h2>
+      <div id="options">
+
+        <div class="options-select">
           <select name="tabsize" id="tabsize">
-            <option value="1">indent with a tab character</option>
-            <option value="2">indent with 2 spaces</option>
-            <option value="3">indent with 3 spaces</option>
-            <option value="4">indent with 4 spaces</option>
-            <option value="8">indent with 8 spaces</option>
-          </select><br>
-
+            <option value="1">Indent with a tab character</option>
+            <option value="2">Indent with 2 spaces</option>
+            <option value="3">Indent with 3 spaces</option>
+            <option value="4">Indent with 4 spaces</option>
+            <option value="8">Indent with 8 spaces</option>
+          </select>
+          <select name="max-preserve-newlines" id="max-preserve-newlines">
+            <option value="-1">Remove all extra newlines</option>
+            <option value="1">Allow 1 newline between tokens</option>
+            <option value="2">Allow 2 newlines between tokens</option>
+            <option value="5">Allow 5 newlines between tokens</option>
+            <option value="10">Allow 10 newlines between tokens</option>
+            <option value="0">Allow unlimited newlines between tokens</option>
+          </select>
           <select name="wrap-line-length" id="wrap-line-length">
             <option value="0">Do not wrap lines</option>
             <option value="40">Wrap lines near 40 characters</option>
@@ -360,119 +131,185 @@ $(function() {
             <option value="110">Wrap lines near 110 characters</option>
             <option value="120">Wrap lines near 120 characters</option>
             <option value="160">Wrap lines near 160 characters</option>
-          </select><br>
-
+          </select>
           <select id="brace-style">
             <option value="collapse">Braces with control statement</option>
             <option value="expand">Braces on own line</option>
             <option value="end-expand">End braces on own line</option>
-            <!-- option value="expand-strict">Braces always on own line (not recommended)</option -->
+            <option value="none">Attempt to keep braces where they are</option>
           </select>
+          <div>
+            <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p>
+            <select id="indent-scripts">
+              <option value="keep">Keep indent level of the tag</option>
+              <option value="normal">Add one indent level</option>
+              <option value="separate">Separate indentation</option>
+            </select>
+          </div>
+        </div>
 
-          <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p><select id="indent-scripts">
-            <option value="keep">Keep indent level of the tag</option>
-            <option value="normal">Add one indent level</option>
-            <option value="separate">Separate indentation</option>
-          </select>
-
-        </td><td>
-
-          <input class="checkbox" type="checkbox" id="preserve-newlines"><label for="preserve-newlines"> Preserve empty lines?</label><br>
-          <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
-          <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
-          <input class="checkbox" type="checkbox" id="break-chained-methods"><label for="break-chained-methods"> Break lines on chained methods?</label><br>
-          <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</label><br>
-          <input class="checkbox" type="checkbox" id="unescape-strings"><label for="unescape-strings"> Unescape printable chars encoded as \xNN or \uNNNN?</label>
+        <div class="options-checkboxes">
+          <input class="checkbox" type="checkbox" id="end-with-newline">
+          <label for="end-with-newline">End script and style with newline?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="e4x">
+          <label for="e4x">Support e4x/jsx syntax</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="comma-first">
+          <label for="comma-first">Use comma-first list style?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="detect-packers">
+          <label for="detect-packers">Detect packers and obfuscators? (unsafe)</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="brace-preserve-inline">
+          <label for="brace-preserve-inline">Preserve inline braces/code blocks?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="keep-array-indentation">
+          <label for="keep-array-indentation">Keep array indentation?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="break-chained-methods">
+          <label for="break-chained-methods">Break lines on chained methods?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="space-before-conditional">
+          <label for="space-before-conditional">Space before conditional: "if(x)" / "if (x)"</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="unescape-strings">
+          <label for="unescape-strings">Unescape printable chars encoded as \xNN or \uNNNN?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="jslint-happy">
+          <label for="jslint-happy">Use JSLint-happy formatting tweaks?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="indent-inner-html">
+          <label for="indent-inner-html">Indent &lt;head&gt; and &lt;body&gt; sections?</label>
+          <br>
+          <input class="checkbox" type="checkbox" id="indent-empty-lines">
+          <label for="indent-empty-lines">Keep indentation on empty lines?</label>
           <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
+        </div>
 
-
-        </td></tr>
-    </table>
-
-    <div id="about">
-            <p><a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a></p>
-            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+        <div>
+          <p style="margin:6px 0 0 0">Additional Settings (JSON):</p>
+          <textarea id="additional-options" rows="5">{}</textarea>
+        </div>
+        <p id="additional-options-error" hidden style="margin:6px 0 0 0; color:red ">Could Not Parse JSON!</p>
+        <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
+        <div>
+          <textarea readonly id="options-selected" rows="5"></textarea>
+        </div>
+      </div>
     </div>
 
+    <div class="contributions">
+      <p class="contributor-sep">Created by <a href="https://github.com/einars">Einar Lielmanis</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
+      </p>
+      <p>
+        All of the source code is completely free and open, available on <a href="https://github.com/beautifier/js-beautify">GitHub</a> under MIT licence,
+        and we have a command-line version, <a href="https://pypi.org/project/jsbeautifier/">python library</a> and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+      </p>
+      <p>We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
+      <p class="contributors">Made with a great help of many contributors. Special thanks to:<br>
+        Jason&nbsp;Diamond,
+        Patrick&nbsp;Hof,
+        Nochum&nbsp;Sossonko,
+        Andreas&nbsp;Schneider,
+        Dave&nbsp;Vasilevsky,
+        <a href="https://moikrug.ru/vital">Vital&nbsp;Batmanov</a>,
+        Ron&nbsp;Baldwin,
+        Gabriel&nbsp;Harrison,
+        <a href="http://shullian.com">Chris J. Shull</a>,
+        <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
+        <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
+        <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
+        <a href="https://github.com/evocateur">Daniel Stockman</a>.
+      </p>
+    </div>
+  </div>
 
-    <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
-    <textarea id="source" rows="30" cols="160"></textarea>
+  <div class="editor">
+    <textarea id="source"></textarea>
+  </div>
+
+  <div class="hide">
+
+    <p id="open-issue" hidden>Not pretty enough for you?
+      <button type="button" onclick="submitIssue()" name="issue-button">Report a problem with this input</button>
+    </p>
 
     <div class="blurb">
-      <div style="float:right; width: 210px;">
-      <a style="display:block; float: left; padding-top: 3px" href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a>
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-        <input type="hidden" name="cmd" value="_s-xclick">
-        <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
-        <input style="border:0" type="image" src="http://spicausis.lv/misc/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
-        <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-      </form>
+
+      <h2>Browser extensions and other uses</h2>
+      <div class="col-6">
+        <ul class="uses">
+
+          <li>A
+            <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;https://beautifier.io/js/lib/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();">
+              <strong>bookmarklet</strong></a>
+            (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,
+          </li>
+
+          <li><strong>Chrome</strong>, in case the built-in CSS and javascript formatting isn't enough for you:<br>
+            — <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),<br>
+            — <a href="https://chrome.google.com/webstore/detail/javascript-and-css-code-b/iiglodndmmefofehaibmaignglbpdald">Javascript and CSS Code beautifier</a> by c7sky,<br>
+            — <a href="https://chrome.google.com/webstore/detail/jsbeautify-for-google-chr/kkioiolcacgoihiiekambdciinadbpfk">jsbeautify-for-chrome</a> by Tom Rix (<a href="https://github.com/rixth/jsbeautify-for-chrome">github</a>),<br>
+            — <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney<br>
+            — <a href="https://chrome.google.com/webstore/detail/stackoverflow-code-beauti/pljeafjjkkbacckkollfejkciddacmeb">Stackoverflow Code Beautify</a> by Making Odd Edit Studios (<a href="https://github.com/MakingOddEdit/CodeBeautify">github</a>).
+          </li>
+          <li><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy, to be
+            used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
+          <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
+          <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a>
+            (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+          <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
+          <li><strong>Sublime Text 2/3:</strong> <a href="https://github.com/akalongman/sublimetext-codeformatter">CodeFormatter</a>, a python plugin by Avtandil Kikabidze, supports HTML, CSS, JS and a bunch of other languages,</li>
+          <li><strong>Sublime Text 2/3:</strong> <a href="https://github.com/victorporof/Sublime-HTMLPrettify">HTMLPrettify</a>, a javascript plugin by Victor Porof,</li>
+          <li><strong>Sublime Text 2:</strong> <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis
+            Clark,</li>
+          <li><strong>vim:</strong> <a href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey
+            or cscript js engine),</li>
+          <li><strong>vim:</strong> <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
+
+          <li><strong>Emacs:</strong> <a href="https://github.com/yasuyk/web-beautify">Web-beautify</a> formatting package by Yasuyuki Oka,</li>
+          <li><strong>Komodo IDE:</strong> <a href="http://komodoide.com/packages/addons/beautify-js/">Beautify-js</a> addon by Bob de Haas (<a href="https://github.com/babobski/Beautify-js">github</a>),</li>
+          <li><strong>C#:</strong> ghost6991 <a href="https://github.com/ghost6991/Jsbeautifier">ported the javascript formatter to C#</a>,</li>
+          <li><strong>Go:</strong> ditashi has <a href="https://github.com/ditashi/jsbeautifier-go">ported the javascript formatter to golang</a>,</li>
+        </ul>
       </div>
+      <div class="col-6">
+        <ul class="uses">
+          <li><a href="https://marketplace.visualstudio.com/items/HookyQR.beautify">Beautify plugin</a> (<a href="https://github.com/HookyQR/VSCodeBeautify">github</a>) by HookyQR for the <a href="https://code.visualstudio.com/">Visual Studio Code</a> IDE,</li>
+          <li><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,</li>
+          <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
+          <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
+          <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
+          <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
+          <li><a href="https://www.comment-devenir-un-hacker.com/app.html">Devenir Hacker App</a>, a non-free JavaScript packer for Mac,</li>
+          <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
+          <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
+          <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a>
+            (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
+          <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="https://github.com/irsdl/BurpSuiteJSBeautifier/">beautfier extension</a>,
+            thanks to Soroush Dalili,</li>
+          <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett
+            (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
+          <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets</a> by Drew
+            Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>),</li>
+          <li><a href="http://codecaddy.net/">codecaddy.net</a>, a collection of webdev-related tools, assembled by Darik Hall,</li>
+          <li><a href="http://www.editey.com/">editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier,</li>
+          <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,</li>
+          <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),</li>
+          <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library,</li>
+        </ul>
+      </div>
+      <p>Doing anything interesting? Write us to <b>team@beautifier.io</b> so we can add your project to the list.</p>
 
-      <p>Browser extensions and other uses:</p>
-      <ul id="uses">
-
-      <li>A <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;http://jsbeautifier.org/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();"><strong>bookmarklet</strong></a> (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
-
-      <li style="margin-top: 8px"><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
-      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
-      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),</li>
-      <li style="margin-top: 8px"><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy, to be used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
-      <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
-      <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
-      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
-      <li style="margin-top: 8px"><strong>Sublime Text 2:</strong> <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis Clark,</li>
-      <li style="margin-top: 8px"><strong>vim:</strong> <a href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey or cscript js engine),</li>
-      <li><strong>vim:</strong> <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
-      <li style="margin-top: 12px"><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
-      <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
-      <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
-      <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
-      <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-      <li><a href="http://www.symetronapps.com/pages/apps/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good,</li>
-      <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
-      <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
-      <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a> (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
-      <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="http://code.google.com/p/burp-suite-beautifier-extension/">beautfier extension</a>, thanks to Soroush Dalili,</li>
-      <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
-      <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets</a> by Drew Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>).</li>
-      <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
-      </ul>
-
-      <p class="contributors contributor-sep">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
-      <p class="contributors">We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
-      <p class="contributors">Made with a great help of
-      Jason&nbsp;Diamond,
-      Patrick&nbsp;Hof,
-      Nochum&nbsp;Sossonko,
-      Andreas&nbsp;Schneider,
-      <br>
-      Dave&nbsp;Vasilevsky,
-      <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov</a>,
-      Ron&nbsp;Baldwin,
-      Gabriel&nbsp;Harrison,
-      <a href="http://shullian.com">Chris J. Shull</a>,
-      <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
-      <br>
-      <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
-      <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
-      <a href="https://github.com/evocateur">Daniel Stockman</a>.
-    </p>
-
-    <p style="text-align:right">
-    <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
-    </p>
-
+      <p style="text-align:right">
+        <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
+      </p>
+      <div id="testresults"></div>
     </div>
-    <div id="testresults"></div>
-    <script>
-        var _gaq = [['_setAccount', 'UA-7409939-1'], ['_trackPageview']];
-        (function(d, t) {
-            var g = d.createElement(t),
-                s = d.getElementsByTagName(t)[0];
-            g.src = '//www.google-analytics.com/ga.js';
-            s.parentNode.insertBefore(g, s);
-        }(document, 'script'));
-    </script>
+  </div>
+  <script src="web/onload.js"></script>
+  <script src="web/google-analytics.js"></script>
 </body>
+
 </html>
