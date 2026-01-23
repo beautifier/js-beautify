@@ -32,7 +32,6 @@ from ..core.directives import Directives
 from ..core.pattern import Pattern
 from ..core.templatablepattern import TemplatablePattern
 
-
 __all__ = ["TOKEN", "Tokenizer", "TokenTypes"]
 
 
