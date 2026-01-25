@@ -53,9 +53,7 @@ def beautify_file(file_name, opts=None):
 
 def usage(stream=sys.stdout):
     print(
-        "cssbeautifier.py@"
-        + __version__
-        + """
+        "cssbeautifier.py@" + __version__ + """
 
 CSS beautifier (https://beautifier.io/)
 

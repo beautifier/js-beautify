@@ -3,7 +3,6 @@
 from setuptools import setup
 from jsbeautifier.__version__ import __version__
 
-
 setup(
     name="jsbeautifier",
     version=__version__,
