@@ -516,6 +516,9 @@ function unescape_string(s) {
       } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
         // single-quote, apostrophe, backslash - escape these
         out += '\\' + String.fromCharCode(escaped);
+      } else if (escaped === 0x2028 || escaped === 0x2029 || escaped === 0xfeff) {
+        // U+2028 LINE SEPARATOR, U+2029 PARAGRAPH SEPARATOR, U+FEFF BOM are JavaScript line terminators, keep escaped so the output remains valid JS.
+        out += '\\' + matched[0];
       } else {
         out += String.fromCharCode(escaped);
       }
