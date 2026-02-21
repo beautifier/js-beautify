@@ -56,9 +56,17 @@
     "tinyglobby": "^0.2.15"
   },
   "overrides": {
+    "ajv": "8.18.0",
+    "brace-expansion": "2.0.2",
+    "diff": "8.0.3",
     "editorconfig": {
       "minimatch": "10.2.1"
-    }
+    },
+    "glob": "13.0.6",
+    "js-yaml": "4.1.1",
+    "lodash": "4.17.23",
+    "minimatch": "10.2.1",
+    "on-headers": "1.1.0"
   },
   "devDependencies": {
     "ansi-regex": "^6.0.1",
@@ -67,12 +75,12 @@
     "jquery": "^3.6.4",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
-    "mocha": "^11.0.1",
+    "mocha": "^11.7.5",
     "mustache": "^4.2.0",
     "requirejs": "^2.3.6",
-    "serve": "^14.2.0",
+    "serve": "^14.2.5",
     "strip-ansi": "^7.0.1",
-    "webpack": "^5.81.0",
+    "webpack": "^5.105.2",
     "webpack-cli": "^6.0.1"
   }
 }
