@@ -10,7 +10,7 @@ build_js()
   cd $PROJECT_DIR
 
   # jshint
-  $PROJECT_DIR/node_modules/.bin/jshint . || exit 1
+  $PROJECT_DIR/tools/node $PROJECT_DIR/tools/jshint-runner.js . || exit 1
 
   # generate lib files
   $PROJECT_DIR/node_modules/.bin/webpack || exit 1
