@@ -34,7 +34,7 @@
 /*jshint strict:false */
 /*jshint esversion: 6 */
 
-const { globSync } = require('glob');
+const { globSync, isDynamicPattern } = require('tinyglobby');
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
     console.error.apply(console, arguments);
@@ -43,8 +43,7 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? funct
 var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
-    nopt = require('nopt'),
-    glob = require("glob");
+    nopt = require('nopt');
 
 nopt.invalidHandler = function(key, val) {
     throw new Error(key + " was invalid with value \"" + val + "\"");
@@ -69,7 +68,7 @@ nopt.typeDefs.brace_style = {
 nopt.typeDefs.glob = {
     type: "glob",
     validate: function(data, key, val) {
-        if (typeof val === 'string' && glob.hasMagic(val)) {
+        if (typeof val === 'string' && isDynamicPattern(val)) {
             // Preserve value if it contains glob magic
             data[key] = val;
             return true;
@@ -633,14 +632,16 @@ function checkFiles(parsed) {
         }
 
         var foundFiles = [];
-        var isGlob = glob.hasMagic(f);
+        var isGlob = isDynamicPattern(f);
 
         // Input was a glob
         if (isGlob) {
             hadGlob = true;
             foundFiles = globSync(f, {
                 absolute: true,
-                ignore: ['**/node_modules/**', '**/.git/**']
+                ignore: ['**/node_modules/**', '**/.git/**'],
+                // Keep directory matches to preserve the previous `glob` behavior.
+                onlyFiles: false
             });
         } else {
             // Input was not a glob, add it to an array so we are able to handle it in the same loop below

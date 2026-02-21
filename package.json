@@ -45,15 +45,20 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=14"
+    "node": ">=20"
   },
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
-    "editorconfig": "^1.0.4",
-    "glob": "^10.5.0",
+    "editorconfig": "^3.0.1",
     "js-cookie": "^3.0.5",
-    "nopt": "^7.2.1"
+    "nopt": "^7.2.1",
+    "tinyglobby": "^0.2.15"
+  },
+  "overrides": {
+    "editorconfig": {
+      "minimatch": "10.2.1"
+    }
   },
   "devDependencies": {
     "ansi-regex": "^6.0.1",
