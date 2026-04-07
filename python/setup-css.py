@@ -3,7 +3,6 @@
 from setuptools import setup
 from cssbeautifier.__version__ import __version__
 
-
 setup(
     name="cssbeautifier",
     version=__version__,
