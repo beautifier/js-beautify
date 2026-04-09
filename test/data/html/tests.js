@@ -3877,7 +3877,13 @@ exports.test_data = {
         '@default {',
         'Default case.',
         '}',
-        '}'
+        '}',
+        '@let a = b;',
+        '<div>',
+        '@if (a === b) {',
+        '<p>{{ a }}</p>',
+        '}',
+        '</div>'
       ],
       output: [
         '@if (a > b) {',
@@ -3908,7 +3914,13 @@ exports.test_data = {
         '  @default {',
         '    Default case.',
         '  }',
-        '}'
+        '}',
+        '@let a = b;',
+        '<div>',
+        '  @if (a === b) {',
+        '    <p>{{ a }}</p>',
+        '  }',
+        '</div>'
       ]
     }]
   }, {
@@ -3948,7 +3960,13 @@ exports.test_data = {
         '@default {',
         'Default case.',
         '}',
-        '}'
+        '}',
+        '@let a = b;',
+        '<div>',
+        '@if (a === b) {',
+        '<p>{{ a }}</p>',
+        '}',
+        '</div>'
       ],
       output: [
         '@if (a > b) {',
@@ -3979,7 +3997,13 @@ exports.test_data = {
         '    @default {',
         '        Default case.',
         '    }',
-        '}'
+        '}',
+        '@let a = b;',
+        '<div>',
+        '    @if (a === b) {',
+        '        <p>{{ a }}</p>',
+        '    }',
+        '</div>'
       ]
     }, {
       input: [
