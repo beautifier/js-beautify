@@ -42,3 +42,18 @@ style_html.defaultOptions = html_beautify.defaultOptions;
 module.exports.js = js_beautify;
 module.exports.css = css_beautify;
 module.exports.html = style_html;
+
+module.exports.js.minify = js_beautify.minify;
+module.exports.css.minify = css_beautify.minify;
+module.exports.html.minify = html_beautify.minify;
+
+module.exports.minify = function(src, options) {
+  var type = (options && options.type) || 'js';
+  if (type === 'css') {
+    return module.exports.css.minify(src, options);
+  }
+  if (type === 'html') {
+    return module.exports.html.minify(src, options);
+  }
+  return module.exports.js.minify(src, options);
+};
