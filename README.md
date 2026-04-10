@@ -97,6 +97,7 @@ Unlike the JavaScript version, the Python version can only reformat JavaScript. 
 ```bash
 $ pip install cssbeautifier
 ```
+Note: This project no longer supports Python 2.
 
 # Usage
 You can beautify JavaScript using JS Beautifier in your web browser, or on the command-line using Node.js or Python.
