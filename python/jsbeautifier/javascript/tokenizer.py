@@ -628,6 +628,9 @@ class Tokenizer(BaseTokenizer):
             elif escaped == 0x22 or escaped == 0x27 or escaped == 0x5C:
                 # single-quote, apostrophe, backslash - escape these
                 out += "\\" + chr(escaped)
+            elif escaped in (0x2028, 0x2029, 0xFEFF):
+                # U+2028 LINE SEPARATOR, U+2029 PARAGRAPH SEPARATOR, U+FEFF BOM are JavaScript line terminators, keep escaped so the output remains valid JS.
+                out += "\\" + matched.group(0)
             else:
                 out += self.acorn.six.unichr(escaped)
 
