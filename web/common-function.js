@@ -417,9 +417,11 @@ function switchTheme(themeToggleEvent) {
     $('.CodeMirror').addClass('cm-s-darcula');
     $('body').addClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-dark.svg");
+    document.getElementById('theme-span').innerHTML = 'Enable Light Mode'
   } else {
     $('.CodeMirror').removeClass('cm-s-darcula');
     $('body').removeClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-light.svg");
+    document.getElementById('theme-span').innerHTML = 'Enable Dark Mode'
   }
 }
