@@ -59,7 +59,7 @@
     "ansi-regex": "^6.0.1",
     "benchmark": "^2.1.4",
     "codemirror": "^5.65.16",
-    "jquery": "^3.6.4",
+    "jquery": "^4.0.0",
     "jshint": "^2.13.6",
     "minimist": "^1.2.8",
     "mocha": "^11.0.1",
