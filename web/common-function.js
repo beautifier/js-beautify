@@ -413,13 +413,18 @@ function setPreferredColorScheme() {
 }
 
 function switchTheme(themeToggleEvent) {
+  let toggle_text = document.querySelector("#toggle-slider-text");
+
   if (themeToggleEvent.target.checked) {
     $('.CodeMirror').addClass('cm-s-darcula');
     $('body').addClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-dark.svg");
+    toggle_text.textContent = "Enable Light Mode";
   } else {
     $('.CodeMirror').removeClass('cm-s-darcula');
     $('body').removeClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-light.svg");
+    toggle_text.textContent = "Enable Dark Mode";
   }
 }
+
