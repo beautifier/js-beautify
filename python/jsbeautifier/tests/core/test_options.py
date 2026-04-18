@@ -126,6 +126,26 @@ class TestOptions(unittest.TestCase):
         options = Options({"a": ["a"]})
         self.assertEqual(options._get_selection("a", ["a", "b"], ["a"]), "a")
 
+    def test_constructor_indent_with_tabs_normalization(self):
+        # should force indent_char to tab and normalize indent_size from 1 to 4
+        options = Options(
+            {"indent_char": " ", "indent_size": 1, "indent_with_tabs": True}
+        )
+        self.assertEqual(options.indent_char, "\t")
+        self.assertEqual(options.indent_size, 4)
+
+    def test_constructor_preserve_newlines_overrides_max(self):
+        # should force max_preserve_newlines to 0 when preserve_newlines is false
+        options = Options({"preserve_newlines": False, "max_preserve_newlines": 99})
+        self.assertEqual(options.preserve_newlines, False)
+        self.assertEqual(options.max_preserve_newlines, 0)
+
+    def test_constructor_wrap_line_length_falls_back_to_max_char(self):
+        # should use max_char for wrap_line_length when wrap_line_length is not set
+        options = Options({"max_char": 120})
+        self.assertEqual(options.wrap_line_length, 120)
+
+
 
 if __name__ == "__main__":
     unittest.main()
