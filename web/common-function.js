@@ -380,8 +380,10 @@ function selectAll() {
 function clearAll() {
   if (the.editor) {
     the.editor.setValue('');
+    the.editor.focus();
   } else {
     $('#source').val('');
+    $('#source').focus();
   }
 }
 
