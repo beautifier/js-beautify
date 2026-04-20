@@ -3851,7 +3851,7 @@ exports.test_data = {
           unchanged: [
             'a = {',
             '    get b() {',
-            '        retun 0;',
+            '        return 0;',
             '    },',
             '    c: 1,',
             '    d: function() {}',
@@ -3859,7 +3859,7 @@ exports.test_data = {
           ]
         },
         {
-          comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+          comment: "Issue 298 - do not under indent if/while/for conditionals expressions",
           unchanged: [
             '\\\'use strict\\\';',
             'if ([].some(function() {',
@@ -3870,7 +3870,7 @@ exports.test_data = {
           ]
         },
         {
-          comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+          comment: "Issue 298 - do not under indent if/while/for conditionals expressions",
           unchanged: [
             '\\\'use strict\\\';',
             'if ([].some(function() {',

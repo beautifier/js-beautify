@@ -1015,7 +1015,7 @@ class Beautifier:
                 ):
                     self._output.space_before_token = True
                 elif self._flags.last_token.text == "declare":
-                    # accomodates Typescript declare function formatting
+                    # accommodates Typescript declare function formatting
                     self._output.space_before_token = True
                 else:
                     self.print_newline()
@@ -1132,7 +1132,7 @@ class Beautifier:
             elif self._flags.last_token.text == "declare" and reserved_array(
                 current_token, ["var", "let", "const"]
             ):
-                # accomodates Typescript declare formatting
+                # accommodates Typescript declare formatting
                 self._output.space_before_token = True
             elif self._flags.last_token.type != TOKEN.END_EXPR:
                 if (
@@ -1492,7 +1492,7 @@ class Beautifier:
                     "++",
                     "+",
                 ] and self._flags.last_token.text in ["--", "-", "++", "+"]
-                # + and - are not unary when preceeded by -- or ++ operator
+                # + and - are not unary when proceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
                 # a - -b

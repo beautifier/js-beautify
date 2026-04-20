@@ -263,7 +263,7 @@ exports.test_data = {
     }]
   }, {
     name: "Tests for script and style Commented and cdata wapping (#1641)",
-    description: "Repect comment and cdata wrapping regardless of beautifier",
+    description: "Respect comment and cdata wrapping regardless of beautifier",
     options: [
       { name: "templating", value: "'php'" }
     ],

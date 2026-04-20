@@ -915,7 +915,7 @@ Beautifier.prototype.handle_word = function(current_token) {
       } else if (reserved_word(this._flags.last_token, 'default') && this._last_last_text === 'export') {
         this._output.space_before_token = true;
       } else if (this._flags.last_token.text === 'declare') {
-        // accomodates Typescript declare function formatting
+        // accommodates Typescript declare function formatting
         this._output.space_before_token = true;
       } else {
         this.print_newline();
@@ -1006,7 +1006,7 @@ Beautifier.prototype.handle_word = function(current_token) {
       // no newline between 'return nnn'
       this._output.space_before_token = true;
     } else if (this._flags.last_token.text === 'declare' && reserved_array(current_token, ['var', 'let', 'const'])) {
-      // accomodates Typescript declare formatting
+      // accommodates Typescript declare formatting
       this._output.space_before_token = true;
     } else if (this._flags.last_token.type !== TOKEN.END_EXPR) {
       if ((this._flags.last_token.type !== TOKEN.START_EXPR || !reserved_array(current_token, ['var', 'let', 'const'])) && this._flags.last_token.text !== ':') {
@@ -1316,7 +1316,7 @@ Beautifier.prototype.handle_operator = function(current_token) {
       // a++ + ++b;
       // a - -b
       space_before = in_array(current_token.text, ['--', '-', '++', '+']) && in_array(this._flags.last_token.text, ['--', '-', '++', '+']);
-      // + and - are not unary when preceeded by -- or ++ operator
+      // + and - are not unary when proceeded by -- or ++ operator
       // a-- + b
       // a * +b
       // a - -b
