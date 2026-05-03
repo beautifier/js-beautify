@@ -816,7 +816,7 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // are handled automatically by the beautifier.
   // It assumes parent or ancestor close tag closes all children.
   // https://www.w3.org/TR/html5/syntax.html#optional-tags
-  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
+  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent || parser_token.tag_start_char !== '<') {
     return;
 
   }
