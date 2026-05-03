@@ -4416,5 +4416,22 @@ exports.test_data = {
       fragment: true,
       unchanged: '<button>Click here</button><!-- comment -->'
     }]
+  }, {
+    name: "Issue #1707",
+    description: "wrap_attributes: 'preserve' should preserve newline before closing bracket",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<div',
+        '    attr="val"',
+        '>',
+        '</div>'
+      ]
+    }]
   }]
 };

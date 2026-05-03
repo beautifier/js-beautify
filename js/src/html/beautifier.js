@@ -375,9 +375,13 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
-      if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
+      if ((this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) &&
+        printer.traverse_whitespace(raw_token)) {
+        // preserved newline or space
+      } else if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
+      } else {
+        printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
       }
     }
     printer.print_token(raw_token);
