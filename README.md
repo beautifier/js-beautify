@@ -382,7 +382,8 @@ HTML Beautifier Options:
   -M, --wrap-attributes-min-attrs    Minimum number of html tag attributes for force wrap attribute options [2]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
-  --inline_custom_elements           Inline custom elements [true]
+  --inline_custom_elements           Inline custom elements [false]
+  --preserve_self_closing_tags       Preserve the no-space form of self-closing tags [false]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
