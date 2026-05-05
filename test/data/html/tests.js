@@ -4096,6 +4096,20 @@ exports.test_data = {
         '<div> @if(true) { {{"{}" + " }"}} } </div>'
       ]
     }, {
+      comment: 'Angular @let statements should not be treated like block control flow.',
+      input: [
+        '<div>',
+        '@let total = count + items.length;',
+        '<p>{{ total }}</p>',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @let total = count + items.length;',
+        '    <p>{{ total }}</p>',
+        '</div>'
+      ]
+    }, {
       input: [
         '<div>',
         '@for (item of items; track item.id; let idx = $index, e = $even) {',
