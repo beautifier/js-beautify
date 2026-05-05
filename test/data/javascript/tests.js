@@ -5887,9 +5887,13 @@ exports.test_data = {
         { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
 
         {
-          comment: 'Issue #1896: Handle newlines with bitwise ~ operator',
-          input: 'if (foo) {\nvar bar = 1;\n~bar ? 0 : 1\n }',
-          output: 'if (foo) {\n    var bar = 1;\n    ~bar ? 0 : 1\n}'
+          comment: 'Issue #1896: Handle newlines with bitwise ~ and ! operators',
+          input: 'if (foo) {\nvar bar = 1\n~bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1\n    ~bar ? 0 : 1\n}'
+        },
+        {
+          input: 'if (foo) {\nvar bar = 1\n!bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1\n    !bar ? 0 : 1\n}'
         },
 
         {
