@@ -324,7 +324,9 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
       newlines = this._options.max_preserve_newlines;
     }
 
-    if (this._options.preserve_newlines) {
+    if (this._options.preserve_newlines && newlines === 1 && is_expression(this._flags.mode)) {
+      this.print_newline(false, preserve_statement_flags);
+    } else if (this._options.preserve_newlines) {
       if (newlines > 1) {
         this.print_newline(false, preserve_statement_flags);
         for (var j = 1; j < newlines; j += 1) {

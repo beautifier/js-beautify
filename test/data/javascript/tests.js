@@ -1500,6 +1500,18 @@ exports.test_data = {
         }
       ]
     }, {
+      name: 'Preserve single newlines inside parenthesized expressions',
+      description: 'Regression test for https://github.com/beautifier/js-beautify/issues/2381',
+      options: [
+        { name: "preserve_newlines", value: "true" }
+      ],
+      tests: [{
+        input: 'foo(bar\nbaz);',
+        output: 'foo(bar\n    baz);'
+      }, {
+        unchanged: 'foo(bar\n);'
+      }]
+    }, {
       name: 'line wrapping 40',
       description: "",
       options: [
