@@ -324,7 +324,9 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
       newlines = this._options.max_preserve_newlines;
     }
 
-    if (this._options.preserve_newlines) {
+    if (this._options.preserve_newlines && newlines === 1 && is_expression(this._flags.mode)) {
+      this.print_newline(false, preserve_statement_flags);
+    } else if (this._options.preserve_newlines) {
       if (newlines > 1) {
         this.print_newline(false, preserve_statement_flags);
         for (var j = 1; j < newlines; j += 1) {
@@ -1159,7 +1161,17 @@ Beautifier.prototype.handle_operator = function(current_token) {
     // The conditional starts the statement if appropriate.
   } else {
     var preserve_statement_flags = !isGeneratorAsterisk;
+    var is_prefix_operator = current_token.newlines && in_array(current_token.text, ['--', '++', '~', '!']) &&
+      !is_expression(this._flags.mode) &&
+      (this._flags.last_token.type !== TOKEN.OPERATOR || (this._flags.last_token.text === '--' || this._flags.last_token.text === '++')) &&
+      this._flags.last_token.type !== TOKEN.EQUALS;
+    if (is_prefix_operator) {
+      preserve_statement_flags = false;
+    }
     this.handle_whitespace_and_comments(current_token, preserve_statement_flags);
+    if (is_prefix_operator) {
+      this.print_newline(false, false);
+    }
   }
 
   // hack for actionscript's import .*;
@@ -1294,13 +1306,7 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
     // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
     // if there is a newline between -- or ++ and anything else we should preserve it.
-    if (current_token.newlines && (current_token.text === '--' || current_token.text === '++' || current_token.text === '~')) {
-      var new_line_needed = reserved_array(this._flags.last_token, special_words) && current_token.newlines;
-      if (new_line_needed && (this._previous_flags.if_block || this._previous_flags.else_block)) {
-        this.restore_mode();
-      }
-      this.print_newline(new_line_needed, true);
-    }
+
 
     if (this._flags.last_token.text === ';' && is_expression(this._flags.mode)) {
       // for (;; ++i)
