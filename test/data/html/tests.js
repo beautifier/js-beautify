@@ -1720,6 +1720,10 @@ exports.test_data = {
       }, {
         unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
       }, {
+        comment: 'Literal Django-like strings inside quoted attributes should not consume the rest of the file.',
+        input_: '<div attr="{#"><div>\n</div></div>',
+        output: '<div attr="{#">\n  <div>\n  </div>\n</div>'
+      }, {
         unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
       }, {
         unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
@@ -2402,6 +2406,23 @@ exports.test_data = {
     }, {
       unchanged: [
         '<input type="text" value="^^^s$$$$x["test"] . $x[\\\'test\\\']^^^e$$$">'
+      ]
+    }]
+  }, {
+    name: "Issue #2045 - Handlebars table helpers should not be treated like HTML table tags.",
+    description: "Handlebars table helpers should stay in place inside HTML tables without triggering optional table end-tag handling.",
+    options: [
+      { name: "indent_handlebars", value: "false" }
+    ],
+    tests: [{
+      unchanged: [
+        '<table>',
+        '    <tr>',
+        '        <td>',
+        '            {{#tr}}translated{{/tr}}',
+        '        </td>',
+        '    </tr>',
+        '</table>'
       ]
     }]
   }, {
@@ -3774,70 +3795,28 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Does not add whitespace around custom elements ",
-    description: "Regression test for https://github.com/beautifier/js-beautify/issues/1989",
+    name: "Custom elements are block by default",
+    description: "Regression test for https://github.com/beautifier/js-beautify/issues/2375",
     tests: [{
       input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><div>.</div',
-        '        ><section>27</section>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
       ],
       output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span>',
-        '        <div>.</div>',
-        '        <section>27</section>',
-        '    </span>',
-        '</span>'
-      ]
-    }, {
-      input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><time-dot>.</time-dot',
-        '        ><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
-      ],
-      output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot>',
+        '<time-decimals>27</time-decimals>'
       ]
     }]
   }, {
-    name: "Disables custom elements inlining with inline_custom_elements=false",
+    name: "Enables custom elements inlining with inline_custom_elements=true",
     description: "https://github.com/beautifier/js-beautify/issues/2113",
     options: [
-      { name: "inline_custom_elements", value: "false" }
+      { name: "inline_custom_elements", value: "true" }
     ],
     tests: [{
       input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><time-dot>.</time-dot',
-        '        ><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
       ],
-      output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span>',
-        '        <time-dot>.</time-dot>',
-        '        <time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
-      ]
+      unchanged: '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
     }]
   }, {
     name: "Indenting angular control flow with indent size 2",
@@ -4077,6 +4056,20 @@ exports.test_data = {
     }, {
       unchanged: [
         '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      comment: 'Angular @let statements should not be treated like block control flow.',
+      input: [
+        '<div>',
+        '@let total = count + items.length;',
+        '<p>{{ total }}</p>',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @let total = count + items.length;',
+        '    <p>{{ total }}</p>',
+        '</div>'
       ]
     }, {
       input: [
