@@ -3795,70 +3795,28 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Does not add whitespace around custom elements ",
-    description: "Regression test for https://github.com/beautifier/js-beautify/issues/1989",
+    name: "Custom elements are block by default",
+    description: "Regression test for https://github.com/beautifier/js-beautify/issues/2375",
     tests: [{
       input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><div>.</div',
-        '        ><section>27</section>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
       ],
       output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span>',
-        '        <div>.</div>',
-        '        <section>27</section>',
-        '    </span>',
-        '</span>'
-      ]
-    }, {
-      input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><time-dot>.</time-dot',
-        '        ><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
-      ],
-      output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot>',
+        '<time-decimals>27</time-decimals>'
       ]
     }]
   }, {
-    name: "Disables custom elements inlining with inline_custom_elements=false",
+    name: "Enables custom elements inlining with inline_custom_elements=true",
     description: "https://github.com/beautifier/js-beautify/issues/2113",
     options: [
-      { name: "inline_custom_elements", value: "false" }
+      { name: "inline_custom_elements", value: "true" }
     ],
     tests: [{
       input: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span',
-        '        ><time-dot>.</time-dot',
-        '        ><time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
+        '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
       ],
-      output: [
-        '<span>',
-        '    <span>',
-        '        <span>The time for this result is 1:02</span>',
-        '        <time-dot>.</time-dot>',
-        '        <time-decimals>27</time-decimals>',
-        '    </span>',
-        '</span>'
-      ]
+      unchanged: '<time-dot>.</time-dot><time-decimals>27</time-decimals>'
     }]
   }, {
     name: "Indenting angular control flow with indent size 2",
