@@ -1720,6 +1720,10 @@ exports.test_data = {
       }, {
         unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
       }, {
+        comment: 'Literal Django-like strings inside quoted attributes should not consume the rest of the file.',
+        input_: '<div attr="{#"><div>\n</div></div>',
+        output: '<div attr="{#">\n  <div>\n  </div>\n</div>'
+      }, {
         unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
       }, {
         unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
