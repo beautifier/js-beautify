@@ -2405,6 +2405,23 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #2045 - Handlebars table helpers should not be treated like HTML table tags.",
+    description: "Handlebars table helpers should stay in place inside HTML tables without triggering optional table end-tag handling.",
+    options: [
+      { name: "indent_handlebars", value: "false" }
+    ],
+    tests: [{
+      unchanged: [
+        '<table>',
+        '    <tr>',
+        '        <td>',
+        '            {{#tr}}translated{{/tr}}',
+        '        </td>',
+        '    </tr>',
+        '</table>'
+      ]
+    }]
+  }, {
     name: "Support simple language specific option inheritance/overriding",
     description: "Support simple language specific option inheritance/overriding",
     matrix: [{
@@ -4077,6 +4094,20 @@ exports.test_data = {
     }, {
       unchanged: [
         '<div> @if(true) { {{"{}" + " }"}} } </div>'
+      ]
+    }, {
+      comment: 'Angular @let statements should not be treated like block control flow.',
+      input: [
+        '<div>',
+        '@let total = count + items.length;',
+        '<p>{{ total }}</p>',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    @let total = count + items.length;',
+        '    <p>{{ total }}</p>',
+        '</div>'
       ]
     }, {
       input: [
