@@ -195,6 +195,8 @@ Beautifier.prototype.beautify = function() {
   var enteringConditionalGroup = false;
   var insideNonNestedAtRule = false;
   var insideScssMap = false;
+  var braceIndentStack = [];
+  var parenOutdentStack = [];
   var topCharacter = this._ch;
   var insideNonSemiColonValues = false;
   var whitespace;
@@ -308,6 +310,7 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(isAfterSpace);
       this.print_string(this._ch + this.eatString('}'));
     } else if (this._ch === '{') {
+      var indentBrace = false;
       if (insidePropertyValue) {
         insidePropertyValue = false;
         this.outdent();
@@ -338,33 +341,43 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
         this.indent();
         this._output.set_indent(this._indentLevel);
+        indentBrace = true;
       } else {
         // inside mixin and first param is object
         if (previous_ch === '(') {
           this._output.space_before_token = false;
         } else if (previous_ch !== ',') {
           this.indent();
+          indentBrace = true;
         }
         this.print_string(this._ch);
       }
 
+      if (!indentBrace && parenOutdentStack.length) {
+        parenOutdentStack[parenOutdentStack.length - 1] = true;
+      }
+      braceIndentStack.push(indentBrace);
+
       this.eatWhitespace(true);
       this._output.add_new_line();
     } else if (this._ch === '}') {
+      var shouldOutdent = braceIndentStack.length ? braceIndentStack.pop() : true;
       this.outdent();
       this._output.add_new_line();
       if (previous_ch === '{') {
         this._output.trim(true);
       }
 
-      if (insidePropertyValue) {
+      if (insidePropertyValue && shouldOutdent) {
         this.outdent();
         insidePropertyValue = false;
       }
       this.print_string(this._ch);
-      insideRule = false;
-      if (this._nestedLevel) {
-        this._nestedLevel--;
+      if (shouldOutdent) {
+        insideRule = false;
+        if (this._nestedLevel) {
+          this._nestedLevel--;
+        }
       }
 
       this.eatWhitespace(true);
@@ -478,13 +491,17 @@ Beautifier.prototype.beautify = function() {
         } else {
           this.eatWhitespace();
           parenLevel++;
+          parenOutdentStack.push(false);
           this.indent();
         }
       }
     } else if (this._ch === ')') {
+      var suppressParenOutdent = parenOutdentStack.length ? parenOutdentStack.pop() : false;
       if (parenLevel) {
         parenLevel--;
-        this.outdent();
+        if (!suppressParenOutdent) {
+          this.outdent();
+        }
       }
       if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
         insideScssMap = false;
