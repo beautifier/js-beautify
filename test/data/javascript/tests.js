@@ -2203,6 +2203,11 @@ exports.test_data = {
           input: 'xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;',
           output: 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;'
         },
+        {
+          comment: 'CDATA contents can contain closing brackets as long as they do not form ]]>',
+          input: 'xml=<![CDATA[a ]] b]]>;',
+          output: 'xml = <![CDATA[a ]] b]]>;'
+        },
         { input: 'xml=<![CDATA[]]>;', output: 'xml = <![CDATA[]]>;' },
         { input: 'xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', output: 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;' },
 
