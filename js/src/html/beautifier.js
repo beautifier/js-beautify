@@ -375,7 +375,7 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
+      printer.set_space_before_token(raw_token.text[0] === '/' && !this._options.preserve_self_closing_tags, true); // space before />, no space before > when preserving self-closing tags
       if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
@@ -818,92 +818,93 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // https://www.w3.org/TR/html5/syntax.html#optional-tags
   if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
     return;
-
   }
 
-  if (parser_token.tag_name === 'body') {
-    // A head element’s end tag may be omitted if the head element is not immediately followed by a space character or a comment.
-    result = result || this._tag_stack.try_pop('head');
+  if (parser_token.tag_start_char === '<') {
+    if (parser_token.tag_name === 'body') {
+      // A head element’s end tag may be omitted if the head element is not immediately followed by a space character or a comment.
+      result = result || this._tag_stack.try_pop('head');
 
-    //} else if (parser_token.tag_name === 'body') {
-    // DONE: A body element’s end tag may be omitted if the body element is not immediately followed by a comment.
+      //} else if (parser_token.tag_name === 'body') {
+      // DONE: A body element’s end tag may be omitted if the body element is not immediately followed by a comment.
 
-  } else if (parser_token.tag_name === 'li') {
-    // An li element’s end tag may be omitted if the li element is immediately followed by another li element or if there is no more content in the parent element.
-    result = result || this._tag_stack.try_pop('li', ['ol', 'ul', 'menu']);
+    } else if (parser_token.tag_name === 'li') {
+      // An li element’s end tag may be omitted if the li element is immediately followed by another li element or if there is no more content in the parent element.
+      result = result || this._tag_stack.try_pop('li', ['ol', 'ul', 'menu']);
 
-  } else if (parser_token.tag_name === 'dd' || parser_token.tag_name === 'dt') {
-    // A dd element’s end tag may be omitted if the dd element is immediately followed by another dd element or a dt element, or if there is no more content in the parent element.
-    // A dt element’s end tag may be omitted if the dt element is immediately followed by another dt element or a dd element.
-    result = result || this._tag_stack.try_pop('dt', ['dl']);
-    result = result || this._tag_stack.try_pop('dd', ['dl']);
+    } else if (parser_token.tag_name === 'dd' || parser_token.tag_name === 'dt') {
+      // A dd element’s end tag may be omitted if the dd element is immediately followed by another dd element or a dt element, or if there is no more content in the parent element.
+      // A dt element’s end tag may be omitted if the dt element is immediately followed by another dt element or a dd element.
+      result = result || this._tag_stack.try_pop('dt', ['dl']);
+      result = result || this._tag_stack.try_pop('dd', ['dl']);
 
 
-  } else if (parser_token.parent.tag_name === 'p' && p_closers.indexOf(parser_token.tag_name) !== -1) {
-    // IMPORTANT: this else-if works because p_closers has no overlap with any other element we look for in this method
-    // check for the parent element is an HTML element that is not an <a>, <audio>, <del>, <ins>, <map>, <noscript>, or <video> element,  or an autonomous custom element.
-    // To do this right, this needs to be coded as an inclusion of the inverse of the exclusion above.
-    // But to start with (if we ignore "autonomous custom elements") the exclusion would be fine.
-    var p_parent = parser_token.parent.parent;
-    if (!p_parent || p_parent_excludes.indexOf(p_parent.tag_name) === -1) {
-      result = result || this._tag_stack.try_pop('p');
+    } else if (parser_token.parent.tag_name === 'p' && p_closers.indexOf(parser_token.tag_name) !== -1) {
+      // IMPORTANT: this else-if works because p_closers has no overlap with any other element we look for in this method
+      // check for the parent element is an HTML element that is not an <a>, <audio>, <del>, <ins>, <map>, <noscript>, or <video> element,  or an autonomous custom element.
+      // To do this right, this needs to be coded as an inclusion of the inverse of the exclusion above.
+      // But to start with (if we ignore "autonomous custom elements") the exclusion would be fine.
+      var p_parent = parser_token.parent.parent;
+      if (!p_parent || p_parent_excludes.indexOf(p_parent.tag_name) === -1) {
+        result = result || this._tag_stack.try_pop('p');
+      }
+    } else if (parser_token.tag_name === 'rp' || parser_token.tag_name === 'rt') {
+      // An rt element’s end tag may be omitted if the rt element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
+      // An rp element’s end tag may be omitted if the rp element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
+      result = result || this._tag_stack.try_pop('rt', ['ruby', 'rtc']);
+      result = result || this._tag_stack.try_pop('rp', ['ruby', 'rtc']);
+
+    } else if (parser_token.tag_name === 'optgroup') {
+      // An optgroup element’s end tag may be omitted if the optgroup element is immediately followed by another optgroup element, or if there is no more content in the parent element.
+      // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
+      result = result || this._tag_stack.try_pop('optgroup', ['select']);
+      //result = result || this._tag_stack.try_pop('option', ['select']);
+
+    } else if (parser_token.tag_name === 'option') {
+      // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
+      result = result || this._tag_stack.try_pop('option', ['select', 'datalist', 'optgroup']);
+
+    } else if (parser_token.tag_name === 'colgroup') {
+      // DONE: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
+      // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+      result = result || this._tag_stack.try_pop('caption', ['table']);
+
+    } else if (parser_token.tag_name === 'thead') {
+      // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+      // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+      result = result || this._tag_stack.try_pop('caption', ['table']);
+      result = result || this._tag_stack.try_pop('colgroup', ['table']);
+
+      //} else if (parser_token.tag_name === 'caption') {
+      // DONE: A caption element’s end tag may be omitted if the caption element is not immediately followed by a space character or a comment.
+
+    } else if (parser_token.tag_name === 'tbody' || parser_token.tag_name === 'tfoot') {
+      // A thead element’s end tag may be omitted if the thead element is immediately followed by a tbody or tfoot element.
+      // A tbody element’s end tag may be omitted if the tbody element is immediately followed by a tbody or tfoot element, or if there is no more content in the parent element.
+      // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+      // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+      result = result || this._tag_stack.try_pop('caption', ['table']);
+      result = result || this._tag_stack.try_pop('colgroup', ['table']);
+      result = result || this._tag_stack.try_pop('thead', ['table']);
+      result = result || this._tag_stack.try_pop('tbody', ['table']);
+
+      //} else if (parser_token.tag_name === 'tfoot') {
+      // DONE: A tfoot element’s end tag may be omitted if there is no more content in the parent element.
+
+    } else if (parser_token.tag_name === 'tr') {
+      // A tr element’s end tag may be omitted if the tr element is immediately followed by another tr element, or if there is no more content in the parent element.
+      // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+      // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+      result = result || this._tag_stack.try_pop('caption', ['table']);
+      result = result || this._tag_stack.try_pop('colgroup', ['table']);
+      result = result || this._tag_stack.try_pop('tr', ['table', 'thead', 'tbody', 'tfoot']);
+
+    } else if (parser_token.tag_name === 'th' || parser_token.tag_name === 'td') {
+      // A td element’s end tag may be omitted if the td element is immediately followed by a td or th element, or if there is no more content in the parent element.
+      // A th element’s end tag may be omitted if the th element is immediately followed by a td or th element, or if there is no more content in the parent element.
+      result = result || this._tag_stack.try_pop('td', ['table', 'thead', 'tbody', 'tfoot', 'tr']);
+      result = result || this._tag_stack.try_pop('th', ['table', 'thead', 'tbody', 'tfoot', 'tr']);
     }
-  } else if (parser_token.tag_name === 'rp' || parser_token.tag_name === 'rt') {
-    // An rt element’s end tag may be omitted if the rt element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
-    // An rp element’s end tag may be omitted if the rp element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
-    result = result || this._tag_stack.try_pop('rt', ['ruby', 'rtc']);
-    result = result || this._tag_stack.try_pop('rp', ['ruby', 'rtc']);
-
-  } else if (parser_token.tag_name === 'optgroup') {
-    // An optgroup element’s end tag may be omitted if the optgroup element is immediately followed by another optgroup element, or if there is no more content in the parent element.
-    // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
-    result = result || this._tag_stack.try_pop('optgroup', ['select']);
-    //result = result || this._tag_stack.try_pop('option', ['select']);
-
-  } else if (parser_token.tag_name === 'option') {
-    // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
-    result = result || this._tag_stack.try_pop('option', ['select', 'datalist', 'optgroup']);
-
-  } else if (parser_token.tag_name === 'colgroup') {
-    // DONE: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
-    result = result || this._tag_stack.try_pop('caption', ['table']);
-
-  } else if (parser_token.tag_name === 'thead') {
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
-    result = result || this._tag_stack.try_pop('caption', ['table']);
-    result = result || this._tag_stack.try_pop('colgroup', ['table']);
-
-    //} else if (parser_token.tag_name === 'caption') {
-    // DONE: A caption element’s end tag may be omitted if the caption element is not immediately followed by a space character or a comment.
-
-  } else if (parser_token.tag_name === 'tbody' || parser_token.tag_name === 'tfoot') {
-    // A thead element’s end tag may be omitted if the thead element is immediately followed by a tbody or tfoot element.
-    // A tbody element’s end tag may be omitted if the tbody element is immediately followed by a tbody or tfoot element, or if there is no more content in the parent element.
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
-    result = result || this._tag_stack.try_pop('caption', ['table']);
-    result = result || this._tag_stack.try_pop('colgroup', ['table']);
-    result = result || this._tag_stack.try_pop('thead', ['table']);
-    result = result || this._tag_stack.try_pop('tbody', ['table']);
-
-    //} else if (parser_token.tag_name === 'tfoot') {
-    // DONE: A tfoot element’s end tag may be omitted if there is no more content in the parent element.
-
-  } else if (parser_token.tag_name === 'tr') {
-    // A tr element’s end tag may be omitted if the tr element is immediately followed by another tr element, or if there is no more content in the parent element.
-    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
-    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
-    result = result || this._tag_stack.try_pop('caption', ['table']);
-    result = result || this._tag_stack.try_pop('colgroup', ['table']);
-    result = result || this._tag_stack.try_pop('tr', ['table', 'thead', 'tbody', 'tfoot']);
-
-  } else if (parser_token.tag_name === 'th' || parser_token.tag_name === 'td') {
-    // A td element’s end tag may be omitted if the td element is immediately followed by a td or th element, or if there is no more content in the parent element.
-    // A th element’s end tag may be omitted if the th element is immediately followed by a td or th element, or if there is no more content in the parent element.
-    result = result || this._tag_stack.try_pop('td', ['table', 'thead', 'tbody', 'tfoot', 'tr']);
-    result = result || this._tag_stack.try_pop('th', ['table', 'thead', 'tbody', 'tfoot', 'tr']);
   }
 
   // Start element omission not handled currently

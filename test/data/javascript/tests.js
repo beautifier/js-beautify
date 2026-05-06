@@ -1500,6 +1500,18 @@ exports.test_data = {
         }
       ]
     }, {
+      name: 'Preserve single newlines inside parenthesized expressions',
+      description: 'Regression test for https://github.com/beautifier/js-beautify/issues/2381',
+      options: [
+        { name: "preserve_newlines", value: "true" }
+      ],
+      tests: [{
+        input: 'foo(bar\nbaz);',
+        output: 'foo(bar\n    baz);'
+      }, {
+        unchanged: 'foo(bar\n);'
+      }]
+    }, {
       name: 'line wrapping 40',
       description: "",
       options: [
@@ -2190,6 +2202,11 @@ exports.test_data = {
           comment: 'Handles CDATA',
           input: 'xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;',
           output: 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;'
+        },
+        {
+          comment: 'CDATA contents can contain closing brackets as long as they do not form ]]>',
+          input: 'xml=<![CDATA[a ]] b]]>;',
+          output: 'xml = <![CDATA[a ]] b]]>;'
         },
         { input: 'xml=<![CDATA[]]>;', output: 'xml = <![CDATA[]]>;' },
         { input: 'xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', output: 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;' },
@@ -5887,9 +5904,13 @@ exports.test_data = {
         { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
 
         {
-          comment: 'Issue #1896: Handle newlines with bitwise ~ operator',
-          input: 'if (foo) {\nvar bar = 1;\n~bar ? 0 : 1\n }',
-          output: 'if (foo) {\n    var bar = 1;\n    ~bar ? 0 : 1\n}'
+          comment: 'Issue #1896: Handle newlines with bitwise ~ and ! operators',
+          input: 'if (foo) {\nvar bar = 1\n~bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1\n    ~bar ? 0 : 1\n}'
+        },
+        {
+          input: 'if (foo) {\nvar bar = 1\n!bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1\n    !bar ? 0 : 1\n}'
         },
 
         {
