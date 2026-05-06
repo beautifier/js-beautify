@@ -220,6 +220,8 @@ class Beautifier:
         enteringConditionalGroup = False
         insideNonNestedAtRule = False
         insideScssMap = False
+        braceIndentStack = []
+        parenOutdentStack = []
         topCharacter = self._ch
         insideNonSemiColonValues = False
 
@@ -327,6 +329,7 @@ class Beautifier:
                 self.preserveSingleSpace(isAfterSpace)
                 self.print_string(self._ch + self.eatString("}"))
             elif self._ch == "{":
+                indentBrace = False
                 if insidePropertyValue:
                     insidePropertyValue = False
                     self.outdent()
@@ -360,28 +363,37 @@ class Beautifier:
                     self.print_string(self._ch)
                     self.indent()
                     self._output.set_indent(self._indentLevel)
+                    indentBrace = True
                 else:
                     # inside mixin and first param is object
                     if previous_ch == "(":
                         self._output.space_before_token = False
                     elif previous_ch != ",":
                         self.indent()
+                        indentBrace = True
                     self.print_string(self._ch)
+
+                if not indentBrace and parenOutdentStack:
+                    parenOutdentStack[-1] = True
+
+                braceIndentStack.append(indentBrace)
 
                 self.eatWhitespace(True)
                 self._output.add_new_line()
             elif self._ch == "}":
+                shouldOutdent = braceIndentStack.pop() if braceIndentStack else True
                 self.outdent()
                 self._output.add_new_line()
                 if previous_ch == "{":
                     self._output.trim(True)
-                if insidePropertyValue:
+                if insidePropertyValue and shouldOutdent:
                     self.outdent()
                     insidePropertyValue = False
                 self.print_string(self._ch)
-                insideRule = False
-                if self._nestedLevel:
-                    self._nestedLevel -= 1
+                if shouldOutdent:
+                    insideRule = False
+                    if self._nestedLevel:
+                        self._nestedLevel -= 1
 
                 self.eatWhitespace(True)
                 self._output.add_new_line()
@@ -492,11 +504,14 @@ class Beautifier:
                     else:
                         self.eatWhitespace()
                         parenLevel += 1
+                        parenOutdentStack.append(False)
                         self.indent()
             elif self._ch == ")":
+                suppressParenOutdent = parenOutdentStack.pop() if parenOutdentStack else False
                 if parenLevel:
                     parenLevel -= 1
-                    self.outdent()
+                    if not suppressParenOutdent:
+                        self.outdent()
 
                 if (
                     insideScssMap

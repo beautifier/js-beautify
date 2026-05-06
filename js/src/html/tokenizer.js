@@ -59,13 +59,14 @@ var Tokenizer = function(input_string, options) {
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
   var templatable_reader = new TemplatablePattern(this._input).read_options(this._options);
+  var quoted_templatable_reader = templatable_reader.exclude('django');
   var pattern_reader = new Pattern(this._input);
 
   this.__patterns = {
     word: templatable_reader.until(/[\n\r\t <]/),
     word_control_flow_close_excluded: templatable_reader.until(/[\n\r\t <}]/),
-    single_quote: templatable_reader.until_after(/'/),
-    double_quote: templatable_reader.until_after(/"/),
+    single_quote: quoted_templatable_reader.until_after(/'/),
+    double_quote: quoted_templatable_reader.until_after(/"/),
     attribute: templatable_reader.until(/[\n\r\t =>]|\/>/),
     element_name: templatable_reader.until(/[\n\r\t >\/]/),
 
@@ -239,6 +240,20 @@ Tokenizer.prototype._read_control_flows = function(c, open_token) {
   }
 
   if (c === '@') {
+    // @let is a statement, not a block opener, so read it as plain text.
+    var let_next_char = this._input.peek(4);
+    if (this._input.peek(1) === 'l' &&
+      this._input.peek(2) === 'e' &&
+      this._input.peek(3) === 't' &&
+      !(let_next_char !== null && /[a-zA-Z0-9_$]/.test(let_next_char))) {
+      resulting_string = this._input.read(this._input.get_regexp(/@let\b/, true));
+      resulting_string += this._input.readUntil(this._input.get_regexp(/[;\r\n]/));
+      if (this._input.peek() === ';') {
+        resulting_string += this._input.next();
+      }
+      return this._create_token(TOKEN.TEXT, resulting_string);
+    }
+
     resulting_string = this.__patterns.angular_control_flow_start.read();
     if (resulting_string === '') {
       return token;

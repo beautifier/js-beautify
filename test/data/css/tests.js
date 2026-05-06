@@ -1916,6 +1916,18 @@ exports.test_data = {
           '});'
         ]
       }, {
+        comment: "Issue 2380 - LESS each() blocks should keep the surrounding rule indented",
+        unchanged: [
+          '.loop {',
+          '    each(@set, {',
+          '        @{key}-@{index}: @value;',
+          '    });',
+          '    .after {',
+          '        color: red;',
+          '    }',
+          '}'
+        ]
+      }, {
         unchanged: [
           '.aa {',
           '    .mq-medium(a, {',

@@ -262,7 +262,11 @@ class Beautifier:
             ):
                 newlines = self._options.max_preserve_newlines
 
-            if self._options.preserve_newlines and newlines > 1:
+            if self._options.preserve_newlines and newlines == 1 and self.is_expression(
+                self._flags.mode
+            ):
+                self.print_newline(False, preserve_statement_flags)
+            elif self._options.preserve_newlines and newlines > 1:
                 self.print_newline(False, preserve_statement_flags)
                 for i in range(1, newlines):
                     self.print_newline(True, preserve_statement_flags)
