@@ -389,6 +389,24 @@ exports.test_data = {
           output: '@media print{{curly_separator}}{\n    .tab{{curly_separator2}}{}\n}'
         },
         {
+          comment: 'Media query range operators should preserve spaces on both sides',
+          unchanged: '@media (width >= 90rem) {\n    .foo {}\n}'
+        },
+        {
+          comment: 'Media query range operators should preserve spaces on both sides',
+          unchanged: '@media (width <= 90rem) {\n    .foo {}\n}'
+        },
+        {
+          comment: 'Media query range operators - minified input should have spaces enforced around operator',
+          input: '@media (width>=90rem){.foo{}}',
+          output: '@media (width >= 90rem){{curly_separator}}{\n    .foo{{curly_separator2}}{}\n}'
+        },
+        {
+          comment: 'Media query range operators - minified input should have spaces enforced around operator',
+          input: '@media (width<=90rem){.foo{}}',
+          output: '@media (width <= 90rem){{curly_separator}}{\n    .foo{{curly_separator2}}{}\n}'
+        },
+        {
           comment: 'This is bug #1489',
           input: '@media print {.tab,.bat{}}',
           output: '@media print{{curly_separator}}{\n{{first_nested_rule}}    .tab,{{separator1}}.bat{{curly_separator2}}{}\n}'

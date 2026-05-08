@@ -500,6 +500,18 @@ Beautifier.prototype.beautify = function() {
       } else {
         this._output.space_before_token = true;
       }
+    } else if ((this._ch === '>' || this._ch === '<') && parenLevel > 0 && this._input.peek() === '=') {
+      // Media query range operator: >= or <=
+      // Ensure a single space before and after the operator
+      this._output.space_before_token = true;
+      this.print_string(this._ch);
+      this._input.next(); // consume '='
+      this.print_string('=');
+      this.eatWhitespace();
+      this._output.space_before_token = true;
+      if (whitespaceChar.test(this._ch)) {
+        this._ch = '';
+      }
     } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel === 0) {
       //handle combinator spacing
       if (this._options.space_around_combinator) {
