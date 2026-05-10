@@ -137,7 +137,7 @@ class TokenizerPatterns(BaseTokenizerPatterns):
 
         # IMPORTANT: This string must be run through six to handle \u chars
         self.whitespace = self.whitespace.matching(
-            six.u(r"\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff"),
+            six.u(r"\u00A0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff"),
             six.u(r"\u2028\u2029"),
         )
 
