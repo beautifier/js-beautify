@@ -3007,6 +3007,24 @@ exports.test_data = {
           ]
         },
         {
+          comment: 'object literal containing only a block comment - closing brace on its own line',
+          input: 'var a = {/* c */}',
+          output: [
+            'var a = {',
+            '    /* c */',
+            '}'
+          ]
+        },
+        {
+          comment: 'block statement containing only a block comment - closing brace on its own line',
+          input: 'if (x) {/* c */}',
+          output: [
+            'if (x) {',
+            '    /* c */',
+            '}'
+          ]
+        },
+        {
           comment: '#713 and #964',
           unchanged: [
             'Meteor.call("foo", bar, function(err, result) {',

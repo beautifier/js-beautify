@@ -789,7 +789,7 @@ Beautifier.prototype.handle_end_block = function(current_token) {
     this.restore_mode();
   }
 
-  var empty_braces = this._flags.last_token.type === TOKEN.START_BLOCK;
+  var empty_braces = !current_token.comments_before && this._flags.last_token.type === TOKEN.START_BLOCK;
 
   if (this._flags.inline_frame && !empty_braces) { // try inline_frame (only set if this._options.braces-preserve-inline) first
     this._output.space_before_token = true;

@@ -854,7 +854,10 @@ class Beautifier:
         while self._flags.mode == MODE.Statement:
             self.restore_mode()
 
-        empty_braces = self._flags.last_token.type == TOKEN.START_BLOCK
+        empty_braces = (
+            current_token.comments_before is None
+            and self._flags.last_token.type == TOKEN.START_BLOCK
+        )
 
         # try inline_frame (only set if opt.braces-preserve-inline) first
         if self._flags.inline_frame and not empty_braces:
