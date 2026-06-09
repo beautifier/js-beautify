@@ -17,7 +17,7 @@ requirejs.config({
 });
 
 requirejs(['beautifier'],
-  function(beautifier) {
+  function (beautifier) {
     the.beautifier = beautifier;
   });
 
@@ -43,10 +43,10 @@ function set_editor_mode() {
 
 function run_tests() {
   $.when($.getScript("js/test/sanitytest.js"),
-      $.getScript("js/test/generated/beautify-javascript-tests.js"),
-      $.getScript("js/test/generated/beautify-css-tests.js"),
-      $.getScript("js/test/generated/beautify-html-tests.js"))
-    .done(function() {
+    $.getScript("js/test/generated/beautify-javascript-tests.js"),
+    $.getScript("js/test/generated/beautify-css-tests.js"),
+    $.getScript("js/test/generated/beautify-html-tests.js"))
+    .done(function () {
       var st = new SanityTest();
       run_javascript_tests(st, Urlencoded, the.beautifier.js, the.beautifier.html, the.beautifier.css);
       run_css_tests(st, Urlencoded, the.beautifier.js, the.beautifier.html, the.beautifier.css);
@@ -137,7 +137,7 @@ function unpacker_filter(source) {
   leading_comments += '\n';
   source = source.replace(/^\s+/, '');
 
-  var unpackers = [P_A_C_K_E_R, Urlencoded, JavascriptObfuscator /*, MyObfuscate*/ ];
+  var unpackers = [P_A_C_K_E_R, Urlencoded, JavascriptObfuscator /*, MyObfuscate*/];
   for (var i = 0; i < unpackers.length; i++) {
     if (unpackers[i].detect(source)) {
       unpacked = unpackers[i].unpack(source);
@@ -380,8 +380,10 @@ function selectAll() {
 function clearAll() {
   if (the.editor) {
     the.editor.setValue('');
+    the.editor.focus();
   } else {
     $('#source').val('');
+    $('#source').focus();
   }
 }
 
@@ -390,7 +392,7 @@ function changeToFileContent(input) {
   if (file) {
     var reader = new FileReader();
     reader.readAsText(file, "UTF-8");
-    reader.onload = function(event) {
+    reader.onload = function (event) {
       if (the.editor) {
         the.editor.setValue(event.target.result);
       } else {
