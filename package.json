@@ -64,7 +64,7 @@
     "benchmark": "^2.1.4",
     "codemirror": "^5.65.21",
     "jquery": "^3.7.1",
-    "jshint": "^0.5.9",
+    "jshint": "^2.13.6",
     "minimist": "^1.2.8",
     "mocha": "^11.7.6",
     "mustache": "^4.2.0",
