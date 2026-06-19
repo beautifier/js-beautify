@@ -2,7 +2,7 @@ PROJECT_ROOT=$(subst \,/,$(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
 BUILD_DIR=$(PROJECT_ROOT)build
 SCRIPT_DIR=$(PROJECT_ROOT)tools
 SHELL=/bin/bash
-PYTHON=$(SCRIPT_DIR)/python
+PYTHON=$(SCRIPT_DIR)/python-dev python
 NODE=$(SCRIPT_DIR)/node
 NPM=$(SCRIPT_DIR)/npm
 
@@ -146,7 +146,8 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv build/python-rel
 	$(SCRIPT_DIR)/python-dev python -m pip install --upgrade pip || exit 0
 	$(SCRIPT_DIR)/python-rel python -m pip install --upgrade pip || exit 0
-	$(SCRIPT_DIR)/python-dev3 pip install black
+	$(SCRIPT_DIR)/python-dev3 pip install setuptools black
+	$(SCRIPT_DIR)/python-rel pip install setuptools
 	@touch $(BUILD_DIR)/virtualenv
 
 
