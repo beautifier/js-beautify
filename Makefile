@@ -146,7 +146,7 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv build/python-rel
 	$(SCRIPT_DIR)/python-dev python -m pip install --upgrade pip || exit 0
 	$(SCRIPT_DIR)/python-rel python -m pip install --upgrade pip || exit 0
-	$(SCRIPT_DIR)/python-dev3 pip install setuptools black
+	$(SCRIPT_DIR)/python-dev pip install setuptools black
 	$(SCRIPT_DIR)/python-rel pip install setuptools
 	@touch $(BUILD_DIR)/virtualenv
 
