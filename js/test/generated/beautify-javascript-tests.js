@@ -10202,6 +10202,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    var bar = 1;\n' +
             '    ~bar ? 0 : 1\n' +
             '}');
+        
+        // Issue #2128 - NPE in python implementation
+        test_fragment(') / a / g');
 
 
     }

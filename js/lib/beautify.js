@@ -249,15 +249,16 @@ function split_linebreaks(s) {
   //return s.split(/\x0d\x0a|\x0a/);
 
   s = s.replace(acorn.allLineBreaks, '\n');
-  var out = [],
-    idx = s.indexOf("\n");
+  var out = [];
+  var start = 0;
+  var idx = s.indexOf("\n", start);
   while (idx !== -1) {
-    out.push(s.substring(0, idx));
-    s = s.substring(idx + 1);
-    idx = s.indexOf("\n");
+    out.push(s.substring(start, idx));
+    start = idx + 1;
+    idx = s.indexOf("\n", start);
   }
-  if (s.length) {
-    out.push(s);
+  if (start < s.length) {
+    out.push(s.substring(start));
   }
   return out;
 }
@@ -2849,7 +2850,7 @@ Tokenizer.prototype._allow_regexp_or_xml = function(previous_token) {
   // regex and xml can only appear in specific locations during parsing
   return (previous_token.type === TOKEN.RESERVED && in_array(previous_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
     (previous_token.type === TOKEN.END_EXPR && previous_token.text === ')' &&
-      previous_token.opened.previous.type === TOKEN.RESERVED && in_array(previous_token.opened.previous.text, ['if', 'while', 'for'])) ||
+      previous_token.opened && previous_token.opened.previous.type === TOKEN.RESERVED && in_array(previous_token.opened.previous.text, ['if', 'while', 'for'])) ||
     (in_array(previous_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START,
       TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
     ]));
