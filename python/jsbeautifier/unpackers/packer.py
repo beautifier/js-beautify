@@ -66,10 +66,7 @@ def unpack(source):
         return symtab[unbase(word)] or word
 
     payload = payload.replace("\\\\", "\\").replace("\\'", "'")
-    if sys.version_info.major == 2:
-        source = re.sub(r"\b\w+\b", lookup, payload)
-    else:
-        source = re.sub(r"\b\w+\b", lookup, payload, flags=re.ASCII)
+    source = re.sub(r"\b\w+\b", lookup, payload, flags=re.ASCII)
     return _replacestrings(source)
 
 
@@ -115,7 +112,7 @@ def _replacestrings(source):
     return beginstr + source + endstr
 
 
-class Unbaser(object):
+class Unbaser:
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
 
@@ -142,9 +139,9 @@ class Unbaser(object):
         else:
             # Build conversion dictionary cache
             try:
-                self.dictionary = dict(
-                    (cipher, index) for index, cipher in enumerate(self.ALPHABET[base])
-                )
+                self.dictionary = {
+                    cipher: index for index, cipher in enumerate(self.ALPHABET[base])
+                }
             except KeyError:
                 raise TypeError("Unsupported base encoding.")
 

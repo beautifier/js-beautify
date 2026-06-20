@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.0
+* Removed all usage of six and dropped support for Python 2. ([#2374](https://github.com/beautifier/js-beautify/pull/2374))
+* Move minimum version to Nodejs v22.x ([#2363](https://github.com/beautifier/js-beautify/pull/2363))
+* Bump nopt from 7.2.1 to 8.1.0 ([#2361](https://github.com/beautifier/js-beautify/pull/2361))
+* Fix minor crash for certain oddly formed *.js files ([#2128](https://github.com/beautifier/js-beautify/pull/2128))
+
 ## v1.15.4
 * Downgrade nopt to v7.x to maintain Node.js v14 compatibility ([#2358](https://github.com/beautifier/js-beautify/issues/2358))
 

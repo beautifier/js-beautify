@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 import os
 import platform
@@ -88,9 +87,7 @@ def beautify_file(file_name, opts=default_options()):
 
 def usage(stream=sys.stdout):
     print(
-        "jsbeautifier.py@"
-        + __version__
-        + """
+        "jsbeautifier.py@" + __version__ + """
 
 Javascript beautifier (https://beautifier.io/)
 
