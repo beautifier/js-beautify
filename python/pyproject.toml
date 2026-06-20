@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ['py33', 'py36', 'py37', 'py38']
+target-version = ['py311', 'py312', 'py313', 'py314']
 exclude = '''
 /(
     \.eggs
