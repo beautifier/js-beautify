@@ -21,11 +21,12 @@ release_python()
     cd python
     # python setup.py register -r pypi
     cp setup-js.py setup.py || exit 1
-    $SCRIPT_DIR/python-dev setup.py sdist bdist_wheel || exit 1
+    $SCRIPT_DIR/python -m pip install setuptools black
+    $SCRIPT_DIR/python setup.py sdist bdist_wheel || exit 1
     cp setup-css.py setup.py || exit 1
-    $SCRIPT_DIR/python-dev setup.py sdist bdist_wheel || exit 1
+    $SCRIPT_DIR/python setup.py sdist bdist_wheel || exit 1
     rm setup.py || exit 1
-    $SCRIPT_DIR/python-dev -m twine upload dist/* || exit 1
+    $SCRIPT_DIR/python -m twine upload dist/* || exit 1
 }
 
 release_node()
