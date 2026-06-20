@@ -772,6 +772,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        "foo": "bar"\n' +
             '    }\n' +
             '</script>');
+        
+        // importmap holds JSON and should beautify like other json script types
+        bth(
+            '<script type="importmap">{"imports":{"three":"x","three/addons/":"y"}}</script>',
+            //  -- output --
+            '<script type="importmap">\n' +
+            '    {\n' +
+            '        "imports": {\n' +
+            '            "three": "x",\n' +
+            '            "three/addons/": "y"\n' +
+            '        }\n' +
+            '    }\n' +
+            '</script>');
         bth('<style type="text/unknown"><tag></tag></style>');
         bth(
             '<style type="text/css"><tag></tag></style>',

@@ -137,3 +137,32 @@ To publish a Beta or RC (Release Candidate), add `-beta1` or `-rc1` to the end o
 
 
 
+## Version Numbering Policy
+
+This project follows semantic versioning for API compatibility, with additional guidance for formatting changes.
+
+### What each version number means
+
+* Major (`x.0.0`): API compatibility changes. We reserve major versions for intentional API-incompatible changes.
+* Minor (`x.y.0`): Significant formatting fixes, behavior improvements, or new features/options that may affect output.
+* Patch (`x.y.z`): Small, low-risk fixes that should not cause side effects.
+
+### Output compatibility expectations
+
+Formatting output for the same input may change in minor and patch releases.
+For this project, output compatibility is not equivalent to API compatibility:
+
+* API compatibility is represented by major versions.
+* Formatting correctness and behavior improvements are delivered in minor/patch releases based on scope and risk.
+
+### Rules for introducing formatting behavior changes
+
+* Fixes for strictly incorrect formatting should be enabled by default.
+* New formatting features should be introduced as options and must default to off, so valid input formatting does not change unexpectedly.
+* We avoid unnecessary output churn and treat invalid input handling as best-effort.
+
+### Guidance for consumers
+
+If your workflows are sensitive to output differences, pin exact versions or use conservative ranges.
+Using broad ranges (for example, `^x.y.z`) may pull in output-affecting updates by design.
+

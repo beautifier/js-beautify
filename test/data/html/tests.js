@@ -645,6 +645,19 @@ exports.test_data = {
           '</script>'
         ]
       }, {
+        comment: 'importmap holds JSON and should beautify like other json script types',
+        input: '<script type="importmap">{"imports":{"three":"x","three/addons/":"y"}}</script>',
+        output: [
+          '<script type="importmap">',
+          '    {',
+          '        "imports": {',
+          '            "three": "x",',
+          '            "three/addons/": "y"',
+          '        }',
+          '    }',
+          '</script>'
+        ]
+      }, {
         unchanged: '<style type="text/unknown"><tag></tag></style>'
       }, {
         input: '<style type="text/css"><tag></tag></style>',

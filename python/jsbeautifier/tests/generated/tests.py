@@ -35,7 +35,6 @@
 import re
 import unittest
 import jsbeautifier
-import six
 import copy
 
 class TestJSBeautifier(unittest.TestCase):
@@ -73,7 +72,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt = self.bt
 
         def unicode_char(value):
-            return six.unichr(value)
+            return chr(value)
 
         bt('"\\\\s"') # == "\\s" in the js source
         bt("'\\\\s'") # == '\\s' in the js source
@@ -107,8 +106,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('"\\x41\\x42\\u{0001}\\x43"', '"AB\\u{0001}C"')
         test_fragment('"\\x20\\x40\\x4a"', '" @J"')
         test_fragment('"\\xff\\x40\\x4a"')
-        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', six.u('"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"'))
-        test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"', six.u('"\u0072\u016B\\u{110000}\u0137\u012B\u0074\u0069\u0073"'))
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"')
+        test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"', '"\u0072\u016B\\u{110000}\u0137\u012B\u0074\u0069\u0073"')
 
         bt('a = /\\s+/')
         test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
@@ -128,7 +127,7 @@ class TestJSBeautifier(unittest.TestCase):
         false = False
 
         def unicode_char(value):
-            return six.unichr(value)
+            return chr(value)
 
         ##============================================================
         # Line wrap test inputs
@@ -9914,6 +9913,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    var bar = 1;\n' +
             '    ~bar ? 0 : 1\n' +
             '}')
+        
+        # Issue #2128 - NPE in python implementation
+        test_fragment(') / a / g')
 
 
 

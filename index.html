@@ -86,7 +86,7 @@
         <input type="checkbox" id="theme-toggle-btn" style="display: none" />
         <div id="theme-toggle-slider"></div>
       </label>
-      <span>Enable Dark Mode</span>
+      <span id="theme-text">Enable Light Mode</span>
     </div>
     <select name="language" id="language">
       <option value="css">Beautify CSS</option>
@@ -146,6 +146,19 @@
               <option value="separate">Separate indentation</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <p style="margin:6px 0 0 0">HTML attribute wrapping:</p>
+          <select id="wrap-attributes">
+            <option value="auto">Wrap when line is too long</option>
+            <option value="force">Wrap each attribute</option>
+            <option value="force-aligned">Wrap and align attributes</option>
+            <option value="force-expand-multiline">Always wrap multiline</option>
+            <option value="aligned-multiple">Align multiple attributes</option>
+            <option value="preserve">Preserve wrapping</option>
+            <option value="preserve-aligned">Preserve and align</option>
+          </select>
         </div>
 
         <div class="options-checkboxes">
