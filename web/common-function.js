@@ -74,6 +74,7 @@ function read_settings_from_cookie() {
   $('#keep-array-indentation').prop('checked', Cookies.get('keep-array-indentation') === 'on');
   $('#break-chained-methods').prop('checked', Cookies.get('break-chained-methods') === 'on');
   $('#indent-scripts').val(any(Cookies.get('indent-scripts'), 'normal'));
+  $('#wrap-attributes').val(any(Cookies.get('wrap-attributes'), 'auto'));
   $('#additional-options').val(any(Cookies.get('additional-options'), '{}'));
   $('#space-before-conditional').prop('checked', Cookies.get('space-before-conditional') !== 'off');
   $('#wrap-line-length').val(any(Cookies.get('wrap-line-length'), '0'));
@@ -104,6 +105,7 @@ function store_settings_to_cookie() {
   Cookies.set('end-with-newline', $('#end-with-newline').prop('checked') ? 'on' : 'off', opts);
   Cookies.set('wrap-line-length', $('#wrap-line-length').val(), opts);
   Cookies.set('indent-scripts', $('#indent-scripts').val(), opts);
+  Cookies.set('wrap-attributes', $('#wrap-attributes').val(), opts);
   Cookies.set('additional-options', $('#additional-options').val(), opts);
   Cookies.set('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
   Cookies.set('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
@@ -211,6 +213,7 @@ function beautify() {
   opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
   opts.break_chained_methods = $('#break-chained-methods').prop('checked');
   opts.indent_scripts = $('#indent-scripts').val();
+  opts.wrap_attributes = $('#wrap-attributes').val();
   opts.brace_style = $('#brace-style').val() + ($('#brace-preserve-inline').prop('checked') ? ",preserve-inline" : "");
   opts.space_before_conditional = $('#space-before-conditional').prop('checked');
   opts.unescape_strings = $('#unescape-strings').prop('checked');
@@ -380,8 +383,10 @@ function selectAll() {
 function clearAll() {
   if (the.editor) {
     the.editor.setValue('');
+    the.editor.focus();
   } else {
     $('#source').val('');
+    $('#source').focus();
   }
 }
 
@@ -417,9 +422,13 @@ function switchTheme(themeToggleEvent) {
     $('.CodeMirror').addClass('cm-s-darcula');
     $('body').addClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-dark.svg");
+
+    $('#theme-text').text('Enable Light Mode');
   } else {
     $('.CodeMirror').removeClass('cm-s-darcula');
     $('body').removeClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-light.svg");
+
+    $('#theme-text').text('Enable Dark Mode');
   }
 }
