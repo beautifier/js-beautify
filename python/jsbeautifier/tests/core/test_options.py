@@ -1,4 +1,8 @@
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 import unittest
 from ...core.options import _mergeOpts, _normalizeOpts, Options
 

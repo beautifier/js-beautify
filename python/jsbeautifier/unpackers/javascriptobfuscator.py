@@ -16,7 +16,11 @@
 
 """deobfuscator for scripts messed up with JavascriptObfuscator.com"""
 
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 
 PRIORITY = 1
 

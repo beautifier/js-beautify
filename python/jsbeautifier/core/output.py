@@ -22,7 +22,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 import math
 
 # Using object instead of string to allow for later expansion of info

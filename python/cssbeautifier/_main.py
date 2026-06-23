@@ -26,7 +26,12 @@
 import sys
 import os
 import io
-import re
+
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 import copy
 import getopt
 from cssbeautifier.__version__ import __version__

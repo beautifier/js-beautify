@@ -12,7 +12,11 @@
 
 """Unpacker for Dean Edward's p.a.c.k.e.r"""
 
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 import string
 import sys
 from jsbeautifier.unpackers import UnpackingError
