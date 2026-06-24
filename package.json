@@ -45,7 +45,7 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=14"
+    "node": ">=22"
   },
   "browserslist": "ie 11",
   "dependencies": {
@@ -56,7 +56,10 @@
     "nopt": "^10.0.1"
   },
   "overrides": {
+    "brace-expansion": "^2.1.1",
     "diff": "^8.0.4",
+    "lodash": "^4.18.1",
+    "minimatch": "^9.0.5",
     "serialize-javascript": "^7.0.6"
   },
   "devDependencies": {

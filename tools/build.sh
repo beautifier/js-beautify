@@ -10,6 +10,8 @@ build_js()
   cd $PROJECT_DIR
 
   # jshint
+  # make compatible with minimatch 10.x
+  cp $PROJECT_DIR/tools/jshint-cli-hack.js $PROJECT_DIR/node_modules/jshint/src/cli.js
   $PROJECT_DIR/node_modules/.bin/jshint . || exit 1
 
   # generate lib files
