@@ -47,6 +47,16 @@
   "engines": {
     "node": ">=14"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.15.0"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "11.12.1"
+    }
+  },
   "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.13",
