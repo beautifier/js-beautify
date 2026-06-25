@@ -313,7 +313,10 @@ class Beautifier:
         if shouldPreserveOrForce:
             self.print_newline(preserve_statement_flags=True)
         elif self._options.wrap_line_length > 0:
-            if reserved_array(self._flags.last_token, self._newline_restricted_tokens):
+            if (
+                reserved_array(self._flags.last_token, self._newline_restricted_tokens)
+                or self._flags.last_token.type == TOKEN.OPERATOR
+            ):
                 # These tokens should never have a newline inserted between
                 # them and the following expression.
                 return
