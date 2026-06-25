@@ -2608,6 +2608,69 @@ exports.test_data = {
         output: 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;'
       }]
     }, {
+      name: "qml true",
+      description: "",
+      options: [
+        { name: 'qml', value: true }
+      ],
+      tests: [
+        { unchanged: 'property var x = {};' },
+        { unchanged: 'readonly property var x = {};' },
+        {
+            unchanged: [
+                '// MessageLabel.qml',
+                'import QtQuick',
+                '',
+                'Rectangle {',
+                '    height: 50',
+                '    property string message: "debug message"',
+                '    property var msgType: ["debug", "warning", "critical"]',
+                '    color: "black"',
+                '',
+                '    Column {',
+                '        anchors.fill: parent',
+                '        padding: 5.0',
+                '        spacing: 2',
+                '        Text {',
+                '            text: msgType.toString().toUpperCase() + ":"',
+                '            font.bold: msgType == "critical"',
+                '            font.family: "Terminal Regular"',
+                '            color: msgType === "warning" || msgType === "critical" ? "red" : "yellow"',
+                '            ColorAnimation on color {',
+                '                running: msgType == "critical"',
+                '                from: "red"',
+                '                to: "black"',
+                '                duration: 1000',
+                '                loops: msgType == "critical" ? Animation.Infinite : 1',
+                '            }',
+                '        }',
+                '        Text {',
+                '            text: message',
+                '            color: msgType === "warning" || msgType === "critical" ? "red" : "yellow"',
+                '            font.family: "Terminal Regular"',
+                '        }',
+                '    }',
+                '}'
+            ]
+        }
+      ]
+    }, {
+      name: "qml false",
+      description: "",
+      options: [
+        { name: 'qml', value: false }
+      ],
+      tests: [
+        {
+            input: 'property var x = {};',
+            output: 'property\nvar x = {};'
+        },
+        {
+            input: 'readonly property var x = {};',
+            output: 'readonly property\nvar x = {};'
+        }
+      ]
+    }, {
       name: "Multiple braces",
       description: "",
       template: "^^^ $$$",
