@@ -512,6 +512,21 @@ class Beautifier:
                 else:
                     self._output.space_before_token = True
             elif (
+                (self._ch == ">" or self._ch == "<")
+                and parenLevel > 0
+                and self._input.peek() == "="
+            ):
+                # Media query range operator: >= or <=
+                # Ensure a single space before and after the operator
+                self._output.space_before_token = True
+                self.print_string(self._ch)
+                self._input.next()  # consume '='
+                self.print_string("=")
+                self.eatWhitespace()
+                self._output.space_before_token = True
+                if bool(whitespaceChar.search(self._ch)):
+                    self._ch = ""
+            elif (
                 (self._ch == ">" or self._ch == "+" or self._ch == "~")
                 and not insidePropertyValue
                 and parenLevel == 0
