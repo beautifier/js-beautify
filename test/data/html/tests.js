@@ -4415,6 +4415,36 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "New Test Suite"
+    name: "Issue #1823",
+    description: "HTML comments without leading spaces should remain on the same line as the preceding closing tag.",
+    matrix: [{
+      options: [
+        { name: "inline_custom_elements", value: "false" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      unchanged: '<button>Click here</button><!--comment-->'
+    }, {
+      fragment: true,
+      unchanged: '<button>Click here</button><!-- comment -->'
+    }]
+  }, {
+    name: "Issue #1707",
+    description: "wrap_attributes: 'preserve' should preserve newline before closing bracket",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<div',
+        '    attr="val"',
+        '>',
+        '</div>'
+      ]
+    }]
   }]
 };

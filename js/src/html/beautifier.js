@@ -375,9 +375,13 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
-      if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
+      if ((this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) &&
+        printer.traverse_whitespace(raw_token)) {
+        // preserved newline or space
+      } else if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
+      } else {
+        printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
       }
     }
     printer.print_token(raw_token);
@@ -750,7 +754,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
     }
 
     // Don't add a newline before elements that should remain where they are.
-    if (parser_token.tag_name === '!--' && last_token.type === TOKEN.TAG_CLOSE &&
+    if (parser_token.tag_name.indexOf('!--') === 0 && last_token.type === TOKEN.TAG_CLOSE &&
       last_tag_token.is_end_tag && parser_token.text.indexOf('\n') === -1) {
       //Do nothing. Leave comments on same line.
     } else {
@@ -816,7 +820,7 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // are handled automatically by the beautifier.
   // It assumes parent or ancestor close tag closes all children.
   // https://www.w3.org/TR/html5/syntax.html#optional-tags
-  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
+  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent || parser_token.tag_start_char !== '<') {
     return;
 
   }

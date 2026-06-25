@@ -1123,7 +1123,7 @@ Beautifier.prototype.handle_comma = function(current_token) {
     if (this._flags.declaration_assignment) {
       this._flags.declaration_assignment = false;
       this.print_newline(false, true);
-    } else if (this._options.comma_first) {
+    } else if (this._options.comma_first && !(this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines)) {
       // for comma-first, we want to allow a newline before the comma
       // to turn into a newline after the comma, which we will fixup later
       this.allow_wrap_or_preserved_newline(current_token);
@@ -1137,7 +1137,7 @@ Beautifier.prototype.handle_comma = function(current_token) {
     if (!this._flags.inline_frame) {
       this.print_newline();
     }
-  } else if (this._options.comma_first) {
+  } else if (this._options.comma_first && !(this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines)) {
     // EXPR or DO_BLOCK
     // for comma-first, we want to allow a newline before the comma
     // to turn into a newline after the comma, which we will fixup later
