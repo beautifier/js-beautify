@@ -1604,6 +1604,43 @@ class Beautifier:
         self.print_token(current_token)
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
+    _peek_lloc_stop = [TOKEN.SEMICOLON, TOKEN.END_BLOCK, TOKEN.EOF, TOKEN.RESERVED]
+
+    def guess_current_lloc_len(self: Beautifier):
+        """Try to guess how long, in chars, this lloc would be if it was condensed to a single line."""
+
+        # empty string is the "separator" between forwards and backwards
+        txts = [""]
+
+        # lookbehind loop
+        while True:
+            bak_token = self._tokens.peek(-len(txts))
+            if bak_token is None:
+                break
+            if bak_token.type in [*_peek_lloc_stop, TOKEN.START_BLOCK]:
+                break
+            txts.append(bak_token.text)
+
+        # since we looped backwards, reverse the gathered texts here
+        txts = list(reversed(txts))
+
+        bak_tokens = len(txts)
+        # lookahead loop
+        while True:
+            fwd_token = self._tokens.peek(len(txts) - bak_tokens)
+            if fwd_token is None:
+                break
+            if fwd_token.type in _peek_lloc_stop:
+                break
+            txts.append(fwd_token.text)
+
+        line = "".join(txts)
+        # print(len(line), line)
+
+        cur_line = self._output.current_line.toString()
+        indent_chars = len(cur_line) - len(cur_line.lstrip())
+        return len(line) + indent_chars
+
     def handle_dot(self, current_token):
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1622,8 +1659,10 @@ class Beautifier:
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
                 current_token,
-                self._flags.last_token.text == ")"
-                and self._options.break_chained_methods,
+                (
+                    0 < self._options.wrap_line_length < self.guess_current_lloc_len()
+                    or self._flags.last_token.text == ")"
+                ) and self._options.break_chained_methods,
             )
 
         # Only unindent chained method dot if this dot starts a new line.
