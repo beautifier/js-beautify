@@ -359,8 +359,6 @@ Tokenizer.prototype._read_string = function(c) {
       resulting_string += this._input.next();
     }
 
-    resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
-
     return this._create_token(TOKEN.STRING, resulting_string);
   }
 
