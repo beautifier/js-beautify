@@ -67,7 +67,7 @@ identifierMatch = re.compile(
     + "])+"
 )
 
-_nonASCIIwhitespace = re.compile(r"[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]")
+_nonASCIIwhitespace = re.compile(r"[\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]")
 
 # Whether a single character denotes a newline.
 newline = re.compile(r"[\n\r\u2028\u2029]")
