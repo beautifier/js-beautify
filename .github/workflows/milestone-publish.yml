@@ -12,18 +12,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 26
           registry-url: https://registry.npmjs.org/
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: 3.11
+          python-version: 3.14
       - name: Set git user
         run: |
           git config --global user.email "github-action@users.noreply.github.com"
