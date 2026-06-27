@@ -1930,7 +1930,20 @@ exports.test_data = {
           '    .sel-@{value} {',
           '        a: b;',
           '    }',
-          '});'
+           '});'
+        ]
+      }, {
+        comment: 'LESS each() - indentation preserved after }); (issue #2380)',
+        unchanged: [
+          '.my-function(@iterator) {',
+          '    each(@iterator, {',
+          '        color: red;',
+          '    });',
+          '',
+          '    .next-rule {',
+          '        color: blue;',
+          '    }',
+          '}'
         ]
       }, {
         comment: 'Ensure simple closing parens do not break behavior',
