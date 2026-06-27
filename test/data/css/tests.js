@@ -1930,16 +1930,25 @@ exports.test_data = {
           '    .sel-@{value} {',
           '        a: b;',
           '    }',
-           '});'
+          '});'
         ]
       }, {
-        comment: 'LESS each() - indentation preserved after }); (issue #2380)',
-        unchanged: [
+        comment: 'LESS each() - indentation after }); (issue #2380)',
+        input: [
+          '.my-function(@iterator) {',
+          'each(@iterator, {',
+          'color: red;',
+          '});',
+          '.next-rule {',
+          'color: blue;',
+          '}',
+          '}'
+        ],
+        output: [
           '.my-function(@iterator) {',
           '    each(@iterator, {',
           '        color: red;',
           '    });',
-          '',
           '    .next-rule {',
           '        color: blue;',
           '    }',
