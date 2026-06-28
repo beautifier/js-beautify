@@ -1955,6 +1955,59 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: 'SCSS each() - indentation after }); (issue #2380)',
+        input: [
+          '@mixin generate-vars($list) {',
+          '@each $item in $list {',
+          '.item-#{$item} {',
+          'color: red;',
+          '}',
+          '}',
+          '.after-mixin {',
+          'color: blue;',
+          '}' 
+        ],
+        output: [
+          '@mixin generate-vars($list) {',
+          '    @each $item in $list {',
+          '        .item-#{$item} {',
+          '            color: red;',
+          '        }',
+          '    }',
+          '    .after-mixin {',
+          '        color: blue;',
+          '    }',
+          '}'
+        ]
+      }, {
+        comment: 'LESS nested mixins - multiple }); in sequence',
+        input: [
+          '.parent {',
+          '.mixin-a({',
+          'prop-a: 1;',
+          '});',
+          '.mixin-b({',
+          'prop-b: 2;',
+          '});',
+          '.sibling {',
+          'prop-c: 3;',
+          '}',
+          '}'
+        ],
+        output: [
+          '.parent {',
+          '    .mixin-a({',
+          '        prop-a: 1;',
+          '    });',
+          '    .mixin-b({',
+          '        prop-b: 2;',
+          '    });',
+          '    .sibling {',
+          '        prop-c: 3;',
+          '    }',
+          '}'
+        ]
+      }, {
         comment: 'Ensure simple closing parens do not break behavior',
         unchanged: [
           'strong {',
