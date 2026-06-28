@@ -3853,6 +3853,17 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Preserves self-closing tag formatting with preserve_self_closing_tags=true",
+    description: "Regression test for https://github.com/beautifier/js-beautify/issues/2376",
+    options: [
+      { name: "preserve_self_closing_tags", value: "true" }
+    ],
+    tests: [{
+      unchanged: '<div>\n    <br/>\n</div>'
+    }, {
+      unchanged: '<svg>\n    <path d="M0 0"/>\n</svg>'
+    }]
+  }, {
     name: "Indenting angular control flow with indent size 2",
     description: "https://github.com/beautify-web/js-beautify/issues/2219",
     template: "^^^ $$$",
