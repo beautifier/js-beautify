@@ -2418,6 +2418,24 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #2045 - Handlebars table helpers should not be treated like HTML table tags.",
+    description: "Handlebars table helpers should stay in place inside HTML tables without triggering optional table end-tag handling.",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "false" }
+    ],
+    tests: [{
+      unchanged: [
+        '<table>',
+        '    <tr>',
+        '        <td>',
+        '            {{#tr}}translated{{/tr}}',
+        '        </td>',
+        '    </tr>',
+        '</table>'
+      ]
+    }]
+  }, {
     name: "Support simple language specific option inheritance/overriding",
     description: "Support simple language specific option inheritance/overriding",
     matrix: [{
