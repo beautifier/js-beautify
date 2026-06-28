@@ -120,6 +120,7 @@ var path = require('path'),
         "max_char": Number, // obsolete since 1.3.5
         "inline": [String, Array],
         "inline_custom_elements": [Boolean],
+        "preserve_self_closing_tags": [Boolean],
         "unformatted": [String, Array],
         "content_unformatted": [String, Array],
         "indent_inner_html": [Boolean],
@@ -173,6 +174,7 @@ var path = require('path'),
         "W": ["--max_char"], // obsolete since 1.3.5
         "d": ["--inline"],
         // no shorthand for "inline_custom_elements"
+        // no shorthand for "preserve_self_closing_tags"
         "U": ["--unformatted"],
         "T": ["--content_unformatted"],
         "I": ["--indent_inner_html"],

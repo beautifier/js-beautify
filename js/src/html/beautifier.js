@@ -375,7 +375,7 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
+      printer.set_space_before_token(raw_token.text[0] === '/' && !this._options.preserve_self_closing_tags, true); // space before />, no space before > when preserving self-closing tags
       if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
