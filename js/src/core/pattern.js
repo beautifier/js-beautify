@@ -34,16 +34,25 @@ function Pattern(input_scanner, parent) {
   this._match_pattern = null;
   this._until_pattern = null;
   this._until_after = false;
+  this._require_until = false;
 
   if (parent) {
     this._starting_pattern = this._input.get_regexp(parent._starting_pattern, true);
     this._match_pattern = this._input.get_regexp(parent._match_pattern, true);
     this._until_pattern = this._input.get_regexp(parent._until_pattern);
     this._until_after = parent._until_after;
+    this._require_until = parent._require_until;
   }
 }
 
 Pattern.prototype.read = function() {
+  if (this._require_until && this._starting_pattern && this._until_pattern) {
+    var until_regexp = this._input.get_regexp(this._until_pattern);
+    until_regexp.lastIndex = this._input.__position;
+    if (!until_regexp.test(this._input.__input)) {
+      return '';
+    }
+  }
   var result = this._input.read(this._starting_pattern);
   if (!this._starting_pattern || result) {
     result += this._input.read(this._match_pattern, this._until_pattern, this._until_after);
@@ -53,6 +62,13 @@ Pattern.prototype.read = function() {
 
 Pattern.prototype.read_match = function() {
   return this._input.match(this._match_pattern);
+};
+
+Pattern.prototype.require_until = function() {
+  var result = this._create();
+  result._require_until = true;
+  result._update();
+  return result;
 };
 
 Pattern.prototype.until_after = function(pattern) {

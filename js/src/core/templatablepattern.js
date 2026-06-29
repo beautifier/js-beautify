@@ -61,12 +61,12 @@ function TemplatablePattern(input_scanner, parent) {
     php: pattern.starting_with(/<\?(?:[= ]|php)/).until_after(/\?>/),
     erb: pattern.starting_with(/<%[^%]/).until_after(/[^%]%>/),
     // django coflicts with handlebars a bit.
-    django: pattern.starting_with(/{%/).until_after(/%}/),
-    django_value: pattern.starting_with(/{{/).until_after(/}}/),
-    django_comment: pattern.starting_with(/{#/).until_after(/#}/),
-    smarty: pattern.starting_with(/{(?=[^}{\s\n])/).until_after(/[^\s\n]}/),
-    smarty_comment: pattern.starting_with(/{\*/).until_after(/\*}/),
-    smarty_literal: pattern.starting_with(/{literal}/).until_after(/{\/literal}/)
+    django: pattern.starting_with(/{%/).until_after(/%}/).require_until(),
+    django_value: pattern.starting_with(/{{/).until_after(/}}/).require_until(),
+    django_comment: pattern.starting_with(/{#/).until_after(/#}/).require_until(),
+    smarty: pattern.starting_with(/{(?=[^}{\s\n])/).until_after(/[^\s\n]}/).require_until(),
+    smarty_comment: pattern.starting_with(/{\*/).until_after(/\*}/).require_until(),
+    smarty_literal: pattern.starting_with(/{literal}/).until_after(/{\/literal}/).require_until()
   };
 }
 TemplatablePattern.prototype = new Pattern();
