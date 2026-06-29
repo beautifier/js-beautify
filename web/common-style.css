@@ -209,16 +209,15 @@ select {
   margin: 5px;
 }
 
-#theme-toggle-wrapper span {
-  margin-left: 10px;
+#theme-text {
   font-size: 1rem;
 }
 
 #theme-toggle-label {
-  display: inline-block;
-  height: 20px;
+  display: flex;
+  justify-content: space-between;
   position: relative;
-  width: 40px;
+  width: 125px;
 }
 
 #theme-toggle-slider {
@@ -230,6 +229,7 @@ select {
   right: 0;
   top: 0;
   transition: .4s;
+  width: 40px;
 }
 
 #theme-toggle-slider:before {
