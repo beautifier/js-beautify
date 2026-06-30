@@ -816,6 +816,15 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // are handled automatically by the beautifier.
   // It assumes parent or ancestor close tag closes all children.
   // https://www.w3.org/TR/html5/syntax.html#optional-tags
+  // Handlebars tags ({{#tag}}, {{/tag}}, etc.) must not participate in
+  // HTML optional end-element logic — otherwise a Handlebars helper like
+  // {{#tr}} is mistaken for the HTML <tr> tag and incorrectly pops it
+  // from the tag stack, breaking indentation inside table rows.
+  if (parser_token.tag_start_char === '{') {
+    parser_token.parent = this._tag_stack.get_parser_token();
+    return;
+  }
+
   if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
     return;
 
