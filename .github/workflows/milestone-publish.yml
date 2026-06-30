@@ -7,12 +7,17 @@ on:
   milestone:
     types: [closed]
 
-
 jobs:
   publish:
+    environment:
+      name: production
+      deployment: false
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Node
@@ -20,6 +25,7 @@ jobs:
         with:
           node-version: 26
           registry-url: https://registry.npmjs.org/
+          package-manager-cache: false  # never use caching in release builds
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -58,7 +64,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
           TWINE_USERNAME: ${{secrets.PYPI_USERNAME}}
           TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}}
         run: |
