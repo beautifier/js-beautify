@@ -3,18 +3,19 @@
 
 name: Release new version
 
-permissions:
-  id-token: write  # Required for OIDC
-  contents: read
-
 on:
   milestone:
     types: [closed]
 
-
 jobs:
   publish:
+    environment:
+      name: production
+      deployment: false
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
     steps:
       - uses: actions/checkout@v7
         with:
