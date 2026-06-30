@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.0.2
+## v2.0.3
 
 ## v2.0.1
 * Removed all usage of six and dropped support for Python 2. ([#2374](https://github.com/beautifier/js-beautify/pull/2374))
