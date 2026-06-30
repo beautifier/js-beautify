@@ -386,6 +386,7 @@ class Beautifier:
                         self._output.add_new_line(True)
                 if self._input.peek() == ")":
                     self._output.trim(True)
+                    self._output.set_indent(self._indentLevel)
                     if self._options.brace_style == "expand":
                         self._output.add_new_line(True)
             elif self._ch == ":":
