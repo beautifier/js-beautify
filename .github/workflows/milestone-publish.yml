@@ -3,6 +3,10 @@
 
 name: Release new version
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 on:
   milestone:
     types: [closed]
@@ -20,6 +24,7 @@ jobs:
         with:
           node-version: 26
           registry-url: https://registry.npmjs.org/
+          package-manager-cache: false  # never use caching in release builds
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -58,7 +63,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
           TWINE_USERNAME: ${{secrets.PYPI_USERNAME}}
           TWINE_PASSWORD: ${{secrets.PYPI_PASSWORD}}
         run: |
