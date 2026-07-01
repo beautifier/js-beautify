@@ -750,7 +750,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
     }
 
     // Don't add a newline before elements that should remain where they are.
-    if (parser_token.tag_name === '!--' && last_token.type === TOKEN.TAG_CLOSE &&
+    if (parser_token.tag_name.indexOf('!--') === 0 && last_token.type === TOKEN.TAG_CLOSE &&
       last_tag_token.is_end_tag && parser_token.text.indexOf('\n') === -1) {
       //Do nothing. Leave comments on same line.
     } else {
@@ -816,7 +816,7 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // are handled automatically by the beautifier.
   // It assumes parent or ancestor close tag closes all children.
   // https://www.w3.org/TR/html5/syntax.html#optional-tags
-  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
+  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent || parser_token.tag_start_char !== '<') {
     return;
 
   }
