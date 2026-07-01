@@ -31,12 +31,32 @@
 var Beautifier = require('./beautifier').Beautifier,
   Options = require('./options').Options;
 
+function normalizeMinifyOutput(text) {
+  return text
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
 function js_beautify(js_source_text, options) {
   var beautifier = new Beautifier(js_source_text, options);
   return beautifier.beautify();
 }
 
+function js_minify(js_source_text, options) {
+  var minify_options = Object.assign({}, options, {
+    indent_size: 0,
+    preserve_newlines: false,
+    max_preserve_newlines: 0,
+    wrap_line_length: 0,
+    indent_with_tabs: false
+  });
+  var result = js_beautify(js_source_text, minify_options);
+  return normalizeMinifyOutput(result);
+}
+
 module.exports = js_beautify;
+module.exports.minify = js_minify;
 module.exports.defaultOptions = function() {
   return new Options();
 };
