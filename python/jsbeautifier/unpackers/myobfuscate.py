@@ -29,7 +29,11 @@
 
 """Deobfuscator for scripts messed up with MyObfuscate.com"""
 
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 import base64
 from urllib.parse import unquote
 
