@@ -377,6 +377,7 @@ Beautifier.prototype.beautify = function() {
       }
       if (this._input.peek() === ')') {
         this._output.trim(true);
+        this._output.set_indent(this._indentLevel);
         if (this._options.brace_style === "expand") {
           this._output.add_new_line(true);
         }
