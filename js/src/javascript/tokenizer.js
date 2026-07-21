@@ -106,7 +106,7 @@ var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
 
   this._patterns.whitespace = this._patterns.whitespace.matching(
-    /\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff/.source,
+    /\u00A0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff/.source,
     /\u2028\u2029/.source);
 
   var pattern_reader = new Pattern(this._input);

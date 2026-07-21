@@ -131,7 +131,7 @@ class TokenizerPatterns(BaseTokenizerPatterns):
         BaseTokenizerPatterns.__init__(self, input_scanner)
 
         self.whitespace = self.whitespace.matching(
-            r"\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff",
+            r"\u00A0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff",
             r"\u2028\u2029",
         )
 

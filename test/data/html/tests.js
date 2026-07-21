@@ -4467,6 +4467,12 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "PR #2459 Mongolian Vowel Separator",
+    description: "",
+    tests: [{
+      unchanged: "<p>ᠬᠠᠷ᠎ᠠ</p>"
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };
