@@ -6,7 +6,12 @@
 """General code for JSBeautifier unpackers infrastructure."""
 
 import pkgutil
-import re
+
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 from jsbeautifier.unpackers import evalbased
 
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!

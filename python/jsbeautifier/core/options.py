@@ -23,7 +23,12 @@
 # SOFTWARE.
 
 import copy
-import re
+
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 from collections import namedtuple
 
 

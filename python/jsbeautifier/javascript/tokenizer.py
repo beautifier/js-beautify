@@ -22,7 +22,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import re
+# This is done due to the build system being how it is
+try:
+    re = __import__("regex")
+except ImportError:
+    import re
 from ..core.inputscanner import InputScanner
 from ..core.tokenizer import TokenTypes as BaseTokenTypes
 from ..core.tokenizer import Tokenizer as BaseTokenizer

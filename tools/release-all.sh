@@ -21,7 +21,7 @@ release_python()
     cd python
     # python setup.py register -r pypi
     cp setup-js.py setup.py || exit 1
-    $SCRIPT_DIR/python -m pip install setuptools black
+    $SCRIPT_DIR/python -m pip install setuptools black "regex>=2026.2.19"
     $SCRIPT_DIR/python setup.py sdist bdist_wheel || exit 1
     cp setup-css.py setup.py || exit 1
     $SCRIPT_DIR/python setup.py sdist bdist_wheel || exit 1

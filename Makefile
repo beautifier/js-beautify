@@ -94,7 +94,7 @@ python/dist/*: $(BUILD_DIR)/python $(BUILD_DIR)/generate $(wildcard python/**/*.
 	$(SCRIPT_DIR)/python-rel pip install -U python/dist/cssbeautifier*
 	$(SCRIPT_DIR)/python-rel pip install -U python/dist/jsbeautifier*
 
-# python package generation
+# node package generation
 build/*.tgz: js/lib/*.js
 	@echo Building node package...
 	mkdir -p build/node_modules
@@ -146,8 +146,8 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv build/python-rel
 	$(SCRIPT_DIR)/python-dev python -m pip install --upgrade pip || exit 0
 	$(SCRIPT_DIR)/python-rel python -m pip install --upgrade pip || exit 0
-	$(SCRIPT_DIR)/python-dev pip install setuptools black
-	$(SCRIPT_DIR)/python-rel pip install setuptools
+	$(SCRIPT_DIR)/python-dev pip install setuptools "regex>=2026.2.19" black
+	$(SCRIPT_DIR)/python-rel pip install setuptools "regex>=2026.2.19"
 	@touch $(BUILD_DIR)/virtualenv
 
 
