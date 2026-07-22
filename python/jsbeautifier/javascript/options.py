@@ -86,6 +86,7 @@ class BeautifierOptions(BaseOptions):
         )
         self.unescape_strings = self._get_boolean("unescape_strings")
         self.e4x = self._get_boolean("e4x")
+        self.qml = self._get_boolean("qml")
         self.comma_first = self._get_boolean("comma_first")
         self.operator_position = self._get_selection(
             "operator_position", OPERATOR_POSITION

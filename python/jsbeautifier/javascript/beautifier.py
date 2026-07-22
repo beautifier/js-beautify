@@ -1098,6 +1098,7 @@ class Beautifier:
                 self._flags.inline_frame
                 or self._flags.last_token.text == "else "
                 or self._flags.last_token.text == "export"
+                or (self._options.qml and self._flags.last_token.text == "property")
             ):
                 prefix = "SPACE"
             else:
