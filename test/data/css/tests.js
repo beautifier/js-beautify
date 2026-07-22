@@ -1978,6 +1978,18 @@ exports.test_data = {
           '    border: @border-width solid @color;',
           '}'
         ]
+      }, {
+        comment: 'Issue #2380 - each() mixin should not break indentation of subsequent rules',
+        unchanged: [
+          '.my-function(@iterator) {',
+          '    each(@iterator, {',
+          '        color: red;',
+          '    });',
+          '    .correct-indentation {',
+          '        color: blue;',
+          '    }',
+          '}'
+        ]
       }]
     }, {
       name: "Preserve Newlines and max number of new lines",
