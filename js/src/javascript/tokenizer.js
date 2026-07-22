@@ -361,6 +361,32 @@ Tokenizer.prototype._read_string = function(c) {
 
     resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
 
+    if (c === '`') {
+      // Escape trailing whitespace characters that appear before a newline
+      // inside a template literal. Without this, editors that strip trailing
+      // whitespace (e.g. VS Code) would silently corrupt the template string's
+      // value.  The opening and closing backticks are at positions 0 and last,
+      // so we only touch the content between them.
+      //
+      // Example (issue #2390): a packer may encode \n as a real newline:
+      //   `[ \t<NL>\f\r]`  →  `[ \t\n\f\r]`   (semantically identical)
+      resulting_string = resulting_string.replace(
+        /([^\S\n]+)(\n)/g,
+        function(match, trailing_ws, newline) {
+          // Convert each trailing whitespace character to its escape sequence
+          // so that editors (e.g. VS Code) that strip trailing whitespace on
+          // save will not corrupt the template string's value.
+          var escaped = trailing_ws
+            .replace(/\t/g, '\\t')
+            .replace(/\f/g, '\\f')
+            .replace(/\v/g, '\\v')
+            .replace(/\u00a0/g, '\\u00a0')
+            .replace(/ /g, '\\x20');
+          return escaped + newline;
+        }
+      );
+    }
+
     return this._create_token(TOKEN.STRING, resulting_string);
   }
 

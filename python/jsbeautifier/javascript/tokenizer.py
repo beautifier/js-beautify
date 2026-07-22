@@ -329,6 +329,22 @@ class Tokenizer(BaseTokenizer):
                 resulting_string += self._input.next()
 
             resulting_string = re.sub(self.acorn.allLineBreaks, "\n", resulting_string)
+            if c == "`":
+
+                def escape_ws(match):
+                    ws = match.group(1)
+                    ws = (
+                        ws.replace("\t", "\\t")
+                        .replace("\f", "\\f")
+                        .replace("\v", "\\v")
+                        .replace("\u00a0", "\\u00a0")
+                        .replace(" ", "\\x20")
+                    )
+                    return ws + match.group(2)
+
+                resulting_string = re.sub(
+                    r"([^\S\n]+)(\n)", escape_ws, resulting_string
+                )
 
             return self._create_token(TOKEN.STRING, resulting_string)
 

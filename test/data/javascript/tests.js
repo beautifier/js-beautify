@@ -162,6 +162,19 @@ exports.test_data = {
         { unchanged: 'a = "This is a continuation\\\\\nstring."' },
         { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
         {
+          comment: 'Issue #2390 - escape trailing whitespace before real newlines in template literals',
+          fragment: true,
+          input: 'let pattern=`[ \t\n\\\\f\\\\r]`',
+          output: 'let pattern = `[\\\\x20\\\\t\n\\\\f\\\\r]`'
+        }, {
+          comment: 'Issue #2390 - tab-only trailing whitespace is escaped',
+          fragment: true,
+          input: '`foo\t\nbar`',
+          output: '`foo\\\\t\nbar`'
+        }, {
+          comment: 'Issue #2390 - template literal with newlines but no trailing whitespace should be unchanged',
+          unchanged: '`line1\nline2\nline3`'
+        }, {
           comment: 'Tests for #1030',
           unchanged: [
             'const composeUrl = (host) => {',
