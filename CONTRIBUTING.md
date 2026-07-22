@@ -11,7 +11,8 @@ Fixes and enhancements are totally welcome.  We prefer you to file an issue befo
 
 * bash
 * make
-* nodejs - v16.x or greater (with npm)
+* nodejs - v20.x or greater (with npm)
+  * Refer to `devEngines` in the `package.json` for exact versions
 * python - v3.7 or greater (with pip)
 
 If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help.
