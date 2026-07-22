@@ -134,6 +134,7 @@ var path = require('path'),
         "outfile": path,
         "replace": Boolean,
         "quiet": Boolean,
+        "minify": Boolean,
         "type": ["js", "css", "html"],
         "config": path,
         "editorconfig": Boolean
@@ -357,6 +358,7 @@ function usage(err) {
         '  -r, --replace    Write output in-place, replacing input',
         '  -o, --outfile    Write output to file (default stdout)',
         '  --config         Path to config file',
+        '  --minify         Minify to one line output (whitespace reduction)',
         '  --type           [js|css|html] ["js"]',
         '  -q, --quiet      Suppress logging to stdout',
         '  -h, --help       Show this help',
@@ -490,7 +492,15 @@ function processInputSync(filepath) {
 
 function makePretty(fileType, code, config, outfile, callback) {
     try {
-        var pretty = beautify[fileType](code, config);
+        var pretty;
+        if (config.minify) {
+            if (typeof beautify[fileType].minify !== 'function') {
+                throw new Error('Minify is not available for type: ' + fileType);
+            }
+            pretty = beautify[fileType].minify(code, config);
+        } else {
+            pretty = beautify[fileType](code, config);
+        }
 
         callback(null, pretty, outfile, config);
     } catch (ex) {
