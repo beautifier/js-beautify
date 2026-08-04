@@ -19,7 +19,7 @@ ${PROJECT_DIR}/node_modules/.bin/npm $@
 # until this is fixed we ned to sed.
 # https://npm.community/t/some-packages-have-dist-tarball-as-http-and-not-https/285/16
 if [ -f package-lock.json ]; then
-    if [ "`uname`" = "Darwin" ]; then
+    if [ "`uname`" = "Darwin" ] && [ -z "$USE_GNU_SED" ]; then
         sed -i '' -e 's/http:\/\//https:\/\//g' package-lock.json
     else
         sed -i -e 's/http:\/\//https:\/\//g' package-lock.json
