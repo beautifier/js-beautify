@@ -378,6 +378,8 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
       printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
       if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
+      } else if (this._is_wrap_attributes_preserve && raw_token.newlines) {
+        printer.print_preserved_newlines(raw_token);
       }
     }
     printer.print_token(raw_token);

@@ -1207,6 +1207,49 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #1707 -- Preserve newline before closing bracket",
+    description: "",
+    template: "^^^ $$$",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'preserve-aligned'" }
+      ],
+      indent_attr: '     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" }
+      ],
+      indent_attr: '    '
+    }],
+    tests: [{
+      input: [
+        '<tag',
+        ' attr1="val1"',
+        ' attr2="val2"',
+        '>content</tag>'
+      ],
+      output: [
+        '<tag',
+        '^^^indent_attr$$$attr1="val1"',
+        '^^^indent_attr$$$attr2="val2"',
+        '>content</tag>'
+      ]
+    }, {
+      input: [
+        '<img',
+        ' src="image.png"',
+        '/>'
+      ],
+      output: [
+        '<img',
+        '^^^indent_attr$$$src="image.png"',
+        '/>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: '<tag attr="value">content</tag>'
+    }]
+  }, {
     name: "Test wrap_attributes_min_attrs with force/force-xx options",
     description: "",
     matrix: [{
