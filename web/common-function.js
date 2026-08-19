@@ -86,6 +86,7 @@ function read_settings_from_cookie() {
   $('#e4x').prop('checked', Cookies.get('e4x') === 'on');
   $('#language').val(any(Cookies.get('language'), 'js'));
   $('#indent-empty-lines').prop('checked', Cookies.get('indent-empty-lines') === 'on');
+  $('#remove-comments').prop('checked', Cookies.get('remove-comments') === 'on');
 }
 
 function store_settings_to_cookie() {
@@ -112,6 +113,7 @@ function store_settings_to_cookie() {
   Cookies.set('e4x', $('#e4x').prop('checked') ? 'on' : 'off', opts);
   Cookies.set('language', $('#language').val(), opts);
   Cookies.set('indent-empty-lines', $('#indent-empty-lines').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('remove-comments', $('#remove-comments').prop('checked') ? 'on' : 'off', opts);
 
 }
 
@@ -251,6 +253,10 @@ function beautify() {
     output = the.beautifier.js(source, opts);
   }
 
+  if ($('#remove-comments').prop('checked')) {
+    output = remove_comments(output, language);
+  }
+
   if (the.editor) {
     the.editor.setValue(output);
   } else {
@@ -264,6 +270,122 @@ function beautify() {
   set_editor_mode();
 
   the.beautify_in_progress = false;
+}
+
+function remove_comments(source, language) {
+  if (language === 'html') {
+    // Scan character-by-character to find <!-- ... --> comment markers.
+    // This correctly handles multiline comments, inline comments, and CRLF line endings.
+    var htmlResult = '';
+    var hi = 0;
+    var hlen = source.length;
+
+    while (hi < hlen) {
+      // Detect comment open: <!--
+      if (source[hi] === '<' && hi + 3 < hlen &&
+          source[hi + 1] === '!' && source[hi + 2] === '-' && source[hi + 3] === '-') {
+        var hend = source.indexOf('-->', hi + 4);
+        if (hend === -1) {
+          hi = hlen; // unterminated comment — drop the rest
+        } else {
+          hi = hend + 3; // skip past '-->'
+        }
+        continue;
+      }
+      htmlResult += source[hi];
+      hi++;
+    }
+
+    // Remove lines that are blank or whitespace-only after comment removal.
+    // Also trim trailing whitespace left on lines where an inline comment was removed.
+    // Handle both LF (\n) and CRLF (\r\n) line endings.
+    return htmlResult
+      .replace(/[ \t]+(\r?\n)/g, '$1')   // strip trailing whitespace before line endings
+      .replace(/^[ \t]*\r?\n/gm, '');    // remove now-blank lines
+  }
+
+  // For JS and CSS: strip /* ... */ block comments and (JS-only) // line comments
+  // while preserving string literals and regex literals.
+  var result = '';
+  var i = 0;
+  var len = source.length;
+
+  while (i < len) {
+    var ch = source[i];
+
+    // Single-quoted string
+    if (ch === "'") {
+      var j = i + 1;
+      while (j < len) {
+        if (source[j] === '\\') { j += 2; continue; }
+        if (source[j] === "'") { j++; break; }
+        j++;
+      }
+      result += source.slice(i, j);
+      i = j;
+      continue;
+    }
+
+    // Double-quoted string
+    if (ch === '"') {
+      var k = i + 1;
+      while (k < len) {
+        if (source[k] === '\\') { k += 2; continue; }
+        if (source[k] === '"') { k++; break; }
+        k++;
+      }
+      result += source.slice(i, k);
+      i = k;
+      continue;
+    }
+
+    // Template literal
+    if (ch === '`') {
+      var m = i + 1;
+      while (m < len) {
+        if (source[m] === '\\') { m += 2; continue; }
+        if (source[m] === '`') { m++; break; }
+        m++;
+      }
+      result += source.slice(i, m);
+      i = m;
+      continue;
+    }
+
+    // Possible comment start
+    if (ch === '/' && i + 1 < len) {
+      var next = source[i + 1];
+
+      // Block comment /* ... */
+      if (next === '*') {
+        var end = source.indexOf('*/', i + 2);
+        if (end === -1) {
+          // Unterminated block comment — drop the rest
+          i = len;
+        } else {
+          i = end + 2;
+        }
+        continue;
+      }
+
+      // Line comment // ... (JS only, not CSS)
+      if (next === '/' && language !== 'css') {
+        var nl = source.indexOf('\n', i + 2);
+        if (nl === -1) {
+          i = len;
+        } else {
+          i = nl; // keep the newline itself
+        }
+        continue;
+      }
+    }
+
+    result += ch;
+    i++;
+  }
+
+  // Remove lines that are now blank (only whitespace) after comment removal
+  return result.replace(/^[ \t]*\n/gm, '');
 }
 
 function mergeObjects(allOptions, additionalOptions) {
