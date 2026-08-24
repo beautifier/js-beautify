@@ -214,6 +214,18 @@ select {
   font-size: 1rem;
 }
 
+#theme-toggle-btn {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+#theme-toggle-btn:focus+#theme-toggle-slider {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
 #theme-toggle-label {
   display: inline-block;
   height: 20px;
