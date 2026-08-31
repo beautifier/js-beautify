@@ -162,7 +162,7 @@ exports.test_data = {
         comment: 'Issue: unescape_strings must not unescape \\\\u2028/\\\\u2029 - doing so embeds a raw line terminator in the string, producing invalid JS',
         unchanged: 'i.exports = "\\\\t\\\\n\\\\x0B\\\\f\\\\r \\\\u2028\\\\u2029"'
       }]
-      },{
+      }, {
       name: "Test template and continuation strings",
       description: "",
       tests: [
