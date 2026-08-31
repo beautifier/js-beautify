@@ -510,6 +510,11 @@ function unescape_string(s) {
       } else if (escaped >= 0x00 && escaped < 0x20) {
         // leave 0x00...0x1f escaped
         out += '\\' + matched[0];
+      } else if (escaped === 0x2028 || escaped === 0x2029) {
+        // leave line separator (U+2028) and paragraph separator (U+2029) escaped.
+        // Unescaping these embeds a raw line terminator inside the string literal,
+        // which produces invalid/uninterpretable JavaScript.
+        out += '\\' + matched[0];
       } else if (escaped > 0x10FFFF) {
         // If the escape sequence is out of bounds, keep the original sequence and continue conversion
         out += '\\' + matched[0];
