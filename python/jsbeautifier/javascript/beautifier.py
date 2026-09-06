@@ -979,6 +979,16 @@ class Beautifier:
                 self._flags.last_token.text in ["+", "-"]
                 and self._last_last_text == ":"
                 and self._flags.parent.mode == MODE.ObjectLiteral
+            ) and not (
+                # don't wrap between a unary +/- operator and the value it prefixes (#2251)
+                self._flags.last_token.text in ["+", "-"]
+                and self._flags.last_token.previous
+                and (
+                    self._flags.last_token.previous.type
+                    in [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]
+                    or self._flags.last_token.previous.text in Tokenizer.line_starters
+                    or self._flags.last_token.previous.text == ","
+                )
             ):
                 self.allow_wrap_or_preserved_newline(current_token)
 
