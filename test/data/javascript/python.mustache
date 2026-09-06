@@ -104,6 +104,14 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"')
         test_fragment('"\\u{0072}\\u{016B}\\u{110000}\\u{137}\\u012B\\x74\\u{0000069}\\u{073}"', '"\u0072\u016B\\u{110000}\u0137\u012B\u0074\u0069\u0073"')
 
+        # #2267: the line (0x2028) and paragraph (0x2029) separators must stay
+        # escaped, otherwise the unescaped characters break the string literal
+        bt("'\\u2028'", "'\\u2028'")
+        bt("'\\u2029'", "'\\u2029'")
+        bt('"\\u2028\\u2029"', '"\\u2028\\u2029"')
+        bt("'\\u{2028}'", "'\\u{2028}'")
+        bt("'\\u{2029}'", "'\\u{2029}'")
+
         bt('a = /\\s+/')
         test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"')
