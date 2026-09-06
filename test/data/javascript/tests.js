@@ -5691,6 +5691,10 @@ exports.test_data = {
         { fragment: true, unchanged: "<!--\nsomething();\n-->" },
         { fragment: true, input: "<!--\nif(i<0){bla();}\n-->", output: "<!--\nif (i < 0) {\n    bla();\n}\n-->" },
 
+        { comment: 'issue #1835', fragment: true, input: 'alert(1)<!--commented', output: 'alert(1) <!--commented' },
+        { comment: 'issue #1835', fragment: true, input: 'var x=1;<!-- comment\nfoo();', output: 'var x = 1; <!-- comment\nfoo();' },
+        { comment: 'issue #1835', fragment: true, unchanged: 'foo(); <!-- comment\n-->' },
+
         { input: '{foo();--bar;}', output: '{\n    foo();\n    --bar;\n}' },
         { input: '{foo();++bar;}', output: '{\n    foo();\n    ++bar;\n}' },
         { input: '{--bar;}', output: '{\n    --bar;\n}' },
