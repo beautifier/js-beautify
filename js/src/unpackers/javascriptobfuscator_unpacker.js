@@ -52,8 +52,11 @@ var JavascriptObfuscator = {
         var strings = JavascriptObfuscator._smart_split(matches[2]);
         str = str.substring(matches[0].length);
         for (var k in strings) {
-          str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'),
-            JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k])));
+          var replacement = JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k]));
+          // Escape `$` so it is not interpreted as a replacement pattern
+          // (e.g. `$&`, `$'`, `$1`) by String.replace(). See #1610.
+          replacement = replacement.split('$').join('$$');
+          str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), replacement);
         }
       }
     }
