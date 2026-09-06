@@ -894,7 +894,12 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
     if (!this.start_of_object_property() && !(
         // start of object property is different for numeric values with +/- prefix operators
-        in_array(this._flags.last_token.text, ['+', '-']) && this._last_last_text === ':' && this._flags.parent.mode === MODE.ObjectLiteral)) {
+        in_array(this._flags.last_token.text, ['+', '-']) && this._last_last_text === ':' && this._flags.parent.mode === MODE.ObjectLiteral) &&
+      // don't wrap between a unary +/- operator and the value it prefixes (#2251)
+      !(in_array(this._flags.last_token.text, ['+', '-']) && this._flags.last_token.previous &&
+        (in_array(this._flags.last_token.previous.type, [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]) ||
+          in_array(this._flags.last_token.previous.text, line_starters) ||
+          this._flags.last_token.previous.text === ','))) {
       this.allow_wrap_or_preserved_newline(current_token);
     }
   }
