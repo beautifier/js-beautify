@@ -484,6 +484,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
             '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
 
+        // #2267: the line (0x2028) and paragraph (0x2029) separators must stay
+        // escaped, otherwise the unescaped characters break the string literal
+        bt("'\\u2028'", "'\\u2028'");
+        bt("'\\u2029'", "'\\u2029'");
+        bt('"\\u2028\\u2029"', '"\\u2028\\u2029"');
+        bt("'\\u{2028}'", "'\\u{2028}'");
+        bt("'\\u{2029}'", "'\\u{2029}'");
+
         // For error case, return the string unchanged
         test_fragment(
             '"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',

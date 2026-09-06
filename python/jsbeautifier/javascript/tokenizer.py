@@ -616,6 +616,10 @@ class Tokenizer(BaseTokenizer):
             elif escaped >= 0x00 and escaped < 0x20:
                 # leave 0x00...0x1f escaped
                 out += "\\" + matched.group(0)
+            elif escaped == 0x2028 or escaped == 0x2029:
+                # leave the line (0x2028) and paragraph (0x2029) separators
+                # escaped, otherwise they break the string literal (#2267)
+                out += "\\" + matched.group(0)
             elif escaped > 0x10FFFF:
                 # If the escape sequence is out of bounds, keep the original sequence and continue conversion
                 out += "\\" + matched.group(0)
