@@ -297,7 +297,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
 
     this._input.back();
 
-  } else if (c === '<' && this._is_first_token()) {
+  } else if (c === '<') {
     resulting_string = this.__patterns.html_comment_start.read();
     if (resulting_string) {
       while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
