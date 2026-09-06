@@ -54,6 +54,13 @@ class TestJavascriptObfuscator(unittest.TestCase):
             "var i;for(i=0;i<10;++i){alert" '("t\'est");} ;',
         )
 
+        # Regression test for #1610: a literal `$` in a replaced value must be
+        # preserved and must not swallow the rest of the input.
+        decodeto(
+            'var _0xbe98=["$"];\nvar a={};a[_0xbe98[0]]=1;',
+            '\nvar a={};a["$"]=1;',
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

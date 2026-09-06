@@ -95,4 +95,37 @@ describe('web/common-function.js', function() {
         '/* encoded */\n\njavascript:var a=1');
     });
   });
+
+  describe('JavascriptObfuscator.unpack', function() {
+    // Regression test for #1610: replacement strings containing `$` were
+    // interpreted as special `$`-patterns by String.replace(), corrupting the
+    // output (e.g. `$'` was replaced with the rest of the input).
+    it('replaces string array references literally when values contain $', function() {
+      var input = [
+        'var _0xbe98 = ["\\x63\\x75\\x72\\x72\\x65\\x6e\\x63\\x79\\x53\\x79\\x6d\\x62\\x6f\\x6c", "\\x24"];',
+        'var a = {};',
+        "a['\\x61'] = '\\x31';",
+        "a['\\x62'] = 0x2;",
+        'a[_0xbe98[0]] = _0xbe98[1];',
+        "a['\\x63'] = 0x3;"
+      ].join('\n');
+      var expected = [
+        'var a = {};',
+        "a['\\x61'] = '\\x31';",
+        "a['\\x62'] = 0x2;",
+        "a['currencySymbol'] = '$';",
+        "a['\\x63'] = 0x3;"
+      ].join('\n');
+      assert.equal(common.JavascriptObfuscator.unpack(input), '\n' + expected);
+    });
+
+    it('does not interpret $ patterns ($&, $1, etc.) in replacement values', function() {
+      var input = 'var _0xabc=["\\x24\\x26"];\nx[_0xabc[0]]=1;';
+      assert.equal(common.JavascriptObfuscator.unpack(input), "\nx['$&']=1;");
+    });
+
+    it('passes through non-packed code unchanged', function() {
+      assert.equal(common.JavascriptObfuscator.unpack('var a=1;'), 'var a=1;');
+    });
+  });
 });
