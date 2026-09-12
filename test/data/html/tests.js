@@ -1791,6 +1791,154 @@ exports.test_data = {
       }
     ]
   }, {
+    name: "Issue #2045 - Handlebars helpers must not be treated as HTML tags",
+    description: "Helpers whose names match HTML tags (tr, p, table, ...) keep nested indent; real HTML table tags still indent correctly",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "true" }
+    ],
+    tests: [{
+        comment: "Zulip-style {{#tr}} helper inside a table cell (issue repro)",
+        unchanged: [
+          '<table>',
+          '    <tr>',
+          '        <td>',
+          '            {{#tr}}translated{{/tr}}',
+          '        </td>',
+          '    </tr>',
+          '</table>'
+        ]
+      }, {
+        comment: "Real HTML <tr> tags must keep correct table indentation (no regression)",
+        input_: [
+          '<table>',
+          '<tr>',
+          '<td>cell</td>',
+          '</tr>',
+          '<tr>',
+          '<td>cell2</td>',
+          '</tr>',
+          '</table>'
+        ],
+        output: [
+          '<table>',
+          '    <tr>',
+          '        <td>cell</td>',
+          '    </tr>',
+          '    <tr>',
+          '        <td>cell2</td>',
+          '    </tr>',
+          '</table>'
+        ]
+      }, {
+        comment: "Consecutive HTML <tr> optional end tags still indent as table rows",
+        input_: [
+          '<table>',
+          '<tr>',
+          '<td>a</td>',
+          '<tr>',
+          '<td>b</td>',
+          '</table>'
+        ],
+        output: [
+          '<table>',
+          '    <tr>',
+          '        <td>a</td>',
+          '    <tr>',
+          '        <td>b</td>',
+          '</table>'
+        ]
+      }, {
+        comment: "Handlebars {{#p}} helper inside a paragraph must not pop the HTML <p>",
+        input_: [
+          '<p>',
+          '{{#p}}hello{{/p}}',
+          '</p>'
+        ],
+        output: [
+          '<p>',
+          '    {{#p}}hello{{/p}}',
+          '</p>'
+        ]
+      }, {
+        comment: "Handlebars {{#table}} helper inside a table must not pop the HTML <table>",
+        input_: [
+          '<table>',
+          '{{#table}}',
+          '<tr>',
+          '<td>x</td>',
+          '</tr>',
+          '{{/table}}',
+          '</table>'
+        ],
+        output: [
+          '<table>',
+          '    {{#table}}',
+          '        <tr>',
+          '            <td>x</td>',
+          '        </tr>',
+          '    {{/table}}',
+          '</table>'
+        ]
+      }, {
+        comment: "HTML <div> inside {{#p}} must not close the HTML <p> or discard the helper",
+        input_: [
+          '<p>',
+          '{{#p}}',
+          '<div>x</div>',
+          '{{/p}}',
+          '</p>'
+        ],
+        output: [
+          '<p>',
+          '    {{#p}}',
+          '        <div>x</div>',
+          '    {{/p}}',
+          '</p>'
+        ]
+      }, {
+        comment: "HTML <li> inside {{#li}} must not pop the outer list item",
+        input_: [
+          '<ul>',
+          '<li>',
+          '{{#li}}',
+          '<li>inner</li>',
+          '{{/li}}',
+          '</li>',
+          '</ul>'
+        ],
+        output: [
+          '<ul>',
+          '    <li>',
+          '        {{#li}}',
+          '            <li>inner</li>',
+          '        {{/li}}',
+          '    </li>',
+          '</ul>'
+        ]
+      }, {
+        comment: "HTML <tr> inside {{#tr}} must not pop the Handlebars helper from the tag stack",
+        input_: [
+          '<table>',
+          '{{#tr}}',
+          '<tr>',
+          '<td>x</td>',
+          '</tr>',
+          '{{/tr}}',
+          '</table>'
+        ],
+        output: [
+          '<table>',
+          '    {{#tr}}',
+          '        <tr>',
+          '            <td>x</td>',
+          '        </tr>',
+          '    {{/tr}}',
+          '</table>'
+        ]
+      }
+    ]
+  }, {
     name: "Handlebars Else If, Each, and Inverted Section tag indenting",
     description: "Handlebar Else If, Each, and Inverted Section handling tags should be newlined after formatted tags",
     template: "^^^ $$$",
