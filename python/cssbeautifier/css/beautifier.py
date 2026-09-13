@@ -534,10 +534,14 @@ class Beautifier:
                 self.print_string(self._ch)
             elif self._ch == "=":
                 # no whitespace before or after
-                self.eatWhitespace()
-                self.print_string("=")
-                if bool(whitespaceChar.search(self._ch)):
-                    self._ch = ""
+                if previous_ch in ("=", "!", "<", ">"):
+                    # scss comparison operators (==, !=, <=, >=) keep the space after them
+                    self.print_string("=")
+                else:
+                    self.eatWhitespace()
+                    self.print_string("=")
+                    if bool(whitespaceChar.search(self._ch)):
+                        self._ch = ""
             elif self._ch == "!" and not (self._input.lookBack("\\")):
                 # !important
                 self._output.space_before_token = True

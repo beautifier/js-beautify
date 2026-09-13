@@ -520,10 +520,15 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(isAfterSpace);
       this.print_string(this._ch);
     } else if (this._ch === '=') { // no whitespace before or after
-      this.eatWhitespace();
-      this.print_string('=');
-      if (whitespaceChar.test(this._ch)) {
-        this._ch = '';
+      if (previous_ch === '=' || previous_ch === '!' || previous_ch === '<' || previous_ch === '>') {
+        // scss comparison operators (==, !=, <=, >=) keep the space after them
+        this.print_string('=');
+      } else {
+        this.eatWhitespace();
+        this.print_string('=');
+        if (whitespaceChar.test(this._ch)) {
+          this._ch = '';
+        }
       }
     } else if (this._ch === '!' && !this._input.lookBack("\\")) { // !important
       this._output.space_before_token = true;

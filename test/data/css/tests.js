@@ -1519,6 +1519,32 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: "#2223 - Do not remove space after scss comparison operators",
+        unchanged: [
+          '@if $positions == 10 {',
+          '    .a {',
+          '        left: $i * if($i != $positions, 10%, 15%);',
+          '        top: if($a >= $b, 1px, 2px);',
+          '        bottom: if($a <= $b, 1px, 2px);',
+          '    }',
+          '}'
+        ]
+      }, {
+        input: [
+          '@if $x ==10 {',
+          '    a[data-x = "y"] {',
+          '        color: red;',
+          '    }',
+          '}'
+        ],
+        output: [
+          '@if $x ==10 {',
+          '    a[data-x="y"] {',
+          '        color: red;',
+          '    }',
+          '}'
+        ]
+      }, {
         comment: "#2051 - css format removes space after quoted value",
         unchanged: [
           'q {',
