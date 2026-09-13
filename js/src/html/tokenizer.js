@@ -199,7 +199,10 @@ Tokenizer.prototype._read_open = function(c, open_token) {
   var resulting_string = null;
   var token = null;
   if (!open_token || open_token.type === TOKEN.CONTROL_FLOW_OPEN) {
-    if (c === '<') {
+    if (c === '<' && this._input.testChar(/[\s<]/, 1)) {
+      // A tag name can not start with whitespace or '<', so this '<' is text (e.g. "a < b")
+      token = this._create_token(TOKEN.TEXT, this._input.next());
+    } else if (c === '<') {
 
       resulting_string = this._input.next();
       if (this._input.peek() === '/') {
