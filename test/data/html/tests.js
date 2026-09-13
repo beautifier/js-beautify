@@ -2265,6 +2265,48 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #1646 -- Unencoded < in text",
+    description: "A < followed by whitespace or another < does not start a tag",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<!doctype html>',
+        '',
+        '<html>',
+        '',
+        '<body>',
+        '    <div>',
+        '        <button id="test">test < test</button>',
+        '    </div>',
+        '</body>',
+        '',
+        '</html>'
+      ]
+    }, {
+      input: '<p>a < b</p><p>c > d</p><p>e</p>',
+      output: [
+        '<p>a < b</p>',
+        '<p>c > d</p>',
+        '<p>e</p>'
+      ]
+    }, {
+      input: '<div><p>1 < 2 and 3 > 2</p><p>next</p></div>',
+      output: [
+        '<div>',
+        '    <p>1 < 2 and 3 > 2</p>',
+        '    <p>next</p>',
+        '</div>'
+      ]
+    }, {
+      input: '<p>x <</p><p>y</p>',
+      output: [
+        '<p>x <</p>',
+        '<p>y</p>'
+      ]
+    }, {
+      unchanged: '<span>a << b >> c</span>'
+    }]
+  }, {
     name: "Single line comment after closing tag",
     description: "Keep single line comments as they are after closing tags",
     options: [],
