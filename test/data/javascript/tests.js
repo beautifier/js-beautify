@@ -112,6 +112,61 @@ exports.test_data = {
     { name: "jslint_happy", value: "false" }
   ],
   groups: [{
+      name: "Preserve statement boundaries before logical not",
+      description: "Issue #1694",
+      matrix: [{
+        options: [{ name: "preserve_newlines", value: "true" }]
+      }, {
+        options: [{ name: "preserve_newlines", value: "false" }]
+      }],
+      tests: [{
+        input: 'var a = true\n!function foo(b) { a = b; }(false)',
+        output: 'var a = true\n! function foo(b) {\n    a = b;\n}(false)'
+      }, {
+        unchanged: 'a\n!b'
+      }, {
+        unchanged: 'a++\n!b'
+      }, {
+        input: 'var a = true\n/* note */!a',
+        output: 'var a = true\n/* note */\n!a'
+      }, {
+        input: 'a\n/* note */!b',
+        output: 'a\n/* note */\n!b'
+      }, {
+        unchanged: 'return /* note */ !x'
+      }, {
+        input: 'function f() { return\n!false; }',
+        output: 'function f() {\n    return\n    !false;\n}'
+      }, {
+        input: 'function f() { if (true) return\n!false; }',
+        output: 'function f() {\n    if (true) return\n    !false;\n}'
+      }, {
+        input: 'function f() { if (false) return; else return\n!false; }',
+        output: 'function f() {\n    if (false) return;\n    else return\n    !false;\n}'
+      }, {
+        unchanged: 'return !x'
+      }, {
+        unchanged: 'x = !y'
+      }, {
+        unchanged: 'for (; !x; !y) {}'
+      }]
+    }, {
+      name: "Logical not inside arrays without preserved newlines",
+      options: [{ name: "preserve_newlines", value: "false" }],
+      tests: [{
+        input: '[\n!x]',
+        output: '[!x]'
+      }, {
+        input: '[[\n!x]]',
+        output: '[\n    [!x]\n]'
+      }, {
+        input: '[x,\n!y]',
+        output: '[x, !y]'
+      }, {
+        input: 'var a = [\n!x]',
+        output: 'var a = [!x]'
+      }]
+    }, {
       name: "Unicode Support",
       description: "",
       tests: [{
