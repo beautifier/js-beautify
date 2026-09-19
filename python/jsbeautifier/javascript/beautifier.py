@@ -36,6 +36,20 @@ def default_options():
     return BeautifierOptions()
 
 
+def has_newline_before(token):
+    if token.newlines:
+        return True
+    if token.comments_before:
+        index = 0
+        comment = token.comments_before.peek(index)
+        while comment:
+            if comment.newlines or re.search(r"[\n\r\u2028\u2029]", comment.text):
+                return True
+            index += 1
+            comment = token.comments_before.peek(index)
+    return False
+
+
 class BeautifierFlags:
     def __init__(self, mode):
         self.mode = mode
@@ -473,7 +487,11 @@ class Beautifier:
             self._flags.last_token.type == TOKEN.WORD
             and self._flags.mode == MODE.BlockStatement
             and not self._flags.in_case
-            and not (current_token.text == "--" or current_token.text == "++")
+            and not (
+                current_token.text == "--"
+                or current_token.text == "++"
+                or (current_token.text == "!" and has_newline_before(current_token))
+            )
             and self._last_last_text != "function"
             and current_token.type != TOKEN.WORD
             and current_token.type != TOKEN.RESERVED
@@ -1315,6 +1333,20 @@ class Beautifier:
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
+        elif (
+            current_token.text == "!"
+            and has_newline_before(current_token)
+            and not self.is_expression(self._flags.mode)
+            and not self.is_array(self._flags.mode)
+            and (
+                self._flags.last_token.type != TOKEN.OPERATOR
+                or self._flags.last_token.text in ["--", "++"]
+            )
+            and self._flags.last_token.type != TOKEN.EQUALS
+        ):
+            # A prefix-only operator cannot continue the preceding expression.
+            self.handle_whitespace_and_comments(current_token)
+            self.print_newline()
         else:
             preserve_statement_flags = not isGeneratorAsterisk
             self.handle_whitespace_and_comments(current_token, preserve_statement_flags)

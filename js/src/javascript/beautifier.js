@@ -126,6 +126,23 @@ function is_expression(mode) {
   return in_array(mode, [MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
 }
 
+function has_newline_before(token) {
+  if (token.newlines) {
+    return true;
+  }
+  if (token.comments_before) {
+    var index = 0;
+    var comment = token.comments_before.peek(index);
+    while (comment) {
+      if (comment.newlines || acorn.newline.test(comment.text)) {
+        return true;
+      }
+      comment = token.comments_before.peek(++index);
+    }
+  }
+  return false;
+}
+
 function all_lines_start_with(lines, c) {
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
@@ -489,7 +506,7 @@ Beautifier.prototype.start_of_statement = function(current_token) {
   start = start || (this._flags.last_token.type === TOKEN.END_EXPR && (this._previous_flags.mode === MODE.ForInitializer || this._previous_flags.mode === MODE.Conditional));
   start = start || (this._flags.last_token.type === TOKEN.WORD && this._flags.mode === MODE.BlockStatement &&
     !this._flags.in_case &&
-    !(current_token.text === '--' || current_token.text === '++') &&
+    !(current_token.text === '--' || current_token.text === '++' || (current_token.text === '!' && has_newline_before(current_token))) &&
     this._last_last_text !== 'function' &&
     current_token.type !== TOKEN.WORD && current_token.type !== TOKEN.RESERVED);
   start = start || (this._flags.mode === MODE.ObjectLiteral && (
@@ -1158,6 +1175,12 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
   if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
+  } else if (current_token.text === '!' && has_newline_before(current_token) && !is_expression(this._flags.mode) && !is_array(this._flags.mode) &&
+    (this._flags.last_token.type !== TOKEN.OPERATOR || in_array(this._flags.last_token.text, ['--', '++'])) &&
+    this._flags.last_token.type !== TOKEN.EQUALS) {
+    // A prefix-only operator cannot continue the preceding expression.
+    this.handle_whitespace_and_comments(current_token);
+    this.print_newline();
   } else {
     var preserve_statement_flags = !isGeneratorAsterisk;
     this.handle_whitespace_and_comments(current_token, preserve_statement_flags);
