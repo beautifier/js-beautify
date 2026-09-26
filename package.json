@@ -52,6 +52,7 @@
     "config-chain": "^1.1.13",
     "editorconfig": "^3.0.2",
     "glob": "^13.0.6",
+    "js-beautify": "^2.0.3",
     "js-cookie": "^3.0.8",
     "nopt": "^10.0.1"
   },
@@ -72,6 +73,6 @@
     "serve": "^14.2.6",
     "strip-ansi": "^7.2.0",
     "webpack": "^5.107.2",
-    "webpack-cli": "^7.0.3"
+    "webpack-cli": "^7.2.1"
   }
 }

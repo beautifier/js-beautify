@@ -189,6 +189,7 @@ function IndentStringCache(options, baseIndentString) {
   this.__base_string_length = baseIndentString.length;
 }
 
+
 IndentStringCache.prototype.get_indent_size = function(indent, column) {
   var result = this.__base_string_length;
   column = column || 0;

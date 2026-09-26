@@ -249,6 +249,7 @@ Beautifier.prototype.beautify = function() {
 
   var current_token = this._tokens.next();
   while (current_token) {
+    
     this.handle_token(current_token);
 
     this._last_last_text = this._flags.last_token.text;
@@ -263,6 +264,14 @@ Beautifier.prototype.beautify = function() {
 };
 
 Beautifier.prototype.handle_token = function(current_token, preserve_statement_flags) {
+  if(current_token.text  === ',')
+  {
+    debugger;
+  }
+  if(current_token.text == ',' && current_token.next.type != 'TK_WORD')
+  {
+    return;
+  }
   if (current_token.type === TOKEN.START_EXPR) {
     this.handle_start_expr(current_token);
   } else if (current_token.type === TOKEN.END_EXPR) {
@@ -301,8 +310,14 @@ Beautifier.prototype.handle_token = function(current_token, preserve_statement_f
 };
 
 Beautifier.prototype.handle_whitespace_and_comments = function(current_token, preserve_statement_flags) {
+
   var newlines = current_token.newlines;
   var keep_whitespace = this._options.keep_array_indentation && is_array(this._flags.mode);
+
+  if(current_token.newlines && current_token.text  == ',' && current_token.next.type == 'TK_WORD')
+  {
+    newlines = 0;
+  }
 
   if (current_token.comments_before) {
     var comment_token = current_token.comments_before.next();
@@ -340,13 +355,13 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
 var newline_restricted_tokens = ['async', 'break', 'continue', 'return', 'throw', 'yield'];
 
 Beautifier.prototype.allow_wrap_or_preserved_newline = function(current_token, force_linewrap) {
+
   force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
 
   // Never wrap the first token on a line
   if (this._output.just_added_newline()) {
     return;
   }
-
   var shouldPreserveOrForce = (this._options.preserve_newlines && current_token.newlines) || force_linewrap;
   var operatorLogicApplies = in_array(this._flags.last_token.text, positionable_operators) ||
     in_array(current_token.text, positionable_operators);

@@ -90,7 +90,7 @@ Tokenizer.prototype.tokenize = function() {
     this.__tokens.add(current);
     previous = current;
   }
-
+  
   return this.__tokens;
 };
 
