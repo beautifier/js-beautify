@@ -1,6 +1,6 @@
 <p align="center"><img src="https://raw.githubusercontent.com/beautifier/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-<p align="center"><a href="https://github.com/beautifier/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautifier/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautifier/js-beautify.svg"/></a></p>
+<p align="center"><a href="https://github.com/beautifier/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautifier/js-beautify/workflows/CI/badge.svg"/></a></p>
 
 <p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
@@ -54,9 +54,9 @@ $ npm install js-beautify@next
 ## Web Library
 The beautifier can be added on your page as web library.
 
-JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries/js-beautify) and rawgit.
+JS Beautifier is available on [cdnjs](https://cdnjs.com/libraries/js-beautify).
 
-To pull the latest version from one of these services include one set of the script tags below in your document:
+To pull the latest version from cdnjs, include the script tags below in your document:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/2.0.3/beautify.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/2.0.3/beautify-css.js"></script>
@@ -82,9 +82,6 @@ Example usage of a JS tag in html:
 </html>
 ```
 Older versions are available by changing the version number.
-
-Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
-
 
 ## Python
 To install the Python version of the beautifier:
