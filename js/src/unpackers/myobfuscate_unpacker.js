@@ -55,50 +55,71 @@
 
 /*jshint strict:false */
 
+var SIGNATURE = '["\\x41\\x42\\x43\\x44\\x45\\x46\\x47\\x48\\x49\\x4A\\x4B\\x4C\\x4D\\x4E\\x4F' +
+  '\\x50\\x51\\x52\\x53\\x54\\x55\\x56\\x57\\x58\\x59\\x5A\\x61\\x62\\x63\\x64\\x65' +
+  '\\x66\\x67\\x68\\x69\\x6A\\x6B\\x6C\\x6D\\x6E\\x6F\\x70\\x71\\x72\\x73\\x74\\x75' +
+  '\\x76\\x77\\x78\\x79\\x7A\\x30\\x31\\x32\\x33\\x34\\x35\\x36\\x37\\x38\\x39\\x2B' +
+  '\\x2F\\x3D","","\\x63\\x68\\x61\\x72\\x41\\x74","\\x69\\x6E\\x64\\x65\\x78' +
+  '\\x4F\\x66","\\x66\\x72\\x6F\\x6D\\x43\\x68\\x61\\x72\\x43\\x6F\\x64\\x65","' +
+  '\\x6C\\x65\\x6E\\x67\\x74\\x68"]';
+
+var CAVEAT = '//\n// Unpacker warning: be careful when using myobfuscate.com for your projects:\n' +
+  '// scripts obfuscated by the free online version call back home.\n//\n\n';
+
 var MyObfuscate = {
   detect: function(str) {
-    if (/^var _?[0O1lI]{3}\=('|\[).*\)\)\);/.test(str)) {
+    if (str.indexOf(SIGNATURE) !== -1) {
       return true;
     }
-    if (/^function _?[0O1lI]{3}\(_/.test(str) && /eval\(/.test(str)) {
+    if (/^var\s+_?[0O1lI]{3}\s*=\s*('|\[).*\)\)\);/.test(str)) {
+      return true;
+    }
+    if (/^function\s+_?[0O1lI]{3}\(_/.test(str) && /eval\s*\(/.test(str)) {
       return true;
     }
     return false;
   },
 
-  unpack: function(str) {
-    if (MyObfuscate.detect(str)) {
-      var __eval = eval;
-      try {
-        eval = function(unpacked) { // jshint ignore:line
-          if (MyObfuscate.starts_with(unpacked, 'var _escape')) {
-            // fetch the urlencoded stuff from the script,
-            var matches = /'([^']*)'/.exec(unpacked);
-            var unescaped = unescape(matches[1]);
-            if (MyObfuscate.starts_with(unescaped, '<script>')) {
-              unescaped = unescaped.substr(8, unescaped.length - 8);
-            }
-            if (MyObfuscate.ends_with(unescaped, '</script>')) {
-              unescaped = unescaped.substr(0, unescaped.length - 9);
-            }
-            unpacked = unescaped;
-          }
-          // throw to terminate the script
-          unpacked = "// Unpacker warning: be careful when using myobfuscate.com for your projects:\n" +
-            "// scripts obfuscated by the free online version may call back home.\n" +
-            "\n//\n" + unpacked;
-          throw unpacked;
-        }; // jshint ignore:line
-        __eval(str); // should throw
-      } catch (e) {
-        // well, it failed. we'll just return the original, instead of crashing on user.
-        if (typeof e === "string") {
-          str = e;
-        }
-      }
-      eval = __eval; // jshint ignore:line
+  _base64Decode: function(str) {
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(str, 'base64').toString('utf8');
     }
-    return str;
+    if (typeof atob !== 'undefined') {
+      try {
+        return decodeURIComponent(escape(atob(str)));
+      } catch (e) {
+        return atob(str);
+      }
+    }
+    return '';
+  },
+
+  unpack: function(str) {
+    if (!MyObfuscate.detect(str)) {
+      return str;
+    }
+    try {
+      var varnameMatch = str.match(/eval\s*\(\s*\w+\s*\(\s*\w+\s*\(\s*(\w+)\s*\)\s*\)\s*\);/);
+      if (!varnameMatch) {
+        return str;
+      }
+      var varname = varnameMatch[1];
+      var escapedVarname = varname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var regex = new RegExp('var\\s+' + escapedVarname + '\\s*=\\s*\'([^\']*)\';');
+      var match = str.match(regex);
+      if (!match) {
+        return str;
+      }
+      var reverse = match[1].split('').reverse().join('');
+      var decoded = MyObfuscate._base64Decode(reverse);
+      var unquoted = unescape(decoded);
+      var scriptMatch = unquoted.match(/^var _escape='<script>([\s\S]*?)<\/script>'/);
+      var escapeMatch = unquoted.match(/^var _escape='([\s\S]*?)';?$/);
+      var polished = scriptMatch ? scriptMatch[1] : (escapeMatch ? escapeMatch[1] : unquoted);
+      return CAVEAT + polished;
+    } catch (e) {
+      return str;
+    }
   },
 
   starts_with: function(str, what) {
@@ -111,9 +132,12 @@ var MyObfuscate = {
 
   run_tests: function(sanity_test) {
     var t = sanity_test || new SanityTest();
-
+    t.test_function(MyObfuscate.detect, "MyObfuscate.detect");
+    t.expect('', false);
+    t.expect('var a = 1;', false);
+    t.test_function(MyObfuscate.unpack, "MyObfuscate.unpack");
+    t.expect('', '');
+    t.expect('var a = 1;', 'var a = 1;');
     return t;
   }
-
-
 };
