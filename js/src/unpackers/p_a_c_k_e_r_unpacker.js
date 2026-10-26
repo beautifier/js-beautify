@@ -46,39 +46,111 @@ var P_A_C_K_E_R = {
   },
 
   get_chunks: function(str) {
-    var chunks = str.match(/eval\(\(?function\(.*?(,0,\{\}\)\)|split\('\|'\)\)\))($|\n)/g);
+    var chunks = str.match(/eval\s*\(\s*\(?\s*function\s*\(p\s*,\s*a\s*,\s*c\s*,\s*k\s*,\s*e[\s\S]*?\.split\(['"]\|['"]\)[\s\S]*?\)\s*\)?\s*\)/g);
     return chunks ? chunks : [];
   },
 
   unpack: function(str) {
-    var chunks = P_A_C_K_E_R.get_chunks(str),
-      chunk;
+    var chunks = P_A_C_K_E_R.get_chunks(str);
     for (var i = 0; i < chunks.length; i++) {
-      chunk = chunks[i].replace(/\n$/, '');
+      var chunk = chunks[i];
       str = str.split(chunk).join(P_A_C_K_E_R.unpack_chunk(chunk));
     }
     return str;
   },
 
-  unpack_chunk: function(str) {
-    var unpacked_source = '';
-    var __eval = eval;
-    if (P_A_C_K_E_R.detect(str)) {
-      try {
-        eval = function(s) { // jshint ignore:line
-          unpacked_source += s;
-          return unpacked_source;
-        }; // jshint ignore:line
-        __eval(str);
-        if (typeof unpacked_source === 'string' && unpacked_source) {
-          str = unpacked_source;
-        }
-      } catch (e) {
-        // well, it failed. we'll just return the original, instead of crashing on user.
+  _filterargs: function(source) {
+    var juicers = [
+      /}\s*\('([\s\S]*)',\s*(\d+|\[\]),\s*(\d+),\s*'([\s\S]*)'\.split\(['"]\|['"]\)(?:,\s*(\d+),\s*([\s\S]*)\)\))?/,
+      /}\s*\("([\s\S]*)",\s*(\d+|\[\]),\s*(\d+),\s*"([\s\S]*)"\.split\(['"]\|['"]\)(?:,\s*(\d+),\s*([\s\S]*)\)\))?/
+    ];
+    for (var i = 0; i < juicers.length; i++) {
+      var match = source.match(juicers[i]);
+      if (match) {
+        var radixStr = match[2];
+        var radix = radixStr === '[]' ? 62 : parseInt(radixStr, 10);
+        var count = parseInt(match[3], 10);
+        return {
+          payload: match[1],
+          radix: radix,
+          count: count,
+          symtab: match[4].split('|')
+        };
       }
     }
-    eval = __eval; // jshint ignore:line
-    return str;
+    return null;
+  },
+
+  _unbaser: function(base) {
+    var ALPHABET_62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var ALPHABET_95 = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+    var dict = {};
+    var alphabet;
+    if (base >= 2 && base <= 62) {
+      alphabet = ALPHABET_62.slice(0, base);
+    } else if (base === 95) {
+      alphabet = ALPHABET_95;
+    } else {
+      throw new Error('Unsupported base ' + base);
+    }
+    for (var i = 0; i < alphabet.length; i++) {
+      dict[alphabet.charAt(i)] = i;
+    }
+    return function(str) {
+      var ret = 0;
+      var pow = 1;
+      for (var k = str.length - 1; k >= 0; k--) {
+        var cipher = str.charAt(k);
+        if (!(cipher in dict)) {
+          return NaN;
+        }
+        ret += dict[cipher] * pow;
+        pow *= base;
+      }
+      return ret;
+    };
+  },
+
+  _replacestrings: function(source) {
+    var match = source.match(/var\s+(_\w+)\s*=\s*\["([\s\S]*?)"\];/);
+    if (match) {
+      var varname = match[1];
+      var strings = match[2];
+      var startpoint = match[0].length;
+      var lookup = strings.split('","');
+      var variable;
+      for (var index = 0; index < lookup.length; index++) {
+        variable = varname + '[' + index + ']';
+        source = source.split(variable).join('"' + lookup[index] + '"');
+      }
+      return source.substr(startpoint);
+    }
+    return source;
+  },
+
+  unpack_chunk: function(str) {
+    try {
+      var args = P_A_C_K_E_R._filterargs(str);
+      if (!args) {
+        return str;
+      }
+      if (args.count !== args.symtab.length) {
+        return str;
+      }
+      var unbase = P_A_C_K_E_R._unbaser(args.radix);
+      var payload = args.payload.replace(/\\\\/g, '\\').replace(/\\'/g, "'").replace(/\\"/g, '"');
+      var symtab = args.symtab;
+      var source = payload.replace(/\b\w+\b/g, function(word) {
+        var val = unbase(word);
+        if (!isNaN(val) && val < symtab.length && symtab[val]) {
+          return symtab[val];
+        }
+        return word;
+      });
+      return P_A_C_K_E_R._replacestrings(source);
+    } catch (e) {
+      return str;
+    }
   },
 
   run_tests: function(sanity_test) {
@@ -88,7 +160,8 @@ var P_A_C_K_E_R = {
     var unpk1 = 'var a=1';
     var pk2 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'foo||b'.split('|'),0,{}))";
     var unpk2 = 'foo b=1';
-    var pk_broken = "eval(function(p,a,c,k,e,r){BORKBORK;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))";
+    // For static unpacking, a count/symtab length mismatch represents corrupted/malformed packer data
+    var pk_broken = "eval(function(p,a,c,k,e,r){BORKBORK;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,4,'var||a'.split('|'),0,{}))";
     var pk3 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1{}))',3,3,'var||a'.split('|'),0,{}))";
     var unpk3 = 'var a=1{}))';
 
@@ -114,6 +187,4 @@ var P_A_C_K_E_R = {
 
     return t;
   }
-
-
 };
