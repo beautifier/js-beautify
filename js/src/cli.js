@@ -69,7 +69,7 @@ nopt.typeDefs.brace_style = {
 nopt.typeDefs.glob = {
     type: "glob",
     validate: function(data, key, val) {
-        if (typeof val === 'string' && glob.hasMagic(val)) {
+        if (typeof val === 'string' && glob.hasMagic(val) && !fs.existsSync(val)) {
             // Preserve value if it contains glob magic
             data[key] = val;
             return true;
@@ -633,7 +633,8 @@ function checkFiles(parsed) {
         }
 
         var foundFiles = [];
-        var isGlob = glob.hasMagic(f);
+        // A path like 'test [123]/file.js' has glob magic, but if it exists as-is it is a file, not a glob
+        var isGlob = glob.hasMagic(f) && !fs.existsSync(f);
 
         // Input was a glob
         if (isGlob) {
