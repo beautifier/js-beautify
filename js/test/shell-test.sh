@@ -207,6 +207,20 @@ test_cli_js_beautify()
         cleanup 1
     fi
 
+    # A path that exists as-is should be used as a file, even if it looks like a glob (issue #2555)
+    BRACKETS_DIR="$TEST_TEMP/brackets [123]"
+    mkdir -p "$BRACKETS_DIR"
+    cp $TEST_TEMP/js-beautify-n.js "$BRACKETS_DIR/file.js"
+    $CLI_SCRIPT "$BRACKETS_DIR/file.js" -o "$BRACKETS_DIR/file_beautified.js" > /dev/null || {
+        echo "[$CLI_SCRIPT_NAME \"$BRACKETS_DIR/file.js\"] Return code should be success for an existing path with glob characters."
+        cleanup 1
+    }
+
+    if [ ! -f "$BRACKETS_DIR/file_beautified.js" ]; then
+        echo "[$CLI_SCRIPT_NAME \"$BRACKETS_DIR/file.js\"] Output file was expected for an existing path with glob characters."
+        cleanup 1
+    fi
+
     # EditorConfig related tests
     cp -r js/test/resources/editorconfig $TEST_TEMP/
     $CLI_SCRIPT -o $TEST_TEMP/editorconfig/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
