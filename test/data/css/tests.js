@@ -2010,6 +2010,12 @@ exports.test_data = {
           '    @apply flex flex-col lg:flex-row space-y-3 lg:space-x-12 items-start;',
           '}'
         ]
+      },{
+        unchanged: [
+          '.btn {',
+          '    @apply relative [transition:box-shadow_120ms_ease,transform_120ms_ease] font-bold;',
+          '}'
+        ]
       }]
     }, {
 

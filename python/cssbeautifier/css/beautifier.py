@@ -206,6 +206,7 @@ class Beautifier:
 
         self._ch = None
         parenLevel = 0
+        bracketLevel = 0  # Tracks nested square brackets
 
         insideRule = False
         insidePropertyValue = False
@@ -509,7 +510,7 @@ class Beautifier:
                     and not insideNonNestedAtRule
                 ):
                     self._output.add_new_line()
-                else:
+                elif bracketLevel == 0:
                     self._output.space_before_token = True
             elif (
                 (self._ch == ">" or self._ch == "+" or self._ch == "~")
@@ -528,10 +529,12 @@ class Beautifier:
                     if self._ch and bool(whitespaceChar.search(self._ch)):
                         self._ch = ""
             elif self._ch == "]":
+                bracketLevel = max(0, bracketLevel - 1)  # Decrease depth safely
                 self.print_string(self._ch)
             elif self._ch == "[":
                 self.preserveSingleSpace(isAfterSpace)
                 self.print_string(self._ch)
+                bracketLevel += 1  # Increase depth for the opening bracket
             elif self._ch == "=":
                 # no whitespace before or after
                 self.eatWhitespace()
