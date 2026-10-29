@@ -187,7 +187,7 @@ Beautifier.prototype.beautify = function() {
 
   this._ch = null;
   var parenLevel = 0;
-
+  var bracketLevel = 0; // Tracks nested square brackets, such as Tailwind arbitrary values
   var insideRule = false;
   // This is the value side of a property value pair (blue in the following ex)
   // label { content: blue }
@@ -495,9 +495,9 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideNonNestedAtRule) {
+      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideNonNestedAtRule && bracketLevel === 0) {
         this._output.add_new_line();
-      } else {
+      } else if (bracketLevel === 0) {
         this._output.space_before_token = true;
       }
     } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel === 0) {
@@ -515,10 +515,12 @@ Beautifier.prototype.beautify = function() {
         }
       }
     } else if (this._ch === ']') {
+      bracketLevel = Math.max(0, bracketLevel - 1); // Decrease depth without going below zero
       this.print_string(this._ch);
     } else if (this._ch === '[') {
       this.preserveSingleSpace(isAfterSpace);
       this.print_string(this._ch);
+      bracketLevel++; // Track the opening bracket
     } else if (this._ch === '=') { // no whitespace before or after
       this.eatWhitespace();
       this.print_string('=');
