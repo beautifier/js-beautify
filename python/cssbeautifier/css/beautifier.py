@@ -508,6 +508,8 @@ class Beautifier:
                     and (not insidePropertyValue or insideScssMap)
                     and parenLevel == 0
                     and not insideNonNestedAtRule
+                    and bracketLevel
+                    == 0  # Do not insert newlines inside square brackets
                 ):
                     self._output.add_new_line()
                 elif bracketLevel == 0:
