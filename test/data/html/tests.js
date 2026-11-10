@@ -4467,6 +4467,47 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #2365",
+    description: "CDATA is text content, so it stays with the surrounding text",
+    tests: [{
+      fragment: true,
+      unchanged: '<simple><![CDATA[You will see this in the document]]></simple>'
+    }, {
+      fragment: true,
+      input: [
+        '<document>',
+        '\t<cases>',
+        '\t\t<case>',
+        '\t\t\t<simple><![CDATA[You will see this in the document]]></simple>',
+        '\t\t</case>',
+        '\t</cases>',
+        '</document>'
+      ],
+      output: [
+        '<document>',
+        '    <cases>',
+        '        <case>',
+        '            <simple><![CDATA[You will see this in the document]]></simple>',
+        '        </case>',
+        '    </cases>',
+        '</document>'
+      ]
+    }, {
+      fragment: true,
+      input: [
+        '<p>text <![CDATA[inline]]> tail</p>',
+        '<div>',
+        '<![CDATA[block level]]>',
+        '</div>'
+      ],
+      output: [
+        '<p>text <![CDATA[inline]]> tail</p>',
+        '<div>',
+        '    <![CDATA[block level]]>',
+        '</div>'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };

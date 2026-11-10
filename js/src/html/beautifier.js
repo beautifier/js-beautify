@@ -302,7 +302,10 @@ Beautifier.prototype.beautify = function() {
   var raw_token = tokens.next();
   while (raw_token.type !== TOKEN.EOF) {
 
-    if (raw_token.type === TOKEN.TAG_OPEN || raw_token.type === TOKEN.COMMENT) {
+    if (raw_token.type === TOKEN.COMMENT && raw_token.text.indexOf('<![CDATA[') === 0) {
+      // CDATA is text content, so it is placed like the surrounding text
+      parser_token = this._handle_text(printer, raw_token, last_tag_token);
+    } else if (raw_token.type === TOKEN.TAG_OPEN || raw_token.type === TOKEN.COMMENT) {
       parser_token = this._handle_tag_open(printer, raw_token, last_tag_token, last_token, tokens);
       last_tag_token = parser_token;
     } else if ((raw_token.type === TOKEN.ATTRIBUTE || raw_token.type === TOKEN.EQUALS || raw_token.type === TOKEN.VALUE) ||
