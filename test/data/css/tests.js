@@ -2012,6 +2012,34 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Issue #2563",
+      description: "Preserve any whitespace before pseudo-classes and pseudo-elements",
+      options: [],
+      tests: [{
+        input: 'a\n:hover { color: red }',
+        output: 'a :hover {\n    color: red\n}'
+      }, {
+        input: 'ul\n\t::marker { color: red }',
+        output: 'ul ::marker {\n    color: red\n}'
+      }, {
+        input: 'h1\t:any-link { color: red }',
+        output: 'h1 :any-link {\n    color: red\n}'
+      }, {
+        input: '& \n:hover { color: red }',
+        output: '& :hover {\n    color: red\n}'
+      }, {
+        input: 'a :hover { color: red }',
+        output: 'a :hover {\n    color: red\n}'
+      }, {
+        unchanged: [
+          'a {',
+          '    &:hover {',
+          '        color: red;',
+          '    }',
+          '}'
+        ]
+      }]
+    }, {
 
     }
   ]

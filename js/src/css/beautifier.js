@@ -406,7 +406,8 @@ Beautifier.prototype.beautify = function() {
         // sass nested pseudo-class don't use a space
 
         // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
-        if (this._input.lookBack(" ")) {
+        // any whitespace separates selectors, not only a literal space
+        if (isAfterSpace || this._input.lookBack(" ")) {
           this._output.space_before_token = true;
         }
         if (this._input.peek() === ":") {
