@@ -416,7 +416,8 @@ class Beautifier:
 
                     # preserve space before pseudoclasses/pseudoelements,
                     # as it means "in any child"
-                    if self._input.lookBack(" "):
+                    # any whitespace separates selectors, not only a literal space
+                    if isAfterSpace or self._input.lookBack(" "):
                         self._output.space_before_token = True
                     if self._input.peek() == ":":
                         # pseudo-element
