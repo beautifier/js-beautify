@@ -974,12 +974,26 @@ class Beautifier:
             TOKEN.EQUALS,
             TOKEN.OPERATOR,
         ]:
-            if not self.start_of_object_property() and not (
-                # start of object property is different for numeric values with +/- prefix operators
+            # JSON forbids whitespace between a sign and the digits.
+            sign_previous = self._flags.last_token.previous
+            unary_sign = (
                 self._flags.last_token.text in ["+", "-"]
-                and self._last_last_text == ":"
-                and self._flags.parent.mode == MODE.ObjectLiteral
-            ):
+                and sign_previous
+                and sign_previous.text not in ["++", "--"]
+                and (
+                    sign_previous.type
+                    in [
+                        TOKEN.START_BLOCK,
+                        TOKEN.START_EXPR,
+                        TOKEN.EQUALS,
+                        TOKEN.OPERATOR,
+                        TOKEN.START,
+                    ]
+                    or sign_previous.text in Tokenizer.line_starters
+                    or sign_previous.text == ","
+                )
+            )
+            if not self.start_of_object_property() and not unary_sign:
                 self.allow_wrap_or_preserved_newline(current_token)
 
         if reserved_word(current_token, "function"):
@@ -1442,11 +1456,20 @@ class Beautifier:
             space_before = self._flags.last_token.type == TOKEN.START_BLOCK
             space_after = False
         elif current_token.text in ["--", "++", "!", "~"] or isUnary:
+            sign_sticks = isUnary and self._flags.last_token.text not in ["++", "--"]
             if (
                 self._flags.last_token.type == TOKEN.COMMA
                 or self._flags.last_token.type == TOKEN.START_EXPR
             ):
                 self.allow_wrap_or_preserved_newline(current_token)
+            elif (
+                sign_sticks
+                and self._options.wrap_line_length
+                and not reserved_array(
+                    self._flags.last_token, self._newline_restricted_tokens
+                )
+            ):
+                self._output.set_wrap_point()
 
             space_before = False
             space_after = False

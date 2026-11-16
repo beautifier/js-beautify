@@ -5900,6 +5900,88 @@ exports.test_data = {
           ]
         }
       ]
+    }, {
+      name: "Issue #2251 -- keep a wrapped unary sign with its number",
+      description: "JSON forbids whitespace between a sign and the digits that follow it",
+      options: [
+        { name: "wrap_line_length", value: "160" }
+      ],
+      tests: [{
+        fragment: true,
+        input: '[-0.49673205000000004, -0.49038462, -0.006536000000000042, -0.336538, 0.49673199999999995, -0.5, 0.40522899999999995, 0, 0.11764699999999995, -0.05769200000000002, -0.006536000000000042, 0.5, -0.03268000000000004, -0.19230799999999998, -0.42483660000000006, 0]',
+        output: [
+          '[-0.49673205000000004, -0.49038462, -0.006536000000000042, -0.336538, 0.49673199999999995, -0.5, 0.40522899999999995, 0, 0.11764699999999995,',
+          '    -0.05769200000000002, -0.006536000000000042, 0.5, -0.03268000000000004, -0.19230799999999998, -0.42483660000000006, 0',
+          ']'
+        ]
+      }]
+    }, {
+      name: "Issue #2251 -- unary plus stays attached when the line wraps",
+      description: "",
+      options: [
+        { name: "wrap_line_length", value: "20" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '[0.1, +0.23456789012345678901234567890123456789, 1]',
+          output: [
+            '[0.1,',
+            '    +0.23456789012345678901234567890123456789,',
+            '    1',
+            ']'
+          ]
+        },
+        {
+          fragment: true,
+          unchanged: 'return -0.05769200000000002;'
+        }
+      ]
+    }, {
+      name: "Issue #2251 -- wrap before a unary sign, not between it and the number",
+      description: "",
+      options: [
+        { name: "wrap_line_length", value: "30" }
+      ],
+      tests: [{
+          fragment: true,
+          input: 'var value = -0.05769200000000002;',
+          output: [
+            'var value =',
+            '    -0.05769200000000002;'
+          ]
+        },
+        {
+          fragment: true,
+          input: 'var value = something * -0.05769200000000002;',
+          output: [
+            'var value = something *',
+            '    -0.05769200000000002;'
+          ]
+        }
+      ]
+    }, {
+      name: "Issue #2251 -- binary operators still wrap ahead of the operand",
+      description: "",
+      options: [
+        { name: "wrap_line_length", value: "40" }
+      ],
+      tests: [{
+          fragment: true,
+          input: 'var reallylongname = anotherlongname - 0.1234567890123456789;',
+          output: [
+            'var reallylongname = anotherlongname -',
+            '    0.1234567890123456789;'
+          ]
+        },
+        {
+          fragment: true,
+          input: 'var reallylongname = anotherlongname++ + 0.1234567890123456789;',
+          output: [
+            'var reallylongname = anotherlongname++ +',
+            '    0.1234567890123456789;'
+          ]
+        }
+      ]
     }
   ],
   examples: [{
