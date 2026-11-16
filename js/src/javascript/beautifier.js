@@ -892,9 +892,14 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
-    if (!this.start_of_object_property() && !(
-        // start of object property is different for numeric values with +/- prefix operators
-        in_array(this._flags.last_token.text, ['+', '-']) && this._last_last_text === ':' && this._flags.parent.mode === MODE.ObjectLiteral)) {
+    // JSON forbids whitespace between a sign and the digits.
+    var sign_previous = this._flags.last_token.previous;
+    var unary_sign = in_array(this._flags.last_token.text, ['+', '-']) && sign_previous &&
+      sign_previous.text !== '++' && sign_previous.text !== '--' && (
+        in_array(sign_previous.type, [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR, TOKEN.START]) ||
+        in_array(sign_previous.text, line_starters) ||
+        sign_previous.text === ',');
+    if (!this.start_of_object_property() && !unary_sign) {
       this.allow_wrap_or_preserved_newline(current_token);
     }
   }
@@ -1286,8 +1291,11 @@ Beautifier.prototype.handle_operator = function(current_token) {
     space_after = false;
   } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
     // unary operators (and binary +/- pretending to be unary) special cases
+    var sign_sticks = isUnary && this._flags.last_token.text !== '++' && this._flags.last_token.text !== '--';
     if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR) {
       this.allow_wrap_or_preserved_newline(current_token);
+    } else if (sign_sticks && this._options.wrap_line_length && !reserved_array(this._flags.last_token, newline_restricted_tokens)) {
+      this._output.set_wrap_point();
     }
 
     space_before = false;
