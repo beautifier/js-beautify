@@ -1441,6 +1441,31 @@ exports.test_data = {
         { unchanged: 'a:b {}' },
         { unchanged: 'a::b {}' },
         {
+          comment: "Issue #2563: newline or tab before a colon is still a descendant combinator",
+          input: 'a\n:hover { color: red }',
+          output: [
+            'a :hover {',
+            '    color: red',
+            '}'
+          ]
+        },
+        {
+          input: 'ul\n\t::marker { color: red }',
+          output: [
+            'ul ::marker {',
+            '    color: red',
+            '}'
+          ]
+        },
+        {
+          input: 'h1\t:any-link { color: red }',
+          output: [
+            'h1 :any-link {',
+            '    color: red',
+            '}'
+          ]
+        },
+        {
           input: 'a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}',
           output: 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}'
         },
