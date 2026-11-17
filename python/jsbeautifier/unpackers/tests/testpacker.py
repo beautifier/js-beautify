@@ -5,6 +5,7 @@
 """Tests for P.A.C.K.E.R. unpacker."""
 
 import unittest
+from jsbeautifier.unpackers import UnpackingError
 from jsbeautifier.unpackers.packer import detect, unpack
 
 # pylint: disable=R0904
@@ -66,6 +67,29 @@ class TestPacker(unittest.TestCase):
             "eval(function(p,a,c,k,e,r){e=function(c){return c.toString(36)};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];k=[function(e){return r[e]||e}];e=function(){return'[0-9ab]'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('$(5).a(6(){ $('.8').0(1); $('.b').0(4); $('.9').0(2); $('.7').0(3)})',[],12,'html|52136|555|65103|8088|document|function|r542c|r8ce6|rb0de|ready|rfab0'.split('|'),0,{}))",
             "$(document).ready(function(){ $('.r8ce6').html(52136); $('.rfab0').html(8088); $('.rb0de').html(555); $('.r542c').html(65103)})",
         )
+
+    def test_unpack_unmapped_symbols(self):
+        for payload, expected in [
+            ("0 2=9", "var a=9"),
+            ('0 2="word"', 'var a="word"'),
+            ("0 2=1", "var a=1"),
+        ]:
+            with self.subTest(payload=payload):
+                source = (
+                    "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)"
+                    "){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]||e}];e="
+                    "function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace("
+                    "new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('%s',"
+                    "62,3,'var||a'.split('|'),0,{}))" % payload
+                )
+                self.assertTrue(detect(source))
+                self.assertEqual(unpack(source), expected)
+
+    def test_unpack_malformed_symtab(self):
+        source = "eval(function(p,a,c,k,e,r){return p}('0',62,2,'var'.split('|'),0,{}))"
+        self.assertTrue(detect(source))
+        with self.assertRaisesRegex(UnpackingError, "Malformed p.a.c.k.e.r. symtab"):
+            unpack(source)
 
 
 if __name__ == "__main__":
