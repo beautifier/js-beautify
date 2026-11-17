@@ -63,7 +63,8 @@ def unpack(source):
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
         word = match.group(0)
-        return symtab[unbase(word)] or word
+        index = unbase(word)
+        return (symtab[index] or word) if index < len(symtab) else word
 
     payload = payload.replace("\\\\", "\\").replace("\\'", "'")
     source = re.sub(r"\b\w+\b", lookup, payload, flags=re.ASCII)
